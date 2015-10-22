@@ -1,0 +1,11 @@
+<td>{{module}}</td>
+<td>{{version}}</td>
+{{#each datesToCheck as |dateToCheck|}}
+  <td>
+    {{npm-dependency-checker
+      version=version
+      versionsPromise=versionsPromise
+      dateCeiling=dateToCheck
+    }}
+  </td>
+{{/each}}
