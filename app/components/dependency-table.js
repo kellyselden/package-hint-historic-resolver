@@ -4,7 +4,7 @@ import pairs from 'lodash/object/pairs';
 
 const {
   computed,
-  computed: { collect },
+  computed: { collect, readOnly },
   RSVP: { Promise },
   $: { ajax }
 } = Ember;
@@ -23,25 +23,46 @@ export default Ember.Component.extend({
     return moment(this.get('secondDateToCheck'));
   }),
 
-  _lookUpPackage() {
+  dependencies: computed('json.dependencies', function() {
+    let dependencies = this.get('json.dependencies');
+    if (!dependencies) {
+      return;
+    }
+
+    return convertDependencies(dependencies);
+  }),
+  devDependencies: computed('json.devDependencies', function() {
+    let dependencies = this.get('json.devDependencies');
+    if (!dependencies) {
+      return;
+    }
+
+    return convertDependencies(dependencies);
+  }),
+
+  json: computed('repo', 'commit', function() {
     let repo   = this.get('repo'),
         commit = this.get('commit');
+    if (!repo || !commit) {
+      return;
+    }
+
     ajax({
       url: `https://raw.githubusercontent.com/${repo}/${commit}/package.json`,
       success: data => {
         let json = JSON.parse(data);
-        this.setProperties({
-          dependencies: convertDependencies(json.dependencies),
-          devDependencies: convertDependencies(json.devDependencies)
-        });
+        this.set('json', json);
       },
       error() {
         console.log(arguments);
       }
     });
-  },
+  }),
 
-  _getCommit() {
+  commitDateString: readOnly('latestCommitData.commit.author.date'),
+  commit: readOnly('latestCommitData.sha'),
+
+  latestCommitData: computed('repo', 'until', function() {
     let repo  = this.get('repo'),
         until = this.get('until');
     if (!repo || !until) {
@@ -52,42 +73,47 @@ export default Ember.Component.extend({
       url: `https://api.github.com/repos/${repo}/commits?until=${until}`,
       success: data => {
         let [latestCommit] = data;
-        if (latestCommit) {
-          let { sha, commit: { author: { date } } } = latestCommit;
-          this.set('commit', sha);
-          this._lookUpPackage();
-
-          this.set('commitDateString', date);
-        }
+        this.set('latestCommitData', latestCommit);
       },
       error() {
         console.log(arguments);
       }
     });
-  },
+  }),
+
+  repo: computed('repoUrl', function() {
+    let url = this.get('repoUrl');
+    if (!url) {
+      return;
+    }
+
+    if (url.indexOf('/', url.length - 1) !== -1) {
+      url = url.substr(url.length - 1);
+    }
+    let fragments = url.split('/');
+    if (fragments.length < 2) {
+      return;
+    }
+
+    let [repo, user] = fragments.reverse();
+    return `${user}/${repo}`;
+  }),
+
+  until: computed('repoDate', function() {
+    let date = this.get('repoDate');
+    if (!date) {
+      return;
+    }
+
+    return moment(date).toJSON();
+  }),
 
   actions: {
     changeRepoUrl(url) {
       this.set('repoUrl', url);
-
-      if (url.indexOf('/', url.length - 1) !== -1) {
-        url = url.substr(url.length - 1);
-      }
-      let fragments = url.split('/');
-      if (fragments.length < 2) {
-        return;
-      }
-
-      let [repo, user] = fragments.reverse();
-      this.set('repo', `${user}/${repo}`);
-
-      this._getCommit();
     },
     changeRepoDate(date) {
       this.set('repoDate', date);
-      this.set('until', moment(date).toJSON());
-
-      this._getCommit();
     },
     changeFirstDateToCheck(date) {
       this.set('firstDateToCheck', date);
