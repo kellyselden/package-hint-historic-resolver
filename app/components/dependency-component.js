@@ -70,7 +70,7 @@ export default Ember.Component.extend({
     return convertDependencies(dependencies);
   }),
 
-  json: computed('repo', 'commit', function() {
+  jsonObserver: observer('commit', function() {
     let repo   = this.get('repo'),
         commit = this.get('commit');
     if (!repo || !commit) {
@@ -92,7 +92,10 @@ export default Ember.Component.extend({
   commitDateString: readOnly('latestCommitData.commit.author.date'),
   commit: readOnly('latestCommitData.sha'),
 
-  latestCommitData: computed('repo', 'until', function() {
+  latestCommitDataDebounced() {
+  },
+
+  latestCommitDataObserver: on('init', observer('repo', 'until', function() {
     let repo  = this.get('repo'),
         until = this.get('until');
     if (!repo || !until) {
@@ -109,7 +112,7 @@ export default Ember.Component.extend({
         console.log(arguments);
       }
     });
-  }),
+  })),
 
   repo: computed('_repoUrl', function() {
     let url = this.get('_repoUrl');

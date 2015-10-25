@@ -1,23 +1,25 @@
-<table>
-  <tr>
-    <th>{{title}}</th>
-    <th>Latest Commit Date</th>
-    <th>First Date to Check</th>
-    <th>Second Date to Check</th>
-  </tr>
-  <tr>
-    <th></th>
-    <th>{{commitDateString}}</th>
-    <th>{{firstDateToCheckString}}</th>
-    <th>{{secondDateToCheckString}}</th>
-  </tr>
-  {{#each dependencies as |dep|}}
-    {{dependency-row
-      module=dep.module
-      version=dep.version
-      versionsPromise=dep.versionsPromise
-      firstDateToCheck=firstDateToCheck
-      secondDateToCheck=secondDateToCheck
-    }}
-  {{/each}}
-</table>
+{{#if dependencies.length}}
+  <table>
+    <tr>
+      <th>{{title}}</th>
+      <th>Latest Commit Date</th>
+      <th>First Date to Check</th>
+      <th>Second Date to Check</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>{{commitDateString}}</th>
+      <th>{{firstDateToCheckString}}</th>
+      <th>{{secondDateToCheckString}}</th>
+    </tr>
+    {{#each dependencies as |dep|}}
+      {{dependency-row
+        module=dep.module
+        version=dep.version
+        versionsPromise=dep.versionsPromise
+        firstDateToCheck=firstDateToCheck
+        secondDateToCheck=secondDateToCheck
+      }}
+    {{/each}}
+  </table>
+{{/if}}

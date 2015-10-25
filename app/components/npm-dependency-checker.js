@@ -17,10 +17,14 @@ export default Ember.Component.extend({
       }).map(([version]) => version);
 
       let realVersion = semver.maxSatisfying(versions, version);
-      this.set('realVersion', realVersion);
-      this.sendAction('action', realVersion);
+      if (!this.get('isDestroying') && !this.get('isDestroyed')) {
+        this.set('realVersion', realVersion);
+        this.sendAction('action', realVersion);
+      }
     }).catch((jqXHR, textStatus, errorThrown) => {
-      this.set('error', errorThrown);
+      if (!this.get('isDestroying') && !this.get('isDestroyed')) {
+        this.set('error', errorThrown);
+      }
     });
   }))
 });
