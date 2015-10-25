@@ -1,0 +1,48 @@
+<table>
+  <tr>
+    <td>Repo URL</td>
+    <td>
+      <input value="{{repoUrl}}" onchange={{action "changeRepoUrl" value="target.value"}} />
+    </td>
+    <td>{{repo}}</td>
+  </tr>
+  <tr>
+    <td>Repo as of Date</td>
+    <td>
+      {{date-time-picker repoDate action="changeRepoDate"}}
+    </td>
+    <td>Latest commit {{commit}}</td>
+  </tr>
+  <tr>
+    <td>First Date to Check</td>
+    <td>
+      {{date-time-picker firstDateToCheck action="changeFirstDateToCheck"}}
+    </td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>Second Date to Check</td>
+    <td>
+      {{date-time-picker secondDateToCheck action="changeSecondDateToCheck"}}
+    </td>
+    <td></td>
+  </tr>
+</table>
+{{dependency-table
+  title="Dependencies"
+  commitDateString=commitDateString
+  firstDateToCheckString=firstDateToCheckString
+  secondDateToCheckString=secondDateToCheckString
+  firstDateToCheck=_firstDateToCheck
+  secondDateToCheck=_secondDateToCheck
+  dependencies=dependencies
+}}
+{{dependency-table
+  title="Dev Dependencies"
+  commitDateString=commitDateString
+  firstDateToCheckString=firstDateToCheckString
+  secondDateToCheckString=secondDateToCheckString
+  firstDateToCheck=_firstDateToCheck
+  secondDateToCheck=_secondDateToCheck
+  dependencies=devDependencies
+}}

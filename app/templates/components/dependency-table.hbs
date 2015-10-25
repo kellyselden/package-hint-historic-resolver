@@ -1,36 +1,6 @@
 <table>
   <tr>
-    <td>Repo URL</td>
-    <td>
-      <input value="{{repoUrl}}" onchange={{action "changeRepoUrl" value="target.value"}} />
-    </td>
-    <td>{{repo}}</td>
-  </tr>
-  <tr>
-    <td>Repo as of Date</td>
-    <td>
-      {{date-time-picker repoDate action="changeRepoDate"}}
-    </td>
-    <td>Latest commit {{commit}}</td>
-  </tr>
-  <tr>
-    <td>First Date to Check</td>
-    <td>
-      {{date-time-picker firstDateToCheck action="changeFirstDateToCheck"}}
-    </td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>Second Date to Check</td>
-    <td>
-      {{date-time-picker secondDateToCheck action="changeSecondDateToCheck"}}
-    </td>
-    <td></td>
-  </tr>
-</table>
-<table>
-  <tr>
-    <th>Dependencies</th>
+    <th>{{title}}</th>
     <th>Latest Commit Date</th>
     <th>First Date to Check</th>
     <th>Second Date to Check</th>
@@ -46,8 +16,8 @@
       module=dep.module
       version=dep.version
       versionsPromise=dep.versionsPromise
-      firstDateToCheck=_firstDateToCheck
-      secondDateToCheck=_secondDateToCheck
+      firstDateToCheck=firstDateToCheck
+      secondDateToCheck=secondDateToCheck
     }}
   {{/each}}
 </table>
