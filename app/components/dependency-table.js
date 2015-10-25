@@ -5,22 +5,51 @@ import pairs from 'lodash/object/pairs';
 const {
   computed,
   computed: { collect, readOnly },
+  observer,
   RSVP: { Promise },
   $: { ajax }
 } = Ember;
 
 export default Ember.Component.extend({
-  repoDate: new Date(),
-  firstDateToCheck: new Date(),
-  secondDateToCheck: new Date(),
+  _repoDate: new Date(),
+  _firstDateToCheck: new Date(),
+  _secondDateToCheck: new Date(),
 
-  datesToCheck: collect('firstDateToCheck', 'secondDateToCheck'),
-
-  firstDateToCheckString: computed('firstDateToCheck', function() {
-    return moment(this.get('firstDateToCheck'));
+  repoUrlObserver: observer('repoUrl', function() {
+    this.set('_repoUrl', this.get('repoUrl'));
   }),
-  secondDateToCheckString: computed('secondDateToCheck', function() {
-    return moment(this.get('secondDateToCheck'));
+  repoDateObserver: observer('repoDate', function() {
+    let repoDate = this.get('repoDate');
+    if (!repoDate) {
+      return;
+    }
+
+    this.set('_repoDate', repoDate);
+  }),
+  firstDateToCheckObserver: observer('firstDateToCheck', function() {
+    let firstDateToCheck = this.get('firstDateToCheck');
+    if (!firstDateToCheck) {
+      return;
+    }
+
+    this.set('_firstDateToCheck', firstDateToCheck);
+  }),
+  secondDateToCheckObserver: observer('secondDateToCheck', function() {
+    let secondDateToCheck = this.get('secondDateToCheck');
+    if (!secondDateToCheck) {
+      return;
+    }
+
+    this.set('_secondDateToCheck', secondDateToCheck);
+  }),
+
+  datesToCheck: collect('_firstDateToCheck', '_secondDateToCheck'),
+
+  firstDateToCheckString: computed('_firstDateToCheck', function() {
+    return moment(this.get('_firstDateToCheck'));
+  }),
+  secondDateToCheckString: computed('_secondDateToCheck', function() {
+    return moment(this.get('_secondDateToCheck'));
   }),
 
   dependencies: computed('json.dependencies', function() {
@@ -81,8 +110,8 @@ export default Ember.Component.extend({
     });
   }),
 
-  repo: computed('repoUrl', function() {
-    let url = this.get('repoUrl');
+  repo: computed('_repoUrl', function() {
+    let url = this.get('_repoUrl');
     if (!url) {
       return;
     }
@@ -99,8 +128,8 @@ export default Ember.Component.extend({
     return `${user}/${repo}`;
   }),
 
-  until: computed('repoDate', function() {
-    let date = this.get('repoDate');
+  until: computed('_repoDate', function() {
+    let date = this.get('_repoDate');
     if (!date) {
       return;
     }
@@ -110,16 +139,20 @@ export default Ember.Component.extend({
 
   actions: {
     changeRepoUrl(url) {
-      this.set('repoUrl', url);
+      this.set('_repoUrl', url);
+      this.sendAction('repoDateUpdated', url);
     },
     changeRepoDate(date) {
-      this.set('repoDate', date);
+      this.set('_repoDate', date);
+      this.sendAction('repoDateUpdated', date);
     },
     changeFirstDateToCheck(date) {
-      this.set('firstDateToCheck', date);
+      this.set('_firstDateToCheck', date);
+      this.sendAction('firstDateToCheckUpdated', date);
     },
     changeSecondDateToCheck(date) {
-      this.set('secondDateToCheck', date);
+      this.set('_secondDateToCheck', date);
+      this.sendAction('secondDateToCheckUpdated', date);
     }
   }
 });
