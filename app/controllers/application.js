@@ -3,31 +3,31 @@ import Ember from 'ember';
 const { computed } = Ember;
 
 export default Ember.Controller.extend({
-  queryParams: [
-    'repoUrl',
-    'repoDate',
-    'firstDateToCheck',
-    'secondDateToCheck'
-  ],
+  queryParams: {
+    repoUrl: 'repoUrl',
+    repoDateSerialized: 'repoDate',
+    firstDateToCheckSerialized: 'firstDateToCheck',
+    secondDateToCheckSerialized: 'secondDateToCheck'
+  },
 
-  repoDateDeserialized: computed('repoDate', function() {
-    let repoDate = this.get('repoDate');
+  repoDate: computed('repoDateSerialized', function() {
+    let repoDate = this.get('repoDateSerialized');
     if (!repoDate) {
       return;
     }
 
     return this._deserializeDate(repoDate);
   }),
-  firstDateToCheckDeserialized: computed('firstDateToCheck', function() {
-    let firstDateToCheck = this.get('firstDateToCheck');
+  firstDateToCheck: computed('firstDateToCheckSerialized', function() {
+    let firstDateToCheck = this.get('firstDateToCheckSerialized');
     if (!firstDateToCheck) {
       return;
     }
 
     return this._deserializeDate(firstDateToCheck);
   }),
-  secondDateToCheckDeserialized: computed('secondDateToCheck', function() {
-    let secondDateToCheck = this.get('secondDateToCheck');
+  secondDateToCheck: computed('secondDateToCheckSerialized', function() {
+    let secondDateToCheck = this.get('secondDateToCheckSerialized');
     if (!secondDateToCheck) {
       return;
     }
@@ -47,13 +47,13 @@ export default Ember.Controller.extend({
       this.set('repoUrl', url);
     },
     updateRepoDate(date) {
-      this.set('repoDate', this._serializeDate(date));
+      this.set('repoDateSerialized', this._serializeDate(date));
     },
     updateFirstDateToCheck(date) {
-      this.set('firstDateToCheck', this._serializeDate(date));
+      this.set('firstDateToCheckSerialized', this._serializeDate(date));
     },
     updateSecondDateToCheck(date) {
-      this.set('secondDateToCheck', this._serializeDate(date));
+      this.set('secondDateToCheckSerialized', this._serializeDate(date));
     }
   }
 });
