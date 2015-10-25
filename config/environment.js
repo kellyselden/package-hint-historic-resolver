@@ -63,7 +63,7 @@ module.exports = function(environment) {
   }
 
   if (environment === 'production') {
-
+    host = process.env.HOST;
   }
 
   ENV.APP.host = host;
