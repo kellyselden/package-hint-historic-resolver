@@ -67,7 +67,7 @@ module.exports = function(environment) {
   }
 
   ENV.APP.host = host;
-  ENV.APP.serverApiEndpoint = host + '/' + api + '/';
+  ENV.APP.serverApiEndpoint = host + '/' + api;
 
   return ENV;
 };
