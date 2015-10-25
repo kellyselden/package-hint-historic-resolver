@@ -3,7 +3,7 @@ import Ember from 'ember';
 const { on, observer } = Ember;
 
 export default Ember.Component.extend({
-  classNameBindings: ['areVersionsDifferent'],
+  classNameBindings: ['areVersionsDifferent:versions-are-different'],
 
   setRealVersion: on('init', observer('version', 'versionsPromise', 'dateCeiling', function() {
     let version         = this.get('version'),
