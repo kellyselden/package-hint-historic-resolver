@@ -1,15 +1,17 @@
 import Ember from 'ember';
+import config from '../config/environment';
 import moment from 'moment';
 import pairs from 'lodash/object/pairs';
 
 const {
   on,
   computed,
-  computed: { collect, readOnly },
+  computed: { readOnly },
   observer,
   RSVP: { Promise },
   $: { ajax }
 } = Ember;
+const { APP: { serverApiEndpoint } } = config;
 
 export default Ember.Component.extend({
   _repoDate: new Date(),
@@ -164,7 +166,7 @@ function convertDependencies(dependencies) {
       version,
       versionsPromise: new Promise((resolve, reject) => {
         ajax({
-          url: `http://localhost:3000/api/v1/npm/${module}`,
+          url: `${serverApiEndpoint}/npm/${module}`,
           success: data => {
             delete data.modified;
             delete data.created;
