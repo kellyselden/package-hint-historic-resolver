@@ -92,9 +92,6 @@ export default Ember.Component.extend({
   commitDateString: readOnly('latestCommitData.commit.author.date'),
   commit: readOnly('latestCommitData.sha'),
 
-  latestCommitDataDebounced() {
-  },
-
   latestCommitDataObserver: on('init', observer('repo', 'until', function() {
     let repo  = this.get('repo'),
         until = this.get('until');
