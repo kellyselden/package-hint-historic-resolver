@@ -3,6 +3,7 @@ import moment from 'moment';
 import pairs from 'lodash/object/pairs';
 
 const {
+  on,
   computed,
   computed: { collect, readOnly },
   observer,
@@ -15,33 +16,33 @@ export default Ember.Component.extend({
   _firstDateToCheck: new Date(),
   _secondDateToCheck: new Date(),
 
-  repoUrlObserver: observer('repoUrl', function() {
+  repoUrlObserver: on('init', observer('repoUrl', function() {
     this.set('_repoUrl', this.get('repoUrl'));
-  }),
-  repoDateObserver: observer('repoDate', function() {
+  })),
+  repoDateObserver: on('init', observer('repoDate', function() {
     let repoDate = this.get('repoDate');
     if (!repoDate) {
       return;
     }
 
     this.set('_repoDate', repoDate);
-  }),
-  firstDateToCheckObserver: observer('firstDateToCheck', function() {
+  })),
+  firstDateToCheckObserver: on('init', observer('firstDateToCheck', function() {
     let firstDateToCheck = this.get('firstDateToCheck');
     if (!firstDateToCheck) {
       return;
     }
 
     this.set('_firstDateToCheck', firstDateToCheck);
-  }),
-  secondDateToCheckObserver: observer('secondDateToCheck', function() {
+  })),
+  secondDateToCheckObserver: on('init', observer('secondDateToCheck', function() {
     let secondDateToCheck = this.get('secondDateToCheck');
     if (!secondDateToCheck) {
       return;
     }
 
     this.set('_secondDateToCheck', secondDateToCheck);
-  }),
+  })),
 
   datesToCheck: collect('_firstDateToCheck', '_secondDateToCheck'),
 
@@ -140,7 +141,7 @@ export default Ember.Component.extend({
   actions: {
     changeRepoUrl(url) {
       this.set('_repoUrl', url);
-      this.sendAction('repoDateUpdated', url);
+      this.sendAction('repoUrlUpdated', url);
     },
     changeRepoDate(date) {
       this.set('_repoDate', date);
