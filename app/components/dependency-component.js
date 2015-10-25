@@ -164,7 +164,7 @@ function convertDependencies(dependencies) {
       version,
       versionsPromise: new Promise((resolve, reject) => {
         ajax({
-          url: `http://localhost:3000/api/v1/time/${module}`,
+          url: `http://localhost:3000/api/v1/npm/${module}`,
           success: data => {
             delete data.modified;
             delete data.created;
