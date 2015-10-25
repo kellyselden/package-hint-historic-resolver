@@ -44,8 +44,6 @@ export default Ember.Component.extend({
     this.set('_secondDateToCheck', secondDateToCheck);
   })),
 
-  datesToCheck: collect('_firstDateToCheck', '_secondDateToCheck'),
-
   firstDateToCheckString: computed('_firstDateToCheck', function() {
     return moment(this.get('_firstDateToCheck'));
   }),
