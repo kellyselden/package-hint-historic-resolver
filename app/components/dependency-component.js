@@ -53,21 +53,22 @@ export default Ember.Component.extend({
     return moment(this.get('_secondDateToCheck'));
   }),
 
-  dependencies: computed('json.dependencies', function() {
-    let dependencies = this.get('json.dependencies');
-    if (!dependencies) {
+  dependencyGroups: computed('json', function() {
+    let json = this.get('json');
+    if (!json) {
       return;
     }
 
-    return convertDependencies(dependencies);
-  }),
-  devDependencies: computed('json.devDependencies', function() {
-    let dependencies = this.get('json.devDependencies');
-    if (!dependencies) {
-      return;
-    }
-
-    return convertDependencies(dependencies);
+    return [
+      ['Dependencies', 'dependencies'],
+      ['Dev Dependencies', 'devDependencies'],
+      ['Optional Dependencies', 'optionalDependencies']
+    ].map(dep => {
+      return {
+        title: dep[0],
+        dependencies: convertDependencies(json[dep[1]])
+      };
+    }).filter(dep => dep.dependencies);
   }),
 
   jsonObserver: observer('commit', function() {
@@ -159,6 +160,10 @@ export default Ember.Component.extend({
 });
 
 function convertDependencies(dependencies) {
+  if (!dependencies) {
+    return;
+  }
+
   return pairs(dependencies).map(dep => {
     let [module, version] = dep;
     return {

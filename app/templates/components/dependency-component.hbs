@@ -28,21 +28,14 @@
     <td></td>
   </tr>
 </table>
-{{dependency-table
-  title="Dependencies"
-  commitDateString=commitDateString
-  firstDateToCheckString=firstDateToCheckString
-  secondDateToCheckString=secondDateToCheckString
-  firstDateToCheck=_firstDateToCheck
-  secondDateToCheck=_secondDateToCheck
-  dependencies=dependencies
-}}
-{{dependency-table
-  title="Dev Dependencies"
-  commitDateString=commitDateString
-  firstDateToCheckString=firstDateToCheckString
-  secondDateToCheckString=secondDateToCheckString
-  firstDateToCheck=_firstDateToCheck
-  secondDateToCheck=_secondDateToCheck
-  dependencies=devDependencies
-}}
+{{#each dependencyGroups as |dep|}}
+  {{dependency-table
+    title=dep.title
+    commitDateString=commitDateString
+    firstDateToCheckString=firstDateToCheckString
+    secondDateToCheckString=secondDateToCheckString
+    firstDateToCheck=_firstDateToCheck
+    secondDateToCheck=_secondDateToCheck
+    dependencies=dep.dependencies
+  }}
+{{/each}}
