@@ -59,6 +59,7 @@ export default Ember.Component.extend({
     let repo   = this.get('repo'),
         commit = this.get('commit');
     if (!repo || !commit) {
+      this.set('json', undefined);
       return;
     }
 
@@ -81,6 +82,7 @@ export default Ember.Component.extend({
     let repo  = this.get('repo'),
         until = this.get('until');
     if (!repo || !until) {
+      this.set('latestCommitData', undefined);
       return;
     }
 
@@ -129,11 +131,11 @@ export default Ember.Component.extend({
       this.sendAction('repoUrlUpdated', url);
     },
     changeRepoWorkingDate(date) {
-      this.set('_repoWorkingDate', date);
+      this.set('_repoWorkingDate', date || new Date());
       this.sendAction('repoWorkingDateUpdated', date);
     },
     changeRepoBrokenDate(date) {
-      this.set('_repoBrokenDate', date);
+      this.set('_repoBrokenDate', date || new Date());
       this.sendAction('repoBrokenDateUpdated', date);
     }
   }

@@ -30,12 +30,14 @@ export default Ember.Controller.extend({
     return new Date(string);
   },
   _serializeDate(date) {
-    return date.toISOString();
+    if (date) {
+      return date.toISOString();
+    }
   },
 
   actions: {
     updateRepoUrl(url) {
-      this.set('repoUrl', url);
+      this.set('repoUrl', url || undefined);
     },
     updateRepoWorkingDate(date) {
       this.set('repoWorkingDateSerialized', this._serializeDate(date));
