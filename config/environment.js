@@ -12,9 +12,13 @@ module.exports = function(environment) {
     'style-src': "'self'",
     'media-src': "'self'"
   };
+  contentSecurityPolicy['script-src'] +=
+    ' https://www.google-analytics.com';
   contentSecurityPolicy['connect-src'] +=
     ' https://api.github.com' +
     ' https://raw.githubusercontent.com';
+  contentSecurityPolicy['img-src'] +=
+    ' https://www.google-analytics.com';
 
   var ENV = {
     modulePrefix: 'package-hint-historic-resolver',
@@ -32,7 +36,16 @@ module.exports = function(environment) {
       // Here you can pass flags/options to your application instance
       // when it is created
       api: api
-    }
+    },
+    metricsAdapters: [
+      {
+        name: 'GoogleAnalytics',
+        environments: ['development', 'production'],
+        config: {
+          id: 'UA-69333483-1'
+        }
+      }
+    ]
   };
 
   var host;
