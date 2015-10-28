@@ -15,8 +15,7 @@ const { APP: { serverApiEndpoint } } = config;
 
 export default Ember.Component.extend({
   _repoDate: new Date(),
-  _firstDateToCheck: new Date(),
-  _secondDateToCheck: new Date(),
+  _dateWentBad: new Date(),
 
   repoUrlObserver: on('init', observer('repoUrl', function() {
     this.set('_repoUrl', this.get('repoUrl'));
@@ -29,28 +28,20 @@ export default Ember.Component.extend({
 
     this.set('_repoDate', repoDate);
   })),
-  firstDateToCheckObserver: on('init', observer('firstDateToCheck', function() {
-    let firstDateToCheck = this.get('firstDateToCheck');
-    if (!firstDateToCheck) {
+  dateWentBadObserver: on('init', observer('dateWentBad', function() {
+    let dateWentBad = this.get('dateWentBad');
+    if (!dateWentBad) {
       return;
     }
 
-    this.set('_firstDateToCheck', firstDateToCheck);
-  })),
-  secondDateToCheckObserver: on('init', observer('secondDateToCheck', function() {
-    let secondDateToCheck = this.get('secondDateToCheck');
-    if (!secondDateToCheck) {
-      return;
-    }
-
-    this.set('_secondDateToCheck', secondDateToCheck);
+    this.set('_dateWentBad', dateWentBad);
   })),
 
-  firstDateToCheckString: computed('_firstDateToCheck', function() {
-    return moment(this.get('_firstDateToCheck'));
+  repoDateString: computed('_repoDate', function() {
+    return moment(this.get('_repoDate'));
   }),
-  secondDateToCheckString: computed('_secondDateToCheck', function() {
-    return moment(this.get('_secondDateToCheck'));
+  dateWentBadString: computed('_dateWentBad', function() {
+    return moment(this.get('_dateWentBad'));
   }),
 
   dependencyGroups: computed('json', function() {
@@ -148,13 +139,9 @@ export default Ember.Component.extend({
       this.set('_repoDate', date);
       this.sendAction('repoDateUpdated', date);
     },
-    changeFirstDateToCheck(date) {
-      this.set('_firstDateToCheck', date);
-      this.sendAction('firstDateToCheckUpdated', date);
-    },
-    changeSecondDateToCheck(date) {
-      this.set('_secondDateToCheck', date);
-      this.sendAction('secondDateToCheckUpdated', date);
+    changeDateWentBad(date) {
+      this.set('_dateWentBad', date);
+      this.sendAction('dateWentBadUpdated', date);
     }
   }
 });

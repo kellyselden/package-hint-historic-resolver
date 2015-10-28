@@ -14,16 +14,9 @@
     <td>Latest commit {{commit}}</td>
   </tr>
   <tr>
-    <td>First Date to Check</td>
+    <td>Date Went Bad</td>
     <td>
-      {{date-time-picker firstDateToCheck action="changeFirstDateToCheck"}}
-    </td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>Second Date to Check</td>
-    <td>
-      {{date-time-picker secondDateToCheck action="changeSecondDateToCheck"}}
+      {{date-time-picker dateWentBad action="changeDateWentBad"}}
     </td>
     <td></td>
   </tr>
@@ -32,10 +25,10 @@
   {{dependency-table
     title=dep.title
     commitDateString=commitDateString
-    firstDateToCheckString=firstDateToCheckString
-    secondDateToCheckString=secondDateToCheckString
-    firstDateToCheck=_firstDateToCheck
-    secondDateToCheck=_secondDateToCheck
+    repoDateString=repoDateString
+    dateWentBadString=dateWentBadString
+    repoDate=_repoDate
+    dateWentBad=_dateWentBad
     dependencies=dep.dependencies
   }}
 {{/each}}
