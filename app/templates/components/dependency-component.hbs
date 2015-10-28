@@ -24,9 +24,7 @@
 {{#each dependencyGroups as |dep|}}
   {{dependency-table
     title=dep.title
-    commitDateString=commitDateString
-    repoDateString=repoDateString
-    dateWentBadString=dateWentBadString
+    commitDate=commitDate
     repoDate=_repoDate
     dateWentBad=_dateWentBad
     dependencies=dep.dependencies

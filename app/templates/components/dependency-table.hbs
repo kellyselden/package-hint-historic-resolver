@@ -7,9 +7,9 @@
   </tr>
   <tr>
     <th></th>
-    <th>{{commitDateString}}</th>
-    <th>{{repoDateString}}</th>
-    <th>{{dateWentBadString}}</th>
+    <th>{{format-date-time commitDate}}</th>
+    <th>{{format-date-time repoDate}}</th>
+    <th>{{format-date-time dateWentBad}}</th>
   </tr>
   {{#each dependencies as |dep|}}
     {{dependency-row

@@ -37,13 +37,6 @@ export default Ember.Component.extend({
     this.set('_dateWentBad', dateWentBad);
   })),
 
-  repoDateString: computed('_repoDate', function() {
-    return moment(this.get('_repoDate'));
-  }),
-  dateWentBadString: computed('_dateWentBad', function() {
-    return moment(this.get('_dateWentBad'));
-  }),
-
   dependencyGroups: computed('json', function() {
     let json = this.get('json');
     if (!json) {
@@ -81,7 +74,7 @@ export default Ember.Component.extend({
     });
   }),
 
-  commitDateString: readOnly('latestCommitData.commit.author.date'),
+  commitDate: readOnly('latestCommitData.commit.author.date'),
   commit: readOnly('latestCommitData.sha'),
 
   latestCommitDataObserver: on('init', observer('repo', 'until', function() {
