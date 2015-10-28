@@ -7,16 +7,20 @@
     <td>{{repo}}</td>
   </tr>
   <tr>
-    <td>Repo as of Date</td>
+    <td>Repo is Working Date</td>
     <td>
-      {{date-time-picker repoDate action="changeRepoDate"}}
+      {{date-time-picker repoWorkingDate action="changeRepoWorkingDate"}}
     </td>
-    <td>Latest commit {{commit}}</td>
+    <td>
+      {{#if commit}}
+        Latest commit {{commit}}
+      {{/if}}
+    </td>
   </tr>
   <tr>
-    <td>Date Went Bad</td>
+    <td>Repo is Broken Date</td>
     <td>
-      {{date-time-picker dateWentBad action="changeDateWentBad"}}
+      {{date-time-picker repoBrokenDate action="changeRepoBrokenDate"}}
     </td>
     <td></td>
   </tr>
@@ -25,8 +29,8 @@
   {{dependency-table
     title=dep.title
     commitDate=commitDate
-    repoDate=_repoDate
-    dateWentBad=_dateWentBad
+    repoWorkingDate=_repoWorkingDate
+    repoBrokenDate=_repoBrokenDate
     dependencies=dep.dependencies
   }}
 {{/each}}

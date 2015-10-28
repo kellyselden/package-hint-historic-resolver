@@ -5,25 +5,25 @@ const { computed } = Ember;
 export default Ember.Controller.extend({
   queryParams: {
     repoUrl: 'repoUrl',
-    repoDateSerialized: 'repoDate',
-    dateWentBadSerialized: 'dateWentBad'
+    repoWorkingDateSerialized: 'repoWorkingDate',
+    repoBrokenDateSerialized: 'repoBrokenDate'
   },
 
-  repoDate: computed('repoDateSerialized', function() {
-    let repoDate = this.get('repoDateSerialized');
-    if (!repoDate) {
+  repoWorkingDate: computed('repoWorkingDateSerialized', function() {
+    let repoWorkingDate = this.get('repoWorkingDateSerialized');
+    if (!repoWorkingDate) {
       return;
     }
 
-    return this._deserializeDate(repoDate);
+    return this._deserializeDate(repoWorkingDate);
   }),
-  dateWentBad: computed('dateWentBadSerialized', function() {
-    let dateWentBad = this.get('dateWentBadSerialized');
-    if (!dateWentBad) {
+  repoBrokenDate: computed('repoBrokenDateSerialized', function() {
+    let repoBrokenDate = this.get('repoBrokenDateSerialized');
+    if (!repoBrokenDate) {
       return;
     }
 
-    return this._deserializeDate(dateWentBad);
+    return this._deserializeDate(repoBrokenDate);
   }),
 
   _deserializeDate(string) {
@@ -37,11 +37,11 @@ export default Ember.Controller.extend({
     updateRepoUrl(url) {
       this.set('repoUrl', url);
     },
-    updateRepoDate(date) {
-      this.set('repoDateSerialized', this._serializeDate(date));
+    updateRepoWorkingDate(date) {
+      this.set('repoWorkingDateSerialized', this._serializeDate(date));
     },
-    updateDateWentBad(date) {
-      this.set('dateWentBadSerialized', this._serializeDate(date));
+    updateRepoBrokenDate(date) {
+      this.set('repoBrokenDateSerialized', this._serializeDate(date));
     }
   }
 });

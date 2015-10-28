@@ -14,27 +14,27 @@ const {
 const { APP: { serverApiEndpoint } } = config;
 
 export default Ember.Component.extend({
-  _repoDate: new Date(),
-  _dateWentBad: new Date(),
+  _repoWorkingDate: new Date(),
+  _repoBrokenDate: new Date(),
 
   repoUrlObserver: on('init', observer('repoUrl', function() {
     this.set('_repoUrl', this.get('repoUrl'));
   })),
-  repoDateObserver: on('init', observer('repoDate', function() {
-    let repoDate = this.get('repoDate');
-    if (!repoDate) {
+  repoWorkingDateObserver: on('init', observer('repoWorkingDate', function() {
+    let repoWorkingDate = this.get('repoWorkingDate');
+    if (!repoWorkingDate) {
       return;
     }
 
-    this.set('_repoDate', repoDate);
+    this.set('_repoWorkingDate', repoWorkingDate);
   })),
-  dateWentBadObserver: on('init', observer('dateWentBad', function() {
-    let dateWentBad = this.get('dateWentBad');
-    if (!dateWentBad) {
+  repoBrokenDateObserver: on('init', observer('repoBrokenDate', function() {
+    let repoBrokenDate = this.get('repoBrokenDate');
+    if (!repoBrokenDate) {
       return;
     }
 
-    this.set('_dateWentBad', dateWentBad);
+    this.set('_repoBrokenDate', repoBrokenDate);
   })),
 
   dependencyGroups: computed('json', function() {
@@ -114,8 +114,8 @@ export default Ember.Component.extend({
     return `${user}/${repo}`;
   }),
 
-  until: computed('_repoDate', function() {
-    let date = this.get('_repoDate');
+  until: computed('_repoWorkingDate', function() {
+    let date = this.get('_repoWorkingDate');
     if (!date) {
       return;
     }
@@ -128,13 +128,13 @@ export default Ember.Component.extend({
       this.set('_repoUrl', url);
       this.sendAction('repoUrlUpdated', url);
     },
-    changeRepoDate(date) {
-      this.set('_repoDate', date);
-      this.sendAction('repoDateUpdated', date);
+    changeRepoWorkingDate(date) {
+      this.set('_repoWorkingDate', date);
+      this.sendAction('repoWorkingDateUpdated', date);
     },
-    changeDateWentBad(date) {
-      this.set('_dateWentBad', date);
-      this.sendAction('dateWentBadUpdated', date);
+    changeRepoBrokenDate(date) {
+      this.set('_repoBrokenDate', date);
+      this.sendAction('repoBrokenDateUpdated', date);
     }
   }
 });
