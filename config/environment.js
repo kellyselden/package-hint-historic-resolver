@@ -45,9 +45,6 @@ module.exports = function(environment) {
     // ENV.APP.LOG_VIEW_LOOKUPS = true;
 
     host = 'http://localhost:3000';
-
-    contentSecurityPolicy['connect-src'] +=
-      ' http://localhost:3000';
   }
 
   if (environment === 'test') {
@@ -65,6 +62,9 @@ module.exports = function(environment) {
   if (environment === 'production') {
     host = process.env.HOST;
   }
+
+  contentSecurityPolicy['connect-src'] +=
+    ' ' + host;
 
   ENV.APP.host = host;
   ENV.APP.serverApiEndpoint = host + '/' + api;
