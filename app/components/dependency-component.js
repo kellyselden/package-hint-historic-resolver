@@ -153,12 +153,8 @@ function convertDependencies(dependencies) {
       version,
       versionsPromise: new Promise((resolve, reject) => {
         ajax({
-          url: `${serverApiEndpoint}/npm/${module}`,
-          success: data => {
-            delete data.modified;
-            delete data.created;
-            resolve(pairs(data));
-          },
+          url: `${serverApiEndpoint}/npm/${module}/versions`,
+          success: data => resolve(pairs(data)),
           error: reject
         });
       })
