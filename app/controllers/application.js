@@ -10,40 +10,30 @@ export default Ember.Controller.extend({
   },
 
   repoWorkingDate: computed('repoWorkingDateSerialized', function() {
-    let repoWorkingDate = this.get('repoWorkingDateSerialized');
-    if (!repoWorkingDate) {
-      return;
-    }
-
-    return this._deserializeDate(repoWorkingDate);
+    return deserializeDate(this.get('repoWorkingDateSerialized'));
   }),
   repoBrokenDate: computed('repoBrokenDateSerialized', function() {
-    let repoBrokenDate = this.get('repoBrokenDateSerialized');
-    if (!repoBrokenDate) {
-      return;
-    }
-
-    return this._deserializeDate(repoBrokenDate);
+    return deserializeDate(this.get('repoBrokenDateSerialized'));
   }),
-
-  _deserializeDate(string) {
-    return new Date(string);
-  },
-  _serializeDate(date) {
-    if (date) {
-      return date.toISOString();
-    }
-  },
 
   actions: {
     updateRepoUrl(url) {
       this.set('repoUrl', url || undefined);
     },
     updateRepoWorkingDate(date) {
-      this.set('repoWorkingDateSerialized', this._serializeDate(date));
+      this.set('repoWorkingDateSerialized', serializeDate(date));
     },
     updateRepoBrokenDate(date) {
-      this.set('repoBrokenDateSerialized', this._serializeDate(date));
+      this.set('repoBrokenDateSerialized', serializeDate(date));
     }
   }
 });
+
+function deserializeDate(string) {
+  return string ? new Date(string) : new Date();
+}
+function serializeDate(date) {
+  if (date) {
+    return date.toISOString();
+  }
+}

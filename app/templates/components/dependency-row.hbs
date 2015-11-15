@@ -1,20 +1,50 @@
-<td>{{module}}</td>
-<td>{{version}}</td>
-<td>
-  {{npm-dependency-checker
-    version=version
-    versionsPromise=versionsPromise
-    dateCeiling=repoWorkingDate
-    areVersionsDifferent=areVersionsDifferent
-    action="firstVersionFound"
-  }}
-</td>
-<td>
-  {{npm-dependency-checker
-    version=version
-    versionsPromise=versionsPromise
-    dateCeiling=repoBrokenDate
-    areVersionsDifferent=areVersionsDifferent
-    action="secondVersionFound"
-  }}
-</td>
+<tr>
+  <td style="padding-left: {{nestingLevel}}em;">{{module}}</td>
+  <td>
+    {{version-display
+      firstVersionHint
+      isMissing=isFirstVersionHintMissing
+      isOneMissing=isOneMissing
+      areVersionsDifferent=areVersionHintsDifferent
+      areVersionsDifferentClass="hints-are-different"
+    }}
+  </td>
+  <td>
+    {{version-display
+      secondVersionHint
+      isMissing=isSecondVersionHintMissing
+      isOneMissing=isOneMissing
+      areVersionsDifferent=areVersionHintsDifferent
+      areVersionsDifferentClass="hints-are-different"
+    }}
+  </td>
+  <td>
+    {{version-display
+      firstVersion
+      isMissing=isFirstVersionHintMissing
+      isOneMissing=isOneMissing
+      areVersionsDifferent=areVersionsDifferent
+      areVersionsDifferentClass="versions-are-different"
+    }}
+    {{error}}
+  </td>
+  <td>
+    {{version-display
+      secondVersion
+      isMissing=isSecondVersionHintMissing
+      isOneMissing=isOneMissing
+      areVersionsDifferent=areVersionsDifferent
+      areVersionsDifferentClass="versions-are-different"
+    }}
+    {{error}}
+  </td>
+</tr>
+<!-- {{dependency-nest
+  module=module
+  incomingNestingLevel=nestingLevel
+  repoWorkingDate=repoWorkingDate
+  repoBrokenDate=repoBrokenDate
+  firstVersion=firstVersion
+  secondVersion=secondVersion
+  stopCrawling=stopCrawling
+}} -->

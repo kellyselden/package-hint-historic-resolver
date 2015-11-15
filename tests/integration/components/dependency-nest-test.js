@@ -1,25 +1,24 @@
 import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
 
-moduleForComponent('npm-dependency-checker', 'Integration | Component | npm dependency checker', {
+moduleForComponent('dependency-nest', 'Integration | Component | dependency nest', {
   integration: true
 });
 
 test('it renders', function(assert) {
-  assert.expect(2);
-
+  
   // Set any properties with this.set('myProperty', 'value');
-  // Handle any actions with this.on('myAction', function(val) { ... });
+  // Handle any actions with this.on('myAction', function(val) { ... });" + EOL + EOL +
 
-  this.render(hbs`{{npm-dependency-checker}}`);
+  this.render(hbs`{{dependency-nest}}`);
 
   assert.equal(this.$().text().trim(), '');
 
-  // Template block usage:
+  // Template block usage:" + EOL +
   this.render(hbs`
-    {{#npm-dependency-checker}}
+    {{#dependency-nest}}
       template block text
-    {{/npm-dependency-checker}}
+    {{/dependency-nest}}
   `);
 
   assert.equal(this.$().text().trim(), 'template block text');

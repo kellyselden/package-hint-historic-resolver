@@ -9,28 +9,53 @@
   <tr>
     <td>Repo is Working Date</td>
     <td>
-      {{date-time-picker repoWorkingDate action="changeRepoWorkingDate"}}
+      {{dependency-date
+        repoWorkingDate
+        repo=repo
+        dateChanged="changeRepoWorkingDate"
+        foundCommitData="updateFirstCommitData"
+        receivedJson="updateFirstJson"
+      }}
     </td>
     <td>
-      {{#if commit}}
-        Latest commit {{commit}}
+      {{#if firstCommit}}
+        Latest commit {{firstCommit}}
       {{/if}}
     </td>
   </tr>
   <tr>
     <td>Repo is Broken Date</td>
     <td>
-      {{date-time-picker repoBrokenDate action="changeRepoBrokenDate"}}
+      {{dependency-date
+        repoBrokenDate
+        repo=repo
+        dateChanged="changeRepoBrokenDate"
+        foundCommitData="updateSecondCommitData"
+        receivedJson="updateSecondJson"
+      }}
     </td>
-    <td></td>
+    <td>
+      {{#if areDatesOutOfOrder}}
+        Broken date must be after working date
+      {{else}}
+        {{#if secondCommit}}
+          Latest commit {{secondCommit}}
+        {{/if}}
+      {{/if}}
+    </td>
   </tr>
 </table>
-{{#each dependencyGroups as |dep|}}
-  {{dependency-table
-    title=dep.title
-    commitDate=commitDate
-    repoWorkingDate=_repoWorkingDate
-    repoBrokenDate=_repoBrokenDate
-    dependencies=dep.dependencies
-  }}
-{{/each}}
+{{#if shouldShowTable}}
+  <button {{action 'toggleCrawling'}}>{{toggleCrawlingText}}</button>
+  {{#each dependencyGroups as |dep|}}
+    {{dependency-table
+      title=dep.title
+      firstCommitDate=firstCommitDate
+      secondCommitDate=secondCommitDate
+      repoWorkingDate=_repoWorkingDate
+      repoBrokenDate=_repoBrokenDate
+      dependencies=dep.dependencies
+      stopCrawling=stopCrawling
+    }}
+  {{/each}}
+{{/if}}

@@ -1,4 +1,8 @@
-.versions-are-different {
+.versions-are-different, .is-missing {
   background-color: red;
   color: white;
+}
+
+.hints-are-different {
+  background-color: yellow;
 }

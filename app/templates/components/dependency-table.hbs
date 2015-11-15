@@ -1,23 +1,26 @@
 <table>
   <tr>
     <th>{{title}}</th>
-    <th>Latest Commit Date</th>
+    <th>First Commit Date</th>
+    <th>Second Commit Date</th>
     <th>Repo is Working Date</th>
     <th>Repo is Broken Date</th>
   </tr>
   <tr>
     <th></th>
-    <th>{{format-date-time commitDate}}</th>
+    <th>{{format-date-time firstCommitDate}}</th>
+    <th>{{format-date-time secondCommitDate}}</th>
     <th>{{format-date-time repoWorkingDate}}</th>
     <th>{{format-date-time repoBrokenDate}}</th>
   </tr>
   {{#each dependencies as |dep|}}
     {{dependency-row
       module=dep.module
-      version=dep.version
-      versionsPromise=dep.versionsPromise
+      firstVersionHint=dep.firstVersionHint
+      secondVersionHint=dep.secondVersionHint
       repoWorkingDate=repoWorkingDate
       repoBrokenDate=repoBrokenDate
+      stopCrawling=stopCrawling
     }}
   {{/each}}
 </table>
