@@ -15,12 +15,11 @@
   </tr>
   {{#each dependencies as |dep|}}
     {{dependency-row
-      module=dep.module
-      firstVersionHint=dep.firstVersionHint
-      secondVersionHint=dep.secondVersionHint
+      dep=dep
       repoWorkingDate=repoWorkingDate
       repoBrokenDate=repoBrokenDate
       stopCrawling=stopCrawling
+      doneCrawling="doneCrawling"
     }}
   {{/each}}
 </table>

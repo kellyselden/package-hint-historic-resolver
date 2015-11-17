@@ -6,7 +6,7 @@ const {
   on,
   observer,
   computed,
-  computed: { not },
+  computed: { not, readOnly },
   inject: { service }
 } = Ember;
 
@@ -14,6 +14,10 @@ export default Ember.Component.extend({
   tagName: '',
 
   apiSemaphore: service(),
+
+  module:            readOnly('dep.module'),
+  firstVersionHint:  readOnly('dep.firstVersionHint'),
+  secondVersionHint: readOnly('dep.secondVersionHint'),
 
   nestingLevel: 0,
 
@@ -43,6 +47,7 @@ export default Ember.Component.extend({
         Ember.run(() => {
           if (!this.get('isDestroying') && !this.get('isDestroyed')) {
             this.set('versions', pairs(data));
+            this.sendAction('doneCrawling', this.get('dep'));
           }
         });
       }).catch((jqXHR, textStatus, errorThrown) => {

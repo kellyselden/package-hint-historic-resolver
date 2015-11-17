@@ -46,16 +46,20 @@
   </tr>
 </table>
 {{#if shouldShowTable}}
-  <button {{action 'toggleCrawling'}}>{{toggleCrawlingText}}</button>
+  {{#if isDoneCrawling}}
+    Done crawling
+  {{else}}
+    <button {{action 'toggleCrawling'}}>{{toggleCrawlingText}}</button>
+  {{/if}}
   {{#each dependencyGroups as |dep|}}
     {{dependency-table
-      title=dep.title
+      dep=dep
       firstCommitDate=firstCommitDate
       secondCommitDate=secondCommitDate
       repoWorkingDate=_repoWorkingDate
       repoBrokenDate=_repoBrokenDate
-      dependencies=dep.dependencies
       stopCrawling=stopCrawling
+      doneCrawling="doneCrawling"
     }}
   {{/each}}
 {{/if}}

@@ -59,18 +59,18 @@ export default Ember.Component.extend({
       return;
     }
 
-    return [
+    return Ember.A([
       ['Dependencies', 'dependencies'],
       ['Dev Dependencies', 'devDependencies'],
       ['Optional Dependencies', 'optionalDependencies']
     ].map(dep => {
       let firstDependencies = normalizeDependencies(firstJson[dep[1]]);
       let secondDependencies = normalizeDependencies(secondJson[dep[1]]);
-      return {
+      return Ember.Object.create({
         title: dep[0],
         dependencies: mergeModules(firstDependencies, secondDependencies)
-      };
-    }).filter(dep => dep.dependencies.length);
+      });
+    }).filter(dep => dep.dependencies.length));
   }),
 
   toggleCrawlingText: conditional('stopCrawling', 'Start Crawling', 'Stop Crawling'),
@@ -82,6 +82,17 @@ export default Ember.Component.extend({
 
   areDatesInOrder: not('areDatesOutOfOrder'),
   shouldShowTable: and('repoUrl', 'areDatesInOrder'),
+
+  isDoneCrawling: computed('dependencyGroups.@each.isDoneCrawling', function() {
+    let dependencyGroups = this.get('dependencyGroups');
+    if (!dependencyGroups) {
+      return false;
+    }
+
+    let areAllDoneCrawling = !dependencyGroups.filterBy('isDoneCrawling', undefined).length;
+
+    return areAllDoneCrawling;
+  }),
 
   actions: {
     changeRepoUrl(url) {
@@ -112,6 +123,9 @@ export default Ember.Component.extend({
     },
     toggleCrawling() {
       this.toggleProperty('stopCrawling');
+    },
+    doneCrawling(dep) {
+      dep.set('isDoneCrawling', true);
     }
   }
 });
