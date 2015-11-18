@@ -11,7 +11,7 @@
     "build": "ember build",
     "start": "ember server",
     "test": "ember test",
-    "postinstall": "cd node_modules/ember-lodash && npm install"
+    "postinstall": "cd node_modules/ember-lodash && npm install --no-optional"
   },
   "repository": "",
   "engines": {
