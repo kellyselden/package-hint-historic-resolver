@@ -21,6 +21,8 @@ export default Ember.Component.extend({
 
   nestingLevel: 0,
 
+  numberOfAwaitingRequests: 0,
+
   isFirstVersionHintMissing: not('firstVersionHint'),
   isSecondVersionHintMissing: not('secondVersionHint'),
   isOneMissing: computed('firstVersionHint', 'secondVersionHint', function() {
@@ -44,6 +46,8 @@ export default Ember.Component.extend({
         return sem.leave();
       }
 
+      this.incrementProperty('numberOfAwaitingRequests');
+
       let haveLeft;
       return cacheRequst(`npm/${module}/versions`).then(data => {
         sem.leave();
@@ -51,7 +55,9 @@ export default Ember.Component.extend({
         Ember.run(() => {
           if (!this.get('isDestroying') && !this.get('isDestroyed')) {
             this.set('versions', pairs(data));
-            this.sendAction('doneCrawling', this.get('dep'));
+            if (this.decrementProperty('numberOfAwaitingRequests') === 0) {
+              this.sendAction('doneCrawling', this.get('dep'));
+            }
           }
         });
       }).catch((jqXHR, textStatus, errorThrown) => {
@@ -90,7 +96,15 @@ export default Ember.Component.extend({
     }
 
     return firstVersion !== secondVersion;
-  })
+  }),
+
+  actions: {
+    // doneCrawling() {
+    //   if (this.decrementProperty('numberOfAwaitingRequests') === 0) {
+    //     this.sendAction('doneCrawling', this.get('dep'));
+    //   }
+    // }
+  }
 });
 
 function getRealVersion(version, versions, dateCeiling) {

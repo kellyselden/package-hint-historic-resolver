@@ -18,6 +18,8 @@ export default Ember.Component.extend({
 
   nestingLevel: sum('incomingNestingLevel', 1),
 
+  numberOfAwaitingRequests: 0,
+
   getFirstDependencies: on('init', observer('module', 'firstVersion', 'stopCrawling', function() {
     this._getDependencies(
       'firstVersion',
@@ -51,12 +53,17 @@ export default Ember.Component.extend({
         return sem.leave();
       }
 
+      this.incrementProperty('numberOfAwaitingRequests');
+
       let otherPromise = this.get(otherPromiseProp);
       if (version === this.get(otherVersionProp) && otherPromise) {
         sem.leave();
         return otherPromise.then(data => {
           if (!this.get('isDestroying') && !this.get('isDestroyed')) {
             this.set(dependencyProp, data);
+            if (this.decrementProperty('numberOfAwaitingRequests') === 0) {
+              this.sendAction('doneCrawling');
+            }
           }
         });
       }
@@ -68,6 +75,9 @@ export default Ember.Component.extend({
         data = normalizeDependencies(data);
         if (!this.get('isDestroying') && !this.get('isDestroyed')) {
           this.set(dependencyProp, data);
+          if (this.decrementProperty('numberOfAwaitingRequests') === 0) {
+            this.sendAction('doneCrawling');
+          }
         }
         return data;
       }).catch((jqXHR, textStatus, errorThrown) => {
