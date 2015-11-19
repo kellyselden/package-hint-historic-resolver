@@ -47,6 +47,7 @@
     "ember-one-way-input": "dockyard/ember-one-way-input#master",
     "limiter": "^1.0.0",
     "memory-cache": "0.1.4",
-    "semaphore": "^1.0.0"
+    "semaphore": "^1.0.0",
+    "semver": "^5.0.0"
   }
 }

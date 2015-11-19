@@ -12,7 +12,6 @@
     "jquery": "^2.0.0",
     "loader.js": "ember-cli/loader.js#3.2.1",
     "qunit": "~1.20.0",
-    "semver": "~4.3.4",
     "datetimepicker": "^2.0.0",
     "moment": ">= 2.8.0",
     "moment-timezone": ">= 0.1.0"

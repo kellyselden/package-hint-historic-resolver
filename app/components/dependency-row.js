@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import semver from 'npm:semver';
 import pairs from 'lodash/object/pairs';
 import cacheRequst from '../utils/cache-request';
 
