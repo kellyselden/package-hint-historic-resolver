@@ -32,6 +32,10 @@ export default Ember.Component.extend({
     return firstVersionHint && secondVersionHint && firstVersionHint !== secondVersionHint;
   }),
 
+  shouldHideRow: computed('shouldOnlyShowDifferent', 'areVersionsDifferent', function() {
+    return this.get('shouldOnlyShowDifferent') && !this.get('areVersionsDifferent');
+  }),
+
   getVersions: on('init', observer('module', 'stopCrawling', function() {
     let sem = this.get('apiSemaphore.sem');
     sem.take(() => {

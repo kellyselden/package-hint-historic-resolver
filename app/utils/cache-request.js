@@ -7,7 +7,7 @@ const sem = semaphore(1);
 
 import nodeRateLimiter from 'npm:limiter';
 const { RateLimiter } = nodeRateLimiter;
-const limiter = new RateLimiter(1, 250);
+const limiter = new RateLimiter(1, 50);
 
 const {
   run,

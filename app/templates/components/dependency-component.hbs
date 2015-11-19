@@ -51,6 +51,14 @@
   {{else}}
     <button {{action 'toggleCrawling'}}>{{toggleCrawlingText}}</button>
   {{/if}}
+  <label>
+    {{one-way-input
+      type="checkbox"
+      value=shouldOnlyShowDifferent
+      update=(action (mut shouldOnlyShowDifferent))
+    }}
+    Only show different
+  </label>
   {{#each dependencyGroups as |dep|}}
     {{dependency-table
       dep=dep
@@ -59,6 +67,7 @@
       repoWorkingDate=_repoWorkingDate
       repoBrokenDate=_repoBrokenDate
       stopCrawling=stopCrawling
+      shouldOnlyShowDifferent=shouldOnlyShowDifferent
       doneCrawling="doneCrawling"
     }}
   {{/each}}
