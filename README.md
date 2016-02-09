@@ -1,4 +1,6 @@
-# Package-hint-historic-resolver
+# package-hint-historic-resolver
+[![Dependency Status](https://gemnasium.com/kellyselden/package-hint-historic-resolver.svg)](https://gemnasium.com/kellyselden/package-hint-historic-resolver)
+[![devDependency Status](https://david-dm.org/kellyselden/package-hint-historic-resolver/dev-status.svg)](https://david-dm.org/kellyselden/package-hint-historic-resolver#info=devDependencies)
 
 This README outlines the details of collaborating on this Ember application.
 A short introduction of this app could easily go here.
