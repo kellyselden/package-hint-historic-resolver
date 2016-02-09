@@ -57,6 +57,12 @@ module.exports = function(environment) {
     // ENV.APP.LOG_TRANSITIONS_INTERNAL = true;
     // ENV.APP.LOG_VIEW_LOOKUPS = true;
 
+    // https://github.com/xdan/datetimepicker/pull/241
+    contentSecurityPolicy['script-src'] += " 'unsafe-eval'";
+
+    // /tests
+    contentSecurityPolicy['script-src'] += " 'unsafe-inline'";
+
     host = 'http://localhost:3000';
   }
 
@@ -74,6 +80,9 @@ module.exports = function(environment) {
 
   if (environment === 'production') {
     host = process.env.HOST;
+  }
+
+  if (['development'].indexOf(environment) !== -1) {
   }
 
   contentSecurityPolicy['connect-src'] +=
