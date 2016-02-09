@@ -1,16 +1,20 @@
 import Ember from 'ember';
 
-const { computed } = Ember;
+const {
+  Component,
+  computed
+} = Ember;
 
-const Component = Ember.Component.extend({
+const MyComponent = Component.extend({
   classNameBindings: ['areDifferent', 'isOneMissing:is-missing'],
+
   areDifferent: computed('areVersionsDifferent', 'areVersionsDifferentClass', function() {
     return this.get('areVersionsDifferent') ? this.get('areVersionsDifferentClass') : '';
-  }),
+  })
 });
 
-Component.reopenClass({
+MyComponent.reopenClass({
   positionalParams: ['version']
 });
 
-export default Component;
+export default MyComponent;
