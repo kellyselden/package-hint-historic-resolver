@@ -1,14 +1,17 @@
 import Ember from 'ember';
 import moment from 'moment';
-import sendRequst from '../utils/send-request';
 
 const {
+  Component,
   on,
   computed,
-  observer
+  observer,
+  inject: { service }
 } = Ember;
 
-const Component = Ember.Component.extend({
+const MyComponent = Component.extend({
+  requestSender: service(),
+
   until: computed('date', function() {
     let date = this.get('date');
     if (!date) {
@@ -27,7 +30,7 @@ const Component = Ember.Component.extend({
     }
 
     var url = `https://api.github.com/repos/${repo}/commits?until=${until}`;
-    sendRequst(url).then(data => {
+    this.get('requestSender').sendRequest(url).then(data => {
       let [latestCommit] = data;
       this.set('commit', latestCommit.sha);
       this.sendAction('foundCommitData', latestCommit);
@@ -45,7 +48,7 @@ const Component = Ember.Component.extend({
     }
 
     var url = `https://raw.githubusercontent.com/${repo}/${commit}/package.json`;
-    sendRequst(url).then(data => {
+    this.get('requestSender').sendRequest(url).then(data => {
       this.sendAction('receivedJson', data);
     }).catch(function() {
       console.log(arguments);
@@ -59,8 +62,8 @@ const Component = Ember.Component.extend({
   }
 });
 
-Component.reopenClass({
+MyComponent.reopenClass({
   positionalParams: ['date']
 });
 
-export default Component;
+export default MyComponent;

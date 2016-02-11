@@ -1,6 +1,5 @@
 import Ember from 'ember';
 import sum from 'ember-cpm/macros/sum';
-import cacheRequst from '../utils/cache-request';
 import normalizeDependencies from '../utils/normalize-dependencies';
 import mergeModules from '../utils/merge-modules';
 
@@ -14,7 +13,8 @@ const {
 export default Ember.Component.extend({
   tagName: '',
 
-  apiSemaphore: service(),
+  semaphore: service(),
+  requestCache: service(),
 
   nestingLevel: sum('incomingNestingLevel', 1),
 
@@ -45,19 +45,19 @@ export default Ember.Component.extend({
     otherVersionProp,
     otherPromiseProp
   ) {
-    let sem = this.get('apiSemaphore.sem');
-    sem.take(() => {
+    let semaphore = this.get('semaphore.noNameYetSemaphore');
+    semaphore.take(() => {
       let module  = this.get('module');
       let version = this.get(versionProp);
       if (!module || !version || this.get('stopCrawling') || this.get(dependencyProp)) {
-        return sem.leave();
+        return semaphore.leave();
       }
 
       this.incrementProperty('numberOfAwaitingRequests');
 
       let otherPromise = this.get(otherPromiseProp);
       if (version === this.get(otherVersionProp) && otherPromise) {
-        sem.leave();
+        semaphore.leave();
         return otherPromise.then(data => {
           if (!this.get('isDestroying') && !this.get('isDestroyed')) {
             this.set(dependencyProp, data);
@@ -69,8 +69,9 @@ export default Ember.Component.extend({
       }
 
       let haveLeft;
-      this.set(promiseProp, cacheRequst(`npm/${module}@${version}/dependencies`).then(data => {
-        sem.leave();
+      let path = `npm/${module}@${version}/dependencies`;
+      this.set(promiseProp, this.get('requestCache').cacheRequest(path).then(data => {
+        semaphore.leave();
         haveLeft = true;
         data = normalizeDependencies(data);
         if (!this.get('isDestroying') && !this.get('isDestroyed')) {
@@ -82,7 +83,7 @@ export default Ember.Component.extend({
         return data;
       }).catch((jqXHR, textStatus, errorThrown) => {
         if (!haveLeft) {
-          sem.leave();
+          semaphore.leave();
         }
         if (!this.get('isDestroying') && !this.get('isDestroyed')) {
           this.set('error', errorThrown);

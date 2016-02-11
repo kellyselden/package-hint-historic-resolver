@@ -1,7 +1,6 @@
 import Ember from 'ember';
 import semver from 'npm:semver';
 import pairs from 'lodash/object/pairs';
-import cacheRequst from '../utils/cache-request';
 
 const {
   on,
@@ -14,7 +13,8 @@ const {
 export default Ember.Component.extend({
   tagName: '',
 
-  apiSemaphore: service(),
+  semaphore: service(),
+  requestCache: service(),
 
   module:            readOnly('dep.module'),
   firstVersionHint:  readOnly('dep.firstVersionHint'),
@@ -40,18 +40,19 @@ export default Ember.Component.extend({
   }),
 
   getVersions: on('init', observer('module', 'stopCrawling', function() {
-    let sem = this.get('apiSemaphore.sem');
-    sem.take(() => {
+    let semaphore = this.get('semaphore.noNameYetSemaphore');
+    semaphore.take(() => {
       let module = this.get('module');
       if (!module || this.get('stopCrawling') || this.get('versions')) {
-        return sem.leave();
+        return semaphore.leave();
       }
 
       this.incrementProperty('numberOfAwaitingRequests');
 
       let haveLeft;
-      return cacheRequst(`npm/${module}/versions`).then(data => {
-        sem.leave();
+      let path = `npm/${module}/versions`;
+      return this.get('requestCache').cacheRequest(path).then(data => {
+        semaphore.leave();
         haveLeft = true;
         Ember.run(() => {
           if (!this.get('isDestroying') && !this.get('isDestroyed')) {
@@ -63,7 +64,7 @@ export default Ember.Component.extend({
         });
       }).catch((jqXHR, textStatus, errorThrown) => {
         if (!haveLeft) {
-          sem.leave();
+          semaphore.leave();
         }
         Ember.run(() => {
           if (!this.get('isDestroying') && !this.get('isDestroyed')) {
