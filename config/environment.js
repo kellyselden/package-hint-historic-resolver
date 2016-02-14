@@ -82,9 +82,6 @@ module.exports = function(environment) {
     host = process.env.HOST;
   }
 
-  if (['development'].indexOf(environment) !== -1) {
-  }
-
   contentSecurityPolicy['connect-src'] +=
     ' ' + host;
 
