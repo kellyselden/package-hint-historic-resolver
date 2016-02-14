@@ -8,13 +8,13 @@ moduleForComponent('version-display', 'Integration | Component | version display
 test('it renders', function(assert) {
   this.render(hbs`{{version-display}}`);
 
-  assert.equal(this.$().text().trim(), '');
+  assert.strictEqual(this.$().text().trim(), '');
 });
 
 test('it shows version', function(assert) {
   this.render(hbs`{{version-display "test version"}}`);
 
-  assert.equal(this.$().text().trim(), 'test version');
+  assert.strictEqual(this.$().text().trim(), 'test version');
 });
 
 test('it shows different versions class', function(assert) {
@@ -31,7 +31,7 @@ test('it shows different versions class', function(assert) {
 test('it shows missing text', function(assert) {
   this.render(hbs`{{version-display isMissing=true}}`);
 
-  assert.equal(this.$().text().trim(), 'missing');
+  assert.strictEqual(this.$().text().trim(), 'missing');
 });
 
 test('it has missing class', function(assert) {
