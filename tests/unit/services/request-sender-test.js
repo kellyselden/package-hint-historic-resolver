@@ -67,6 +67,6 @@ test('returns response', function(assert) {
   assert.expect(1);
 
   return service.sendRequest('test-path').then(response => {
-    assert.equal(response, 12);
+    assert.strictEqual(response, 12);
   });
 });

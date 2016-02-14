@@ -52,7 +52,7 @@ test('returns cached data', function(assert) {
   service.cache.get = sinon.stub().returns(12);
 
   return service.cacheRequest('test-url').then(data => {
-    assert.equal(data, 12);
+    assert.strictEqual(data, 12);
   });
 });
 
@@ -86,7 +86,7 @@ test('removes one at a time from the limiter', function(assert) {
   assert.expect(1);
 
   return service.cacheRequest('test-url').then(() => {
-    assert.equal(service.limiter.removeTokens.args[0][0], 1);
+    assert.strictEqual(service.limiter.removeTokens.args[0][0], 1);
   });
 });
 
@@ -118,7 +118,7 @@ test('resolves with expected data', function(assert) {
   assert.expect(1);
 
   return service.cacheRequest('test-url').then(data => {
-    assert.equal(data, 45);
+    assert.strictEqual(data, 45);
   });
 });
 
