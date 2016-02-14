@@ -6,6 +6,8 @@
     "ember-cli-test-loader": "0.2.2",
     "ember-qunit-notifications": "0.1.0",
     "datetimepicker": "2.4.5",
-    "sinonjs": "^1.0.0"
+    "sinonjs": "^1.0.0",
+    "es5-shim": "^4.0.0",
+    "pretender": "^0.10.0"
   }
 }
