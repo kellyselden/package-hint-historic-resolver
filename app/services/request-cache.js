@@ -3,7 +3,7 @@ import values from 'lodash/object/values';
 
 const {
   Service,
-  run,
+  get,
   RSVP: { Promise },
   inject: { service }
 } = Ember;
@@ -13,28 +13,40 @@ export default Service.extend({
   cache: service(),
   semaphore: service(),
   limiter: service(),
-  requestSender: service(),
+  adapter: service(),
 
   cacheRequest(url) {
     return new Promise((resolve, reject) => {
-      let cache = this.get('cache');
+      let cache = get(this, 'cache');
 
+      // don't bother waiting for the semaphore
+      // if the cache has a value
       let data = cache.get(url);
       if (data) {
         return resolve(data);
       }
 
-      let { cacheTime } = this.get('config');
-      let semaphore = this.get('semaphore.requestCacheSemaphore');
+      let semaphore = get(this, 'semaphore.requestCacheSemaphore');
 
       semaphore.take(() => {
-        this.get('limiter').removeTokens(1, () => {
+        // while you were waiting on the semaphore
+        // the data could have since been cached
+        // so check again
+        let data = cache.get(url);
+        if (data) {
           semaphore.leave();
 
-          this.get('requestSender').sendRequest(url).then(data => {
-            run(null, resolve, cache.put(url, data, cacheTime));
+          return resolve(data);
+        }
+
+        get(this, 'limiter').removeTokens(1, () => {
+          semaphore.leave();
+
+          get(this, 'adapter').ajax(url).then(response => {
+            let { cacheTime } = get(this, 'config');
+            resolve(cache.put(url, response, cacheTime));
           }).catch(function() {
-            run(null, reject, values(arguments));
+            reject(values(arguments));
           });
         });
       });

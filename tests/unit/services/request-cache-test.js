@@ -8,7 +8,6 @@ const {
 
 let service;
 
-// isn't asserting the run loop yet
 moduleFor('service:request-cache', 'Unit | Service | request cache', {
   beforeEach() {
     service = this.subject({
@@ -28,28 +27,27 @@ moduleFor('service:request-cache', 'Unit | Service | request cache', {
       limiter: {
         removeTokens: sinon.stub().callsArg(1)
       },
-      requestSender: {
-        sendRequest: sinon.stub().returns(Promise.resolve(23))
+      adapter: {
+        ajax: sinon.stub().returns(Promise.resolve(23))
       }
     });
   }
 });
 
-test('tries to get cached data with url key', function(assert) {
+test('tries to get cached data before entering semaphore', function(assert) {
   assert.expect(1);
 
-  let getStub = sinon.stub().returns(12);
-  service.cache.get = getStub;
+  service.cache.get.returns(12);
 
-  service.cacheRequest('test-url');
-
-  assert.deepEqual(getStub.args, [['test-url']]);
+  return service.cacheRequest('test-url').then(() => {
+    assert.deepEqual(service.cache.get.args, [['test-url']]);
+  });
 });
 
-test('returns cached data', function(assert) {
+test('returns cached data before entering semaphore', function(assert) {
   assert.expect(1);
 
-  service.cache.get = sinon.stub().returns(12);
+  service.cache.get.returns(12);
 
   return service.cacheRequest('test-url').then(data => {
     assert.strictEqual(data, 12);
@@ -59,7 +57,7 @@ test('returns cached data', function(assert) {
 test('doesn\'t enter the semaphore if the cache has data', function(assert) {
   assert.expect(1);
 
-  service.cache.get = sinon.stub().returns(12);
+  service.cache.get.returns(12);
 
   return service.cacheRequest('test-url').then(() => {
     assert.notOk(service.semaphore.requestCacheSemaphore.take.called);
@@ -71,6 +69,36 @@ test('enters the semaphore', function(assert) {
 
   return service.cacheRequest('test-url').then(() => {
     assert.ok(service.semaphore.requestCacheSemaphore.take.calledOnce);
+  });
+});
+
+test('tries to get cached data after entering semaphore', function(assert) {
+  assert.expect(1);
+
+  service.cache.get.onCall(1).returns(12);
+
+  return service.cacheRequest('test-url').then(() => {
+    assert.deepEqual(service.cache.get.args, [['test-url'], ['test-url']]);
+  });
+});
+
+test('leaves the semaphore after finding cached data', function(assert) {
+  assert.expect(1);
+
+  service.cache.get.onCall(1).returns(12);
+
+  return service.cacheRequest('test-url').then(() => {
+    assert.ok(service.semaphore.requestCacheSemaphore.leave.calledOnce);
+  });
+});
+
+test('returns cached data after entering semaphore', function(assert) {
+  assert.expect(1);
+
+  service.cache.get.onCall(1).returns(12);
+
+  return service.cacheRequest('test-url').then(data => {
+    assert.strictEqual(data, 12);
   });
 });
 
@@ -102,7 +130,7 @@ test('sends request with url', function(assert) {
   assert.expect(1);
 
   return service.cacheRequest('test-url').then(() => {
-    assert.deepEqual(service.requestSender.sendRequest.args, [['test-url']]);
+    assert.deepEqual(service.adapter.ajax.args, [['test-url']]);
   });
 });
 
@@ -125,7 +153,7 @@ test('resolves with expected data', function(assert) {
 test('rejects with request arguments', function(assert) {
   assert.expect(1);
 
-  service.requestSender.sendRequest = sinon.stub().returns(Promise.reject(56));
+  service.adapter.ajax.returns(Promise.reject(56));
 
   return service.cacheRequest('test-url').catch(data => {
     assert.deepEqual(data, [56]);
@@ -135,7 +163,7 @@ test('rejects with request arguments', function(assert) {
 test('does\'t cache data if request rejects', function(assert) {
   assert.expect(1);
 
-  service.requestSender.sendRequest = sinon.stub().returns(Promise.reject());
+  service.adapter.ajax.returns(Promise.reject());
 
   return service.cacheRequest('test-url').catch(() => {
     assert.notOk(service.cache.put.called);

@@ -1,8 +1,6 @@
 /* jshint node: true */
 
 module.exports = function(environment) {
-  var api = 'api/v1';
-
   var contentSecurityPolicy = {
     'default-src': "'none'",
     'script-src': "'self'",
@@ -35,7 +33,6 @@ module.exports = function(environment) {
     APP: {
       // Here you can pass flags/options to your application instance
       // when it is created
-      api: api
     },
     metricsAdapters: [
       {
@@ -49,6 +46,7 @@ module.exports = function(environment) {
   };
 
   var host;
+  var namespace = 'api/v1';
 
   if (environment === 'development') {
     // ENV.APP.LOG_RESOLVER = true;
@@ -76,6 +74,9 @@ module.exports = function(environment) {
     ENV.APP.LOG_VIEW_LOOKUPS = false;
 
     ENV.APP.rootElement = '#ember-testing';
+
+    host = 'http://test-host';
+    namespace = 'api';
   }
 
   if (environment === 'production') {
@@ -86,7 +87,8 @@ module.exports = function(environment) {
     ' ' + host;
 
   ENV.APP.host = host;
-  ENV.APP.serverApiEndpoint = host + '/' + api;
+  ENV.APP.namespace = namespace;
+  ENV.APP.serverApiEndpoint = host + '/' + namespace;
 
   return ENV;
 };
