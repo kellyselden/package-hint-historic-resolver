@@ -1,5 +1,4 @@
 import Ember from 'ember';
-import values from 'lodash/object/values';
 
 const {
   Service,
@@ -16,7 +15,7 @@ export default Service.extend({
   adapter: service(),
 
   cacheRequest(url) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       let cache = get(this, 'cache');
 
       // don't bother waiting for the semaphore
@@ -42,12 +41,12 @@ export default Service.extend({
         get(this, 'limiter').removeTokens(1, () => {
           semaphore.leave();
 
-          get(this, 'adapter').ajax(url).then(response => {
+          let promise = get(this, 'adapter').ajax(url).then(response => {
             let { cacheTime } = get(this, 'config');
-            resolve(cache.put(url, response, cacheTime));
-          }).catch(function() {
-            reject(values(arguments));
+            return cache.put(url, response, cacheTime);
           });
+
+          resolve(promise);
         });
       });
     });
