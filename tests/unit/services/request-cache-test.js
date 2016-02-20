@@ -6,29 +6,37 @@ const {
   RSVP: { Promise }
 } = Ember;
 
+let getStub, putStub, takeStub, leaveSpy, removeTokensStub, ajaxStub;
 let service;
 
 moduleFor('service:request-cache', 'Unit | Service | request cache', {
   beforeEach() {
+    getStub = sinon.stub().returns(null);
+    putStub = sinon.stub().returns(45);
+    takeStub = sinon.stub().callsArg(0);
+    leaveSpy = sinon.spy();
+    removeTokensStub = sinon.stub().callsArg(1);
+    ajaxStub = sinon.stub().returns(Promise.resolve(23));
+
     service = this.subject({
       config: {
         cacheTime: 34
       },
       cache: {
-        get: sinon.stub().returns(null),
-        put: sinon.stub().returns(45)
+        get: getStub,
+        put: putStub
       },
       semaphore: {
         requestCacheSemaphore: {
-          take: sinon.stub().callsArg(0),
-          leave: sinon.spy()
+          take: takeStub,
+          leave: leaveSpy
         }
       },
       limiter: {
-        removeTokens: sinon.stub().callsArg(1)
+        removeTokens: removeTokensStub
       },
       adapter: {
-        ajax: sinon.stub().returns(Promise.resolve(23))
+        ajax: ajaxStub
       }
     });
   }
@@ -38,24 +46,24 @@ test('tries to get cached data before entering semaphore', function(assert) {
   assert.expect(1);
 
   return service.cacheRequest('test-url').then(() => {
-    assert.ok(service.cache.get.calledBefore(service.semaphore.requestCacheSemaphore.take));
+    assert.ok(getStub.calledBefore(takeStub));
   });
 });
 
 test('tries to get cached data using key before entering semaphore', function(assert) {
   assert.expect(1);
 
-  service.cache.get.returns(12);
+  getStub.returns(12);
 
   return service.cacheRequest('test-url').then(() => {
-    assert.deepEqual(service.cache.get.args, [['test-url']]);
+    assert.deepEqual(getStub.args, [['test-url']]);
   });
 });
 
 test('returns cached data before entering semaphore', function(assert) {
   assert.expect(1);
 
-  service.cache.get.returns(12);
+  getStub.returns(12);
 
   return service.cacheRequest('test-url').then(data => {
     assert.strictEqual(data, 12);
@@ -65,10 +73,10 @@ test('returns cached data before entering semaphore', function(assert) {
 test('doesn\'t enter semaphore if cache has data', function(assert) {
   assert.expect(1);
 
-  service.cache.get.returns(12);
+  getStub.returns(12);
 
   return service.cacheRequest('test-url').then(() => {
-    assert.notOk(service.semaphore.requestCacheSemaphore.take.called);
+    assert.notOk(takeStub.called);
   });
 });
 
@@ -76,44 +84,44 @@ test('enters semaphore', function(assert) {
   assert.expect(1);
 
   return service.cacheRequest('test-url').then(() => {
-    assert.ok(service.semaphore.requestCacheSemaphore.take.calledOnce);
+    assert.ok(takeStub.calledOnce);
   });
 });
 
 test('tries to get cached data after entering semaphore', function(assert) {
   assert.expect(1);
 
-  service.cache.get.onCall(1).returns(12);
+  getStub.onCall(1).returns(12);
 
   return service.cacheRequest('test-url').then(() => {
-    assert.ok(service.cache.get.calledAfter(service.semaphore.requestCacheSemaphore.take));
+    assert.ok(getStub.calledAfter(takeStub));
   });
 });
 
 test('tries to get cached data using key after entering semaphore', function(assert) {
   assert.expect(1);
 
-  service.cache.get.onCall(1).returns(12);
+  getStub.onCall(1).returns(12);
 
   return service.cacheRequest('test-url').then(() => {
-    assert.deepEqual(service.cache.get.args[1], ['test-url']);
+    assert.deepEqual(getStub.args[1], ['test-url']);
   });
 });
 
 test('leaves semaphore after finding cached data', function(assert) {
   assert.expect(1);
 
-  service.cache.get.onCall(1).returns(12);
+  getStub.onCall(1).returns(12);
 
   return service.cacheRequest('test-url').then(() => {
-    assert.ok(service.semaphore.requestCacheSemaphore.leave.calledOnce);
+    assert.ok(leaveSpy.calledOnce);
   });
 });
 
 test('returns cached data after entering semaphore', function(assert) {
   assert.expect(1);
 
-  service.cache.get.onCall(1).returns(12);
+  getStub.onCall(1).returns(12);
 
   return service.cacheRequest('test-url').then(data => {
     assert.strictEqual(data, 12);
@@ -124,7 +132,7 @@ test('enters limiter after entering semaphore', function(assert) {
   assert.expect(1);
 
   return service.cacheRequest('test-url').then(() => {
-    assert.ok(service.limiter.removeTokens.calledAfter(service.semaphore.requestCacheSemaphore.take));
+    assert.ok(removeTokensStub.calledAfter(takeStub));
   });
 });
 
@@ -132,7 +140,7 @@ test('removes one at a time from limiter', function(assert) {
   assert.expect(1);
 
   return service.cacheRequest('test-url').then(() => {
-    assert.strictEqual(service.limiter.removeTokens.args[0][0], 1);
+    assert.strictEqual(removeTokensStub.args[0][0], 1);
   });
 });
 
@@ -140,7 +148,7 @@ test('sends request after limiter', function(assert) {
   assert.expect(1);
 
   return service.cacheRequest('test-url').then(() => {
-    assert.ok(service.adapter.ajax.calledAfter(service.limiter.removeTokens));
+    assert.ok(ajaxStub.calledAfter(removeTokensStub));
   });
 });
 
@@ -148,7 +156,7 @@ test('sends request with url', function(assert) {
   assert.expect(1);
 
   return service.cacheRequest('test-url').then(() => {
-    assert.deepEqual(service.adapter.ajax.args, [['test-url']]);
+    assert.deepEqual(ajaxStub.args, [['test-url']]);
   });
 });
 
@@ -156,7 +164,7 @@ test('caches the data for a length of time', function(assert) {
   assert.expect(1);
 
   return service.cacheRequest('test-url').then(() => {
-    assert.deepEqual(service.cache.put.args, [['test-url', 23, 34]]);
+    assert.deepEqual(putStub.args, [['test-url', 23, 34]]);
   });
 });
 
@@ -171,10 +179,10 @@ test('resolves with expected data', function(assert) {
 test('does\'t cache data if request rejects', function(assert) {
   assert.expect(1);
 
-  service.adapter.ajax.returns(Promise.reject());
+  ajaxStub.returns(Promise.reject());
 
   return service.cacheRequest('test-url').catch(() => {
-    assert.notOk(service.cache.put.called);
+    assert.notOk(putStub.called);
   });
 });
 
@@ -182,16 +190,16 @@ test('leaves semaphore after request resolves', function(assert) {
   assert.expect(1);
 
   return service.cacheRequest('test-url').then(() => {
-    assert.ok(service.semaphore.requestCacheSemaphore.leave.calledAfter(service.adapter.ajax));
+    assert.ok(leaveSpy.calledAfter(ajaxStub));
   });
 });
 
 test('leaves semaphore after request rejects', function(assert) {
   assert.expect(1);
 
-  service.adapter.ajax.returns(Promise.reject());
+  ajaxStub.returns(Promise.reject());
 
   return service.cacheRequest('test-url').catch(() => {
-    assert.ok(service.semaphore.requestCacheSemaphore.leave.calledAfter(service.adapter.ajax));
+    assert.ok(leaveSpy.calledAfter(ajaxStub));
   });
 });
