@@ -150,16 +150,6 @@ test('resolves with expected data', function(assert) {
   });
 });
 
-test('rejects with request arguments', function(assert) {
-  assert.expect(1);
-
-  service.adapter.ajax.returns(Promise.reject(56));
-
-  return service.cacheRequest('test-url').catch(data => {
-    assert.deepEqual(data, [56]);
-  });
-});
-
 test('does\'t cache data if request rejects', function(assert) {
   assert.expect(1);
 
