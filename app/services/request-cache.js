@@ -39,11 +39,11 @@ export default Service.extend({
         }
 
         get(this, 'limiter').removeTokens(1, () => {
-          semaphore.leave();
-
           let promise = get(this, 'adapter').ajax(url).then(response => {
             let { cacheTime } = get(this, 'config');
             return cache.put(url, response, cacheTime);
+          }).finally(() => {
+            semaphore.leave();
           });
 
           resolve(promise);

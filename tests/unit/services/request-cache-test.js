@@ -37,6 +37,14 @@ moduleFor('service:request-cache', 'Unit | Service | request cache', {
 test('tries to get cached data before entering semaphore', function(assert) {
   assert.expect(1);
 
+  return service.cacheRequest('test-url').then(() => {
+    assert.ok(service.cache.get.calledBefore(service.semaphore.requestCacheSemaphore.take));
+  });
+});
+
+test('tries to get cached data using key before entering semaphore', function(assert) {
+  assert.expect(1);
+
   service.cache.get.returns(12);
 
   return service.cacheRequest('test-url').then(() => {
@@ -54,7 +62,7 @@ test('returns cached data before entering semaphore', function(assert) {
   });
 });
 
-test('doesn\'t enter the semaphore if the cache has data', function(assert) {
+test('doesn\'t enter semaphore if cache has data', function(assert) {
   assert.expect(1);
 
   service.cache.get.returns(12);
@@ -64,7 +72,7 @@ test('doesn\'t enter the semaphore if the cache has data', function(assert) {
   });
 });
 
-test('enters the semaphore', function(assert) {
+test('enters semaphore', function(assert) {
   assert.expect(1);
 
   return service.cacheRequest('test-url').then(() => {
@@ -78,11 +86,21 @@ test('tries to get cached data after entering semaphore', function(assert) {
   service.cache.get.onCall(1).returns(12);
 
   return service.cacheRequest('test-url').then(() => {
-    assert.deepEqual(service.cache.get.args, [['test-url'], ['test-url']]);
+    assert.ok(service.cache.get.calledAfter(service.semaphore.requestCacheSemaphore.take));
   });
 });
 
-test('leaves the semaphore after finding cached data', function(assert) {
+test('tries to get cached data using key after entering semaphore', function(assert) {
+  assert.expect(1);
+
+  service.cache.get.onCall(1).returns(12);
+
+  return service.cacheRequest('test-url').then(() => {
+    assert.deepEqual(service.cache.get.args[1], ['test-url']);
+  });
+});
+
+test('leaves semaphore after finding cached data', function(assert) {
   assert.expect(1);
 
   service.cache.get.onCall(1).returns(12);
@@ -102,15 +120,15 @@ test('returns cached data after entering semaphore', function(assert) {
   });
 });
 
-test('enters the limiter', function(assert) {
+test('enters limiter after entering semaphore', function(assert) {
   assert.expect(1);
 
   return service.cacheRequest('test-url').then(() => {
-    assert.ok(service.limiter.removeTokens.calledOnce);
+    assert.ok(service.limiter.removeTokens.calledAfter(service.semaphore.requestCacheSemaphore.take));
   });
 });
 
-test('removes one at a time from the limiter', function(assert) {
+test('removes one at a time from limiter', function(assert) {
   assert.expect(1);
 
   return service.cacheRequest('test-url').then(() => {
@@ -118,11 +136,11 @@ test('removes one at a time from the limiter', function(assert) {
   });
 });
 
-test('leaves the semaphore', function(assert) {
+test('sends request after limiter', function(assert) {
   assert.expect(1);
 
   return service.cacheRequest('test-url').then(() => {
-    assert.ok(service.semaphore.requestCacheSemaphore.leave.calledOnce);
+    assert.ok(service.adapter.ajax.calledAfter(service.limiter.removeTokens));
   });
 });
 
@@ -157,5 +175,23 @@ test('does\'t cache data if request rejects', function(assert) {
 
   return service.cacheRequest('test-url').catch(() => {
     assert.notOk(service.cache.put.called);
+  });
+});
+
+test('leaves semaphore after request resolves', function(assert) {
+  assert.expect(1);
+
+  return service.cacheRequest('test-url').then(() => {
+    assert.ok(service.semaphore.requestCacheSemaphore.leave.calledAfter(service.adapter.ajax));
+  });
+});
+
+test('leaves semaphore after request rejects', function(assert) {
+  assert.expect(1);
+
+  service.adapter.ajax.returns(Promise.reject());
+
+  return service.cacheRequest('test-url').catch(() => {
+    assert.ok(service.semaphore.requestCacheSemaphore.leave.calledAfter(service.adapter.ajax));
   });
 });
