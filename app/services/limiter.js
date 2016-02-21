@@ -2,13 +2,29 @@ import Ember from 'ember';
 import nodeRateLimiter from 'npm:limiter';
 
 const {
-  Service
+  Service,
+  get,
+  computed: { readOnly },
+  inject: { service }
 } = Ember;
 const { RateLimiter } = nodeRateLimiter;
-const limiter = new RateLimiter(1, 50);
+
+let limiter;
 
 export default Service.extend({
+  config: service(),
+
+  cacheTime: readOnly('config.limiterTime'),
+
   removeTokens() {
+    if (!limiter) {
+      limiter = new RateLimiter(1, get(this, 'limiterTime'));
+    }
+
     return limiter.removeTokens(...arguments);
+  },
+
+  reset() {
+    limiter = null;
   }
 });

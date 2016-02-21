@@ -3,6 +3,7 @@ import Ember from 'ember';
 const {
   Service,
   get,
+  computed: { readOnly },
   RSVP: { Promise },
   inject: { service }
 } = Ember;
@@ -13,6 +14,9 @@ export default Service.extend({
   semaphore: service(),
   limiter: service(),
   adapter: service(),
+
+  mySemaphore: readOnly('semaphore.requestCacheSemaphore'),
+  cacheTime: readOnly('config.cacheTime'),
 
   cacheRequest(url) {
     return new Promise(resolve => {
@@ -25,7 +29,7 @@ export default Service.extend({
         return resolve(data);
       }
 
-      let semaphore = get(this, 'semaphore.requestCacheSemaphore');
+      let semaphore = get(this, 'mySemaphore');
 
       semaphore.take(() => {
         // while you were waiting on the semaphore
@@ -40,8 +44,7 @@ export default Service.extend({
 
         get(this, 'limiter').removeTokens(1, () => {
           let promise = get(this, 'adapter').ajax(url).then(response => {
-            let { cacheTime } = get(this, 'config');
-            return cache.put(url, response, cacheTime);
+            return cache.put(url, response, get(this, 'cacheTime'));
           }).finally(() => {
             semaphore.leave();
           });
