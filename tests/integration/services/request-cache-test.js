@@ -4,26 +4,39 @@ import Pretender from 'pretender';
 import cache from 'npm:memory-cache';
 
 const {
+  Service,
+  set,
   RSVP: { all }
 } = Ember;
 
-let service;
+const config = Service.extend({
+  limiterTime: 1
+}).create();
+
 let server;
+let limiter;
+let service;
 
 moduleFor('service:request-cache', 'Integration | Service | request cache', {
   integration: true,
   beforeEach() {
-    service = this.subject({
-      config: {}
-    });
-
     server = new Pretender();
     server.prepareBody = JSON.stringify;
+
+    this.register('service:config', config, { instantiate: false });
+    this.inject.service('config', { as: 'config' });
+
+    // https://github.com/jquery/qunit/pull/919
+    if (!limiter) {
+      limiter = this.container.lookup('service:limiter');
+    }
+
+    service = this.subject();
   },
   afterEach() {
-    cache.clear();
-
     server.shutdown();
+    limiter.reset();
+    cache.clear();
   }
 });
 
@@ -106,7 +119,7 @@ test('cache invalidates after given time', function(assert) {
   assert.expect(1);
 
   let cacheTime = 1;
-  service.config.cacheTime = cacheTime;
+  set(config, 'cacheTime', cacheTime);
 
   server.get('http://test-host/api/test-url', () => {
     return [200, {}, [12]];
