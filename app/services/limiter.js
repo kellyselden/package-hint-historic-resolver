@@ -14,7 +14,7 @@ let limiter;
 export default Service.extend({
   config: service(),
 
-  cacheTime: readOnly('config.limiterTime'),
+  limiterTime: readOnly('config.limiterTime'),
 
   removeTokens() {
     if (!limiter) {
