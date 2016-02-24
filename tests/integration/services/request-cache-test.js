@@ -129,13 +129,33 @@ test('cache invalidates after given time', function(assert) {
     let timeCacheWasSet = Date.now();
     while (Date.now() - timeCacheWasSet <= cacheTime) {}
 
-    // changing response value to verify the cached value is used
     server.get('http://test-host/api/test-url', () => {
       return [200, {}, [23]];
     });
 
     return service.cacheRequest('test-url').then(data => {
       assert.deepEqual(data, [23]);
+    });
+  });
+});
+
+test('limits calls', function(assert) {
+  assert.expect(1);
+
+  let limiterTime = 100;
+  set(config, 'limiterTime', limiterTime);
+
+  server.get('http://test-host/api/test-url', () => {
+    return [200, {}, [12]];
+  });
+
+  let timeLimiterWasStarted = Date.now();
+
+  return service.cacheRequest('test-url').then(() => {
+    cache.clear();
+
+    return service.cacheRequest('test-url').then(() => {
+      assert.ok(Date.now() - timeLimiterWasStarted > limiterTime);
     });
   });
 });
