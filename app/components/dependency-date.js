@@ -3,17 +3,18 @@ import moment from 'moment';
 
 const {
   Component,
-  on,
-  computed,
-  observer,
+  get, set,
+  on, computed, observer,
   inject: { service }
 } = Ember;
 
 const MyComponent = Component.extend({
   ajax: service(),
 
+  classNames: ['dependency-date'],
+
   until: computed('date', function() {
-    let date = this.get('date');
+    let date = get(this, 'date');
     if (!date) {
       return;
     }
@@ -22,36 +23,36 @@ const MyComponent = Component.extend({
   }),
 
   latestCommitDataObserver: on('init', observer('repo', 'until', function() {
-    let repo  = this.get('repo'),
-        until = this.get('until');
+    let repo  = get(this, 'repo'),
+        until = get(this, 'until');
     if (!repo || !until) {
-      this.set('commitData', undefined);
+      set(this, 'commitData', undefined);
       return;
     }
 
-    var url = `https://api.github.com/repos/${repo}/commits?until=${until}`;
-    this.get('ajax').request(url).then(data => {
+    let url = `https://api.github.com/repos/${repo}/commits?until=${until}`;
+    get(this, 'ajax').request(url).then(data => {
       let [latestCommit] = data;
-      this.set('commit', latestCommit.sha);
+      set(this, 'commit', latestCommit.sha);
       this.sendAction('foundCommitData', latestCommit);
-    }).catch(function() {
-      console.log(arguments);
+    }).catch(error => {
+      this.sendAction('error', `Error retrieving latest commit: ${error}`);
     });
   })),
 
   jsonObserver: observer('commit', function() {
-    let repo   = this.get('repo'),
-        commit = this.get('commit');
+    let repo   = get(this, 'repo'),
+        commit = get(this, 'commit');
     if (!repo || !commit) {
-      this.set('commit', undefined);
+      set(this, 'commit', undefined);
       return;
     }
 
-    var url = `https://raw.githubusercontent.com/${repo}/${commit}/package.json`;
-    this.get('ajax').request(url).then(data => {
+    let url = `https://raw.githubusercontent.com/${repo}/${commit}/package.json`;
+    get(this, 'ajax').request(url).then(data => {
       this.sendAction('receivedJson', data);
-    }).catch(function() {
-      console.log(arguments);
+    }).catch(error => {
+      this.sendAction('error', `Error retrieving latest commit: ${error}`);
     });
   }),
 
