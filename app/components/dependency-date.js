@@ -10,7 +10,7 @@ const {
 } = Ember;
 
 const MyComponent = Component.extend({
-  requestSender: service(),
+  ajax: service(),
 
   until: computed('date', function() {
     let date = this.get('date');
@@ -30,7 +30,7 @@ const MyComponent = Component.extend({
     }
 
     var url = `https://api.github.com/repos/${repo}/commits?until=${until}`;
-    this.get('requestSender').sendRequest(url).then(data => {
+    this.get('ajax').request(url).then(data => {
       let [latestCommit] = data;
       this.set('commit', latestCommit.sha);
       this.sendAction('foundCommitData', latestCommit);
@@ -48,7 +48,7 @@ const MyComponent = Component.extend({
     }
 
     var url = `https://raw.githubusercontent.com/${repo}/${commit}/package.json`;
-    this.get('requestSender').sendRequest(url).then(data => {
+    this.get('ajax').request(url).then(data => {
       this.sendAction('receivedJson', data);
     }).catch(function() {
       console.log(arguments);
