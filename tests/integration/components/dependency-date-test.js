@@ -11,6 +11,12 @@ moduleForComponent('dependency-date', 'Integration | Component | dependency date
   beforeEach() {
     server = new Pretender();
     server.prepareBody = JSON.stringify;
+
+    server.get('https://api.github.com/repos/test-repo/commits', () => {
+      return [200, {}, [{
+        sha: 35345
+      }]];
+    });
   },
   afterEach() {
     server.shutdown();
@@ -132,13 +138,11 @@ test('sends latest commit data', function(assert) {
   this.set('repo', 'test-repo');
 
   this.on('foundCommitData', latestCommit => {
-    assert.strictEqual(latestCommit, 12);
+    assert.deepEqual(latestCommit, {
+      sha: 35345
+    });
 
     done();
-  });
-
-  server.get('https://api.github.com/repos/test-repo/commits', () => {
-    return [200, {}, [12]];
   });
 
   this.render(hbs`
@@ -146,6 +150,90 @@ test('sends latest commit data', function(assert) {
       date
       repo=repo
       foundCommitData="foundCommitData"
+    }}
+  `);
+
+  waitForDateChange(this);
+});
+
+test('calls github api for package.json', function(assert) {
+  assert.expect(0);
+
+  let done = assert.async();
+
+  this.set('date', date);
+  this.set('repo', 'test-repo');
+
+  server.get('https://raw.githubusercontent.com/test-repo/35345/package.json', () => {
+    done();
+  });
+
+  this.render(hbs`
+    {{dependency-date
+      date
+      repo=repo
+    }}
+  `);
+
+  waitForDateChange(this);
+});
+
+test('sends package.json contents', function(assert) {
+  assert.expect(1);
+
+  let done = assert.async();
+
+  this.set('date', date);
+  this.set('repo', 'test-repo');
+
+  this.on('receivedJson', data => {
+    assert.deepEqual(data, {
+      contents: 'test-contents'
+    });
+
+    done();
+  });
+
+  server.get('https://raw.githubusercontent.com/test-repo/35345/package.json', () => {
+    return [200, {}, {
+      contents: 'test-contents'
+    }];
+  });
+
+  this.render(hbs`
+    {{dependency-date
+      date
+      repo=repo
+      receivedJson="receivedJson"
+    }}
+  `);
+
+  waitForDateChange(this);
+});
+
+test('handles error retrieving package.json', function(assert) {
+  assert.expect(1);
+
+  let done = assert.async();
+
+  this.set('date', date);
+  this.set('repo', 'test-repo');
+
+  this.on('error', error => {
+    assert.strictEqual(error, 'Error retrieving package.json: Error: Ajax operation failed');
+
+    done();
+  });
+
+  server.get('https://raw.githubusercontent.com/test-repo/35345/package.json', () => {
+    return [500, {}, {}];
+  });
+
+  this.render(hbs`
+    {{dependency-date
+      date
+      repo=repo
+      error="error"
     }}
   `);
 
