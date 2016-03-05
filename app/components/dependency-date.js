@@ -13,7 +13,7 @@ const MyComponent = Component.extend({
 
   classNames: ['dependency-date'],
 
-  until: computed('date', function() {
+  _until: computed('date', function() {
     let date = get(this, 'date');
     if (!date) {
       return;
@@ -22,29 +22,28 @@ const MyComponent = Component.extend({
     return moment(date).toJSON();
   }),
 
-  latestCommitDataObserver: on('init', observer('repo', 'until', function() {
+  latestCommitDataObserver: on('init', observer('repo', '_until', function() {
     let repo  = get(this, 'repo'),
-        until = get(this, 'until');
+        until = get(this, '_until');
     if (!repo || !until) {
       set(this, 'commitData', undefined);
       return;
     }
 
     let url = `https://api.github.com/repos/${repo}/commits?until=${until}`;
-    get(this, 'ajax').request(url).then(data => {
-      let [latestCommit] = data;
-      set(this, 'commit', latestCommit.sha);
+    get(this, 'ajax').request(url).then(([latestCommit]) => {
+      set(this, '_commit', latestCommit.sha);
       this.sendAction('foundCommitData', latestCommit);
     }).catch(error => {
       this.sendAction('error', `Error retrieving latest commit: ${error}`);
     });
   })),
 
-  jsonObserver: observer('commit', function() {
+  jsonObserver: observer('_commit', function() {
     let repo   = get(this, 'repo'),
-        commit = get(this, 'commit');
+        commit = get(this, '_commit');
     if (!repo || !commit) {
-      set(this, 'commit', undefined);
+      set(this, '_commit', undefined);
       return;
     }
 
