@@ -77,6 +77,10 @@ test('caches data from request', function(assert) {
 test('doesn\'t cache data when request fails', function(assert) {
   assert.expect(1);
 
+  server.get('http://test-host/api/test-url', () => {
+    return [500, {}, {}];
+  });
+
   return service.cacheRequest('test-url').catch(() => {
     assert.strictEqual(cache.get('test-url'), null);
   });
