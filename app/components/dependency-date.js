@@ -26,7 +26,7 @@ const MyComponent = Component.extend({
     let repo  = get(this, 'repo'),
         until = get(this, '_until');
     if (!repo || !until) {
-      set(this, 'commitData', undefined);
+      set(this, '_commit', undefined);
       return;
     }
 
@@ -51,7 +51,7 @@ const MyComponent = Component.extend({
     get(this, 'ajax').request(url).then(data => {
       this.sendAction('receivedJson', data);
     }).catch(error => {
-      this.sendAction('error', `Error retrieving latest commit: ${error}`);
+      this.sendAction('error', `Error retrieving package.json: ${error}`);
     });
   }),
 
