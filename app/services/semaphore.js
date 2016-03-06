@@ -7,5 +7,5 @@ const {
 
 export default Service.extend({
   requestCacheSemaphore: semaphore(1),
-  noNameYetSemaphore: semaphore(3)
+  moduleSemaphore: semaphore(3)
 });
