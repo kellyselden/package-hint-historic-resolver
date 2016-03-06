@@ -1,6 +1,8 @@
 {{#unless shouldHideRow}}
   <tr>
-    <td style="padding-left: {{nestingLevel}}em;">{{module}}</td>
+    <td class="module" style="padding-left: {{nestingLevel}}em;">
+      {{module}}
+    </td>
     <td class="first-version-hint">
       {{version-display
         firstVersionHint
