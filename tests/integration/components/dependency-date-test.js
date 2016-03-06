@@ -39,6 +39,16 @@ function waitForDateChange(context) {
   });
 }
 
+test('shows input', function(assert) {
+  assert.expect(1);
+
+  this.render(hbs`
+    {{dependency-date}}
+  `);
+
+  assert.strictEqual(this.$('.date-time-picker').length, 1);
+});
+
 test('calendar pops up', function(assert) {
   assert.expect(0);
 

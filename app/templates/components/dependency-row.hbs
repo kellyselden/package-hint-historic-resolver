@@ -1,7 +1,7 @@
 {{#unless shouldHideRow}}
   <tr>
     <td style="padding-left: {{nestingLevel}}em;">{{module}}</td>
-    <td>
+    <td class="first-version-hint">
       {{version-display
         firstVersionHint
         isMissing=isFirstVersionHintMissing
@@ -10,7 +10,7 @@
         areVersionsDifferentClass="hints-are-different"
       }}
     </td>
-    <td>
+    <td class="second-version-hint">
       {{version-display
         secondVersionHint
         isMissing=isSecondVersionHintMissing
@@ -19,7 +19,7 @@
         areVersionsDifferentClass="hints-are-different"
       }}
     </td>
-    <td>
+    <td class="first-version">
       {{version-display
         firstVersion
         isMissing=isFirstVersionHintMissing
@@ -29,7 +29,7 @@
       }}
       {{error}}
     </td>
-    <td>
+    <td class="second-version">
       {{version-display
         secondVersion
         isMissing=isSecondVersionHintMissing

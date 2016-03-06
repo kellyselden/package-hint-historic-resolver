@@ -3,47 +3,44 @@ import semver from 'npm:semver';
 import pairs from 'lodash/object/pairs';
 
 const {
-  on,
-  observer,
-  computed,
-  computed: { not, readOnly },
+  Component,
+  get, set,
+  on, observer, computed,
+  computed: { not, readOnly, or, and },
   inject: { service }
 } = Ember;
 
-export default Ember.Component.extend({
+export default Component.extend({
   tagName: '',
 
-  semaphore: service(),
+  semaphore:    service(),
   requestCache: service(),
 
   module:            readOnly('dep.module'),
   firstVersionHint:  readOnly('dep.firstVersionHint'),
   secondVersionHint: readOnly('dep.secondVersionHint'),
 
-  nestingLevel: 0,
+  // nestingLevel: 0,
 
   numberOfAwaitingRequests: 0,
 
-  isFirstVersionHintMissing: not('firstVersionHint'),
+  isFirstVersionHintMissing:  not('firstVersionHint'),
   isSecondVersionHintMissing: not('secondVersionHint'),
-  isOneMissing: computed('firstVersionHint', 'secondVersionHint', function() {
-    return !this.get('firstVersionHint') || !this.get('secondVersionHint');
-  }),
+  isOneMissing: or('isFirstVersionHintMissing', 'isSecondVersionHintMissing'),
   areVersionHintsDifferent: computed('firstVersionHint', 'secondVersionHint', function() {
-    let firstVersionHint  = this.get('firstVersionHint'),
-        secondVersionHint = this.get('secondVersionHint');
+    let firstVersionHint  = get(this, 'firstVersionHint'),
+        secondVersionHint = get(this, 'secondVersionHint');
     return firstVersionHint && secondVersionHint && firstVersionHint !== secondVersionHint;
   }),
 
-  shouldHideRow: computed('shouldOnlyShowDifferent', 'areVersionsDifferent', function() {
-    return this.get('shouldOnlyShowDifferent') && !this.get('areVersionsDifferent');
-  }),
+  _areVersionsSame: not('areVersionsDifferent'),
+  shouldHideRow: and('shouldOnlyShowDifferent', '_areVersionsSame'),
 
   getVersions: on('init', observer('module', 'stopCrawling', function() {
-    let semaphore = this.get('semaphore.noNameYetSemaphore');
+    let semaphore = get(this, 'semaphore.noNameYetSemaphore');
     semaphore.take(() => {
-      let module = this.get('module');
-      if (!module || this.get('stopCrawling') || this.get('versions')) {
+      let module = get(this, 'module');
+      if (!module || get(this, 'stopCrawling') || get(this, 'versions')) {
         return semaphore.leave();
       }
 
@@ -51,48 +48,44 @@ export default Ember.Component.extend({
 
       let haveLeft;
       let path = `npm/${module}/versions`;
-      return this.get('requestCache').cacheRequest(path).then(data => {
+      return get(this, 'requestCache').cacheRequest(path).then(data => {
         semaphore.leave();
         haveLeft = true;
-        Ember.run(() => {
-          if (!this.get('isDestroying') && !this.get('isDestroyed')) {
-            this.set('versions', pairs(data));
-            if (this.decrementProperty('numberOfAwaitingRequests') === 0) {
-              this.sendAction('doneCrawling', this.get('dep'));
-            }
+        if (!get(this, 'isDestroying') && !get(this, 'isDestroyed')) {
+          set(this, 'versions', pairs(data));
+          if (this.decrementProperty('numberOfAwaitingRequests') === 0) {
+            this.sendAction('doneCrawling', get(this, 'dep'));
           }
-        });
-      }).catch((jqXHR, textStatus, errorThrown) => {
+        }
+      }).catch(error => {
         if (!haveLeft) {
           semaphore.leave();
         }
-        Ember.run(() => {
-          if (!this.get('isDestroying') && !this.get('isDestroyed')) {
-            this.set('error', errorThrown);
-          }
-        });
+        if (!get(this, 'isDestroying') && !get(this, 'isDestroyed')) {
+          set(this, 'error', error);
+        }
       });
     });
   })),
 
   firstVersion: computed('firstVersionHint', 'versions.length', 'repoWorkingDate', function() {
     return getRealVersion(
-      this.get('firstVersionHint'),
-      this.get('versions'),
-      this.get('repoWorkingDate')
+      get(this, 'firstVersionHint'),
+      get(this, 'versions'),
+      get(this, 'repoWorkingDate')
     );
   }),
   secondVersion: computed('secondVersionHint', 'versions.length', 'repoBrokenDate', function() {
     return getRealVersion(
-      this.get('secondVersionHint'),
-      this.get('versions'),
-      this.get('repoBrokenDate')
+      get(this, 'secondVersionHint'),
+      get(this, 'versions'),
+      get(this, 'repoBrokenDate')
     );
   }),
 
   areVersionsDifferent: computed('firstVersion', 'secondVersion', function() {
-    let firstVersion  = this.get('firstVersion'),
-        secondVersion = this.get('secondVersion');
+    let firstVersion  = get(this, 'firstVersion'),
+        secondVersion = get(this, 'secondVersion');
     if (!firstVersion || !secondVersion) {
       return false;
     }
@@ -103,7 +96,7 @@ export default Ember.Component.extend({
   actions: {
     // doneCrawling() {
     //   if (this.decrementProperty('numberOfAwaitingRequests') === 0) {
-    //     this.sendAction('doneCrawling', this.get('dep'));
+    //     this.sendAction('doneCrawling', get(this, 'dep'));
     //   }
     // }
   }
@@ -114,8 +107,7 @@ function getRealVersion(version, versions, dateCeiling) {
     return;
   }
 
-  versions = versions.filter(pair => {
-    let [version, date] = pair;
+  versions = versions.filter(([version, date]) => {
     return semver.valid(version) && new Date(date) <= dateCeiling;
   }).map(([version]) => version);
 
