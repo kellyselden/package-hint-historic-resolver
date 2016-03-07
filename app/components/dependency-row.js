@@ -22,7 +22,7 @@ export default Component.extend({
 
   // nestingLevel: 0,
 
-  numberOfAwaitingRequests: 0,
+  _numberOfAwaitingRequests: 0,
 
   isFirstVersionHintMissing:  not('firstVersionHint'),
   isSecondVersionHintMissing: not('secondVersionHint'),
@@ -37,14 +37,14 @@ export default Component.extend({
   shouldHideRow: and('shouldOnlyShowDifferent', '_areVersionsSame'),
 
   getVersions: on('init', observer('module', 'stopCrawling', function() {
-    let semaphore = get(this, 'semaphore.noNameYetSemaphore');
+    let semaphore = get(this, 'semaphore.moduleSemaphore');
     semaphore.take(() => {
       let module = get(this, 'module');
       if (!module || get(this, 'stopCrawling') || get(this, 'versions')) {
         return semaphore.leave();
       }
 
-      this.incrementProperty('numberOfAwaitingRequests');
+      this.incrementProperty('_numberOfAwaitingRequests');
 
       let haveLeft;
       let path = `npm/${module}/versions`;
@@ -53,7 +53,7 @@ export default Component.extend({
         haveLeft = true;
         if (!get(this, 'isDestroying') && !get(this, 'isDestroyed')) {
           set(this, 'versions', pairs(data));
-          if (this.decrementProperty('numberOfAwaitingRequests') === 0) {
+          if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
             this.sendAction('doneCrawling', get(this, 'dep'));
           }
         }
@@ -95,7 +95,7 @@ export default Component.extend({
 
   actions: {
     // doneCrawling() {
-    //   if (this.decrementProperty('numberOfAwaitingRequests') === 0) {
+    //   if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
     //     this.sendAction('doneCrawling', get(this, 'dep'));
     //   }
     // }

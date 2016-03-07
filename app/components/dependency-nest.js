@@ -45,7 +45,7 @@ export default Ember.Component.extend({
     otherVersionProp,
     otherPromiseProp
   ) {
-    let semaphore = this.get('semaphore.noNameYetSemaphore');
+    let semaphore = this.get('semaphore.moduleSemaphore');
     semaphore.take(() => {
       let module  = this.get('module');
       let version = this.get(versionProp);
