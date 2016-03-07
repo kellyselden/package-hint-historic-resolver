@@ -223,3 +223,41 @@ test('it renders', function(assert) {
     assert.strictEqual(this.$('.second-version').text().trim(), '2.0.1');
   });
 });
+
+test('sends action when done', function(assert) {
+  assert.expect(1);
+
+  let done = assert.async();
+
+  this.set('dep', {
+    module: 'test-module',
+    firstVersionHint: '^1.0.0',
+    secondVersionHint: '^2.0.0'
+  });
+
+  server.get('http://test-host/api/npm/test-module/versions', () => {
+    return [200, {}, {
+      "1.0.1": "2015-01-01T00:00:00.000Z",
+      "2.0.1": "2015-03-01T00:00:00.000Z"
+    }];
+  });
+
+  this.render(hbs`
+    {{dependency-row
+      dep=dep
+      repoWorkingDate=repoWorkingDate
+      repoBrokenDate=repoBrokenDate
+      doneCrawling="doneCrawling"
+    }}
+  `);
+
+  this.on('doneCrawling', dep => {
+    assert.deepEqual(dep, {
+      module: 'test-module',
+      firstVersionHint: '^1.0.0',
+      secondVersionHint: '^2.0.0'
+    });
+
+    done();
+  });
+});

@@ -13,7 +13,7 @@ const {
 export default Component.extend({
   tagName: '',
 
-  semaphore:    service(),
+  // semaphore:    service(),
   requestCache: service(),
 
   module:            readOnly('dep.module'),
@@ -37,35 +37,35 @@ export default Component.extend({
   shouldHideRow: and('shouldOnlyShowDifferent', '_areVersionsSame'),
 
   getVersions: on('init', observer('module', 'stopCrawling', function() {
-    let semaphore = get(this, 'semaphore.moduleSemaphore');
-    semaphore.take(() => {
-      let module = get(this, 'module');
-      if (!module || get(this, 'stopCrawling') || get(this, 'versions')) {
-        return semaphore.leave();
+    let module = get(this, 'module');
+    if (!module || get(this, 'stopCrawling')) {
+      return;
+    }
+
+    // let semaphore = get(this, 'semaphore.moduleSemaphore');
+    // semaphore.take(() => {
+    //   if (get(this, 'versions')) {
+    //     return semaphore.leave();
+    //   }
+    //
+    this.incrementProperty('_numberOfAwaitingRequests');
+
+    let path = `npm/${module}/versions`;
+    return get(this, 'requestCache').cacheRequest(path).then(data => {
+      if (!get(this, 'isDestroying') && !get(this, 'isDestroyed')) {
+        set(this, 'versions', pairs(data));
+        if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
+          this.sendAction('doneCrawling', get(this, 'dep'));
+        }
       }
-
-      this.incrementProperty('_numberOfAwaitingRequests');
-
-      let haveLeft;
-      let path = `npm/${module}/versions`;
-      return get(this, 'requestCache').cacheRequest(path).then(data => {
-        semaphore.leave();
-        haveLeft = true;
-        if (!get(this, 'isDestroying') && !get(this, 'isDestroyed')) {
-          set(this, 'versions', pairs(data));
-          if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
-            this.sendAction('doneCrawling', get(this, 'dep'));
-          }
-        }
-      }).catch(error => {
-        if (!haveLeft) {
-          semaphore.leave();
-        }
-        if (!get(this, 'isDestroying') && !get(this, 'isDestroyed')) {
-          set(this, 'error', error);
-        }
-      });
+    }).catch(error => {
+      if (!get(this, 'isDestroying') && !get(this, 'isDestroyed')) {
+        set(this, 'error', error);
+      }
+    // }).finally(() => {
+    //   semaphore.leave();
     });
+    // });
   })),
 
   firstVersion: computed('firstVersionHint', 'versions.length', 'repoWorkingDate', function() {
