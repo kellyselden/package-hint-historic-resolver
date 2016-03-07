@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import semver from 'npm:semver';
+import getRealVersion from '../utils/get-real-version';
 import pairs from 'lodash/object/pairs';
 
 const {
@@ -101,15 +101,3 @@ export default Component.extend({
     // }
   }
 });
-
-function getRealVersion(version, versions, dateCeiling) {
-  if (!versions) {
-    return;
-  }
-
-  versions = versions.filter(([version, date]) => {
-    return semver.valid(version) && new Date(date) <= dateCeiling;
-  }).map(([version]) => version);
-
-  return semver.maxSatisfying(versions, version);
-}
