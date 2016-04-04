@@ -2,7 +2,7 @@
   "name": "package-hint-historic-resolver",
   "dependencies": {
     "ember": "^2.0.0",
-    "ember-cli-shims": "0.1.0",
+    "ember-cli-shims": "0.1.1",
     "ember-cli-test-loader": "0.2.2",
     "ember-qunit-notifications": "0.1.0",
     "datetimepicker": "2.4.5",
