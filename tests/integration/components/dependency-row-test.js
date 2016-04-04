@@ -97,8 +97,8 @@ test('handles failed request', function(assert) {
   `);
 
   return wait().then(() => {
-    assert.strictEqual(this.$('.first-version').text().trim(), 'Error: Adapter operation failed');
-    assert.strictEqual(this.$('.second-version').text().trim(), 'Error: Adapter operation failed');
+    assert.strictEqual(this.$('.first-version').text().trim(), 'Error: Ember Data Request undefined http://test-host/api/npm/test-module/versions returned a 500\nPayload (Empty Content-Type)\n[object Object]');
+    assert.strictEqual(this.$('.second-version').text().trim(), 'Error: Ember Data Request undefined http://test-host/api/npm/test-module/versions returned a 500\nPayload (Empty Content-Type)\n[object Object]');
   });
 });
 
