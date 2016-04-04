@@ -50,7 +50,7 @@
     "ember-sinon": "0.5.0",
     "limiter": "^1.0.0",
     "loader.js": "^4.0.1",
-    "memory-cache": "0.1.4",
+    "memory-cache": "0.1.5",
     "semaphore": "^1.0.0",
     "semver": "^5.0.0"
   }
