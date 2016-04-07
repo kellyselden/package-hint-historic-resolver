@@ -39,7 +39,7 @@
     "ember-cpm": "^2.0.0",
     "ember-data": "^2.0.0",
     "ember-data-application-adapter-service": "0.0.1",
-    "ember-datetimepicker": "0.0.11",
+    "ember-datetimepicker": "0.0.12",
     "ember-export-application-global": "^1.0.5",
     "ember-load-initializers": "^0.5.1",
     "ember-lodash": "0.0.6",
