@@ -13,7 +13,7 @@ module('Unit | Utility | get real version');
 test('early exits', function(assert) {
   let result = getRealVersion();
 
-  assert.ok(!result);
+  assert.notOk(result);
 });
 
 test('respects date ceiling', function(assert) {
