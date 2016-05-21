@@ -2,9 +2,11 @@ import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
 import Pretender from 'pretender';
 import { waitFor } from '../../helpers/wait-for';
+import wait from 'ember-test-helpers/wait';
 
 let server;
-let date = new Date(Date.UTC(2012, 2, 23, 4, 55, 24, 778));
+let date;
+let commit;
 
 moduleForComponent('dependency-date', 'Integration | Component | dependency date', {
   integration: true,
@@ -12,9 +14,12 @@ moduleForComponent('dependency-date', 'Integration | Component | dependency date
     server = new Pretender();
     server.prepareBody = JSON.stringify;
 
+    date = new Date(Date.UTC(2012, 2, 23, 4, 55, 24, 778));
+    commit = 35345;
+
     server.get('https://api.github.com/repos/test-repo/commits', () => {
       return [200, {}, [{
-        sha: 35345
+        sha: commit
       }]];
     });
   },
@@ -186,6 +191,77 @@ test('calls github api for package.json', function(assert) {
   `);
 
   waitForDateChange(this);
+});
+
+test('gets new package.json if date and commit changes', function(assert) {
+  assert.expect(1);
+
+  this.set('date', date);
+  this.set('repo', 'test-repo');
+
+  server.get('https://raw.githubusercontent.com/:repo/:commit/package.json', () => {
+    return [200, {}, {
+      contents: 'test-contents'
+    }];
+  });
+
+  let count = 0;
+  server.handledRequest = (verb, path) => {
+    if (path.indexOf('https://raw.githubusercontent.com/') !== -1) {
+      count++;
+    }
+  };
+
+  this.render(hbs`
+    {{dependency-date
+      date
+      repo=repo
+    }}
+  `);
+
+  return waitForCalandar(this).then(() => {
+    commit = 95670;
+    this.set('date', new Date(Date.UTC(2013, 2, 23, 4, 55, 24, 778)));
+
+    return wait();
+  }).then(() => {
+    assert.strictEqual(count, 2);
+  });
+});
+
+test('doesn\'t get new package.json if repo becomes empty', function(assert) {
+  assert.expect(1);
+
+  this.set('date', date);
+  this.set('repo', 'test-repo');
+
+  server.get('https://raw.githubusercontent.com/:repo/:commit/package.json', () => {
+    return [200, {}, {
+      contents: 'test-contents'
+    }];
+  });
+
+  let count = 0;
+  server.handledRequest = (verb, path) => {
+    if (path.indexOf('https://raw.githubusercontent.com/') !== -1) {
+      count++;
+    }
+  };
+
+  this.render(hbs`
+    {{dependency-date
+      date
+      repo=repo
+    }}
+  `);
+
+  return waitForCalandar(this).then(() => {
+    this.set('repo', null);
+
+    return wait();
+  }).then(() => {
+    assert.strictEqual(count, 1);
+  });
 });
 
 test('sends package.json contents', function(assert) {
