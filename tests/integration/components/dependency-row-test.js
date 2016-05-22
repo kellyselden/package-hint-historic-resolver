@@ -79,23 +79,23 @@ test('hides row when same', function(assert) {
   });
 });
 
-// test('doesn\'t hide row when same', function(assert) {
-//   assert.expect(1);
-// 
-//   dep.secondVersionHint = '^1.0.0';
-//
-//   versionsRequest = () => {
-//     return [200, {}, {
-//       "1.0.1": "2015-01-01T00:00:00.000Z"
-//     }];
-//   };
-//
-//   render.call(this);
-//
-//   return wait().then(() => {
-//     assert.strictNotEqual(this.$().text().trim(), '');
-//   });
-// });
+test('doesn\'t hide row when same', function(assert) {
+  assert.expect(1);
+
+  dep.secondVersionHint = '^1.0.0';
+
+  versionsRequest = () => {
+    return [200, {}, {
+      "1.0.1": "2015-01-01T00:00:00.000Z"
+    }];
+  };
+
+  render.call(this);
+
+  return wait().then(() => {
+    assert.notStrictEqual(this.$().text().trim(), '');
+  });
+});
 
 test('shows module', function(assert) {
   assert.expect(1);
