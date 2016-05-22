@@ -60,7 +60,7 @@ export default Component.extend({
       }
     }).catch(error => {
       if (!get(this, 'isDestroying') && !get(this, 'isDestroyed')) {
-        set(this, 'error', error);
+        set(this, 'error', `Error retrieving module from npm: ${error}`);
       }
     // }).finally(() => {
     //   semaphore.leave();

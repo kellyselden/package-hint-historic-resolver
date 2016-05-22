@@ -5,8 +5,8 @@ import cache from 'npm:memory-cache';
 import wait from 'ember-test-helpers/wait';
 
 let server;
-let versionsBody, versionsResponse;
-let dep, shouldOnlyShowDifferent;
+let versionsCallback, versionsBody, versionsResponse;
+let dep, shouldOnlyShowDifferent, stopCrawling;
 let onDoneCrawling;
 
 moduleForComponent('dependency-row', 'Integration | Component | dependency row', {
@@ -14,6 +14,8 @@ moduleForComponent('dependency-row', 'Integration | Component | dependency row',
   beforeEach() {
     server = new Pretender();
     server.prepareBody = JSON.stringify;
+
+    versionsCallback = () => {};
 
     versionsBody = {
       "1.0.1": "2015-01-01T00:00:00.000Z",
@@ -28,6 +30,7 @@ moduleForComponent('dependency-row', 'Integration | Component | dependency row',
       secondVersionHint: '^2.0.0'
     };
     shouldOnlyShowDifferent = false;
+    stopCrawling = false;
 
     this.set('repoWorkingDate', new Date(Date.UTC(2015, 1, 1)));
     this.set('repoBrokenDate',  new Date(Date.UTC(2015, 3, 1)));
@@ -44,8 +47,10 @@ moduleForComponent('dependency-row', 'Integration | Component | dependency row',
 function render() {
   this.set('dep', dep);
   this.set('shouldOnlyShowDifferent', shouldOnlyShowDifferent);
+  this.set('stopCrawling', stopCrawling);
 
   server.get('http://test-host/api/npm/test-module/versions', function() {
+    versionsCallback(...arguments);
     return versionsResponse(...arguments);
   });
 
@@ -57,6 +62,7 @@ function render() {
       repoWorkingDate=repoWorkingDate
       repoBrokenDate=repoBrokenDate
       shouldOnlyShowDifferent=shouldOnlyShowDifferent
+      stopCrawling=stopCrawling
       doneCrawling="doneCrawling"
     }}
   `);
@@ -105,18 +111,58 @@ test('shows module', function(assert) {
   });
 });
 
-test('handles failed request', function(assert) {
-  assert.expect(2);
+test('doesn\'t make request if no module', function(assert) {
+  assert.expect(1);
 
-  versionsResponse = () => {
-    return [500, {}, {}];
+  delete dep['module'];
+
+  let called = false;
+  versionsCallback = () => {
+    called = true;
   };
 
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$('.first-version').text().trim(), 'Error: Ember Data Request undefined http://test-host/api/npm/test-module/versions returned a 500\nPayload (Empty Content-Type)\n[object Object]');
-    assert.strictEqual(this.$('.second-version').text().trim(), 'Error: Ember Data Request undefined http://test-host/api/npm/test-module/versions returned a 500\nPayload (Empty Content-Type)\n[object Object]');
+    assert.notOk(called);
+  });
+});
+
+test('doesn\'t make request if stop crawling', function(assert) {
+  assert.expect(1);
+
+  stopCrawling = true;
+
+  let called = false;
+  versionsCallback = () => {
+    called = true;
+  };
+
+  render.call(this);
+
+  return wait().then(() => {
+    assert.notOk(called);
+  });
+});
+
+test('handles failed request', function(assert) {
+  assert.expect(3);
+
+  versionsResponse = () => {
+    return [500, {}, {}];
+  };
+
+  let called = false;
+  onDoneCrawling = () => {
+    called = true;
+  };
+
+  render.call(this);
+
+  return wait().then(() => {
+    assert.strictEqual(this.$('.first-version').text().trim(), 'Error retrieving module from npm: Error: Ember Data Request undefined http://test-host/api/npm/test-module/versions returned a 500\nPayload (Empty Content-Type)\n[object Object]');
+    assert.strictEqual(this.$('.second-version').text().trim(), 'Error retrieving module from npm: Error: Ember Data Request undefined http://test-host/api/npm/test-module/versions returned a 500\nPayload (Empty Content-Type)\n[object Object]');
+    assert.notOk(called);
   });
 });
 
