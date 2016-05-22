@@ -13,9 +13,9 @@
     <th>{{format-date-time repoWorkingDate}}</th>
     <th>{{format-date-time repoBrokenDate}}</th>
   </tr>
-  {{#each dependencies as |dep|}}
+  {{#each dependencies as |dependency|}}
     {{dependency-row
-      dep=dep
+      dependency=dependency
       repoWorkingDate=repoWorkingDate
       repoBrokenDate=repoBrokenDate
       stopCrawling=stopCrawling
