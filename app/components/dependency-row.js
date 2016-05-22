@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import { task } from 'ember-concurrency';
 import getRealVersion from '../utils/get-real-version';
 import pairs from 'lodash/object/pairs';
 
@@ -51,22 +52,21 @@ export default Component.extend({
     this.incrementProperty('_numberOfAwaitingRequests');
 
     let path = `npm/${module}/versions`;
-    return get(this, 'requestCache').cacheRequest(path).then(data => {
-      if (!get(this, 'isDestroying') && !get(this, 'isDestroyed')) {
-        set(this, 'versions', pairs(data));
-        if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
-          this.sendAction('doneCrawling', get(this, 'dep'));
-        }
+    get(this, 'getVersionsTask').perform(path);
+  })),
+
+  getVersionsTask: task(function * (path) {
+    yield get(this, 'requestCache').cacheRequest(path).then(data => {
+      set(this, 'versions', pairs(data));
+      if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
+        this.sendAction('doneCrawling', get(this, 'dep'));
       }
     }).catch(error => {
-      if (!get(this, 'isDestroying') && !get(this, 'isDestroyed')) {
-        set(this, 'error', `Error retrieving module from npm: ${error}`);
-      }
+      set(this, 'error', `Error retrieving module from npm: ${error}`);
     // }).finally(() => {
     //   semaphore.leave();
     });
-    // });
-  })),
+  }),
 
   firstVersion: computed('firstVersionHint', 'versions.length', 'repoWorkingDate', function() {
     return getRealVersion(
