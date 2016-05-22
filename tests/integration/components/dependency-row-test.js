@@ -5,7 +5,7 @@ import cache from 'npm:memory-cache';
 import wait from 'ember-test-helpers/wait';
 
 let server;
-let versionsRequest;
+let versionsBody, versionsResponse;
 let dep, shouldOnlyShowDifferent;
 let onDoneCrawling;
 
@@ -15,12 +15,12 @@ moduleForComponent('dependency-row', 'Integration | Component | dependency row',
     server = new Pretender();
     server.prepareBody = JSON.stringify;
 
-    versionsRequest = () => {
-      return [200, {}, {
-        "1.0.1": "2015-01-01T00:00:00.000Z",
-        "2.0.1": "2015-03-01T00:00:00.000Z"
-      }];
+    versionsBody = {
+      "1.0.1": "2015-01-01T00:00:00.000Z",
+      "2.0.1": "2015-03-01T00:00:00.000Z"
     };
+
+    versionsResponse = () => [200, {}, versionsBody];
 
     dep = {
       module: 'test-module',
@@ -45,7 +45,9 @@ function render() {
   this.set('dep', dep);
   this.set('shouldOnlyShowDifferent', shouldOnlyShowDifferent);
 
-  server.get('http://test-host/api/npm/test-module/versions', versionsRequest);
+  server.get('http://test-host/api/npm/test-module/versions', function() {
+    return versionsResponse(...arguments);
+  });
 
   this.on('doneCrawling', onDoneCrawling);
 
@@ -66,10 +68,8 @@ test('hides row when same', function(assert) {
   dep.secondVersionHint = '^1.0.0';
   shouldOnlyShowDifferent = true;
 
-  versionsRequest = () => {
-    return [200, {}, {
-      "1.0.1": "2015-01-01T00:00:00.000Z"
-    }];
+  versionsBody = {
+    "1.0.1": "2015-01-01T00:00:00.000Z"
   };
 
   render.call(this);
@@ -84,10 +84,8 @@ test('doesn\'t hide row when same', function(assert) {
 
   dep.secondVersionHint = '^1.0.0';
 
-  versionsRequest = () => {
-    return [200, {}, {
-      "1.0.1": "2015-01-01T00:00:00.000Z"
-    }];
+  versionsBody = {
+    "1.0.1": "2015-01-01T00:00:00.000Z"
   };
 
   render.call(this);
@@ -110,7 +108,7 @@ test('shows module', function(assert) {
 test('handles failed request', function(assert) {
   assert.expect(2);
 
-  versionsRequest = () => {
+  versionsResponse = () => {
     return [500, {}, {}];
   };
 
@@ -125,8 +123,8 @@ test('handles failed request', function(assert) {
 test('handles missing versions', function(assert) {
   assert.expect(4);
 
-  dep.firstVersionHint  = undefined;
-  dep.secondVersionHint = undefined;
+  delete dep['firstVersionHint'];
+  delete dep['secondVersionHint'];
 
   render.call(this);
 
@@ -141,7 +139,7 @@ test('handles missing versions', function(assert) {
 test('handles first version missing', function(assert) {
   assert.expect(8);
 
-  dep.firstVersionHint = undefined;
+  delete dep['firstVersionHint'];
 
   render.call(this);
 
@@ -160,7 +158,7 @@ test('handles first version missing', function(assert) {
 test('handles second version missing', function(assert) {
   assert.expect(8);
 
-  dep.secondVersionHint = undefined;
+  delete dep['secondVersionHint'];
 
   render.call(this);
 
@@ -179,10 +177,8 @@ test('handles second version missing', function(assert) {
 test('hints display correctly', function(assert) {
   assert.expect(2);
 
-  versionsRequest = () => {
-    return [200, {}, {
-      "1.0.1": "2015-01-01T00:00:00.000Z"
-    }];
+  versionsBody = {
+    "1.0.1": "2015-01-01T00:00:00.000Z"
   };
 
   render.call(this);
@@ -209,10 +205,8 @@ test('hints are same', function(assert) {
 test('hints are different', function(assert) {
   assert.expect(2);
 
-  versionsRequest = () => {
-    return [200, {}, {
-      "1.0.1": "2015-01-01T00:00:00.000Z"
-    }];
+  versionsBody = {
+    "1.0.1": "2015-01-01T00:00:00.000Z"
   };
 
   render.call(this);

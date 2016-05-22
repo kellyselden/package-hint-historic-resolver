@@ -6,8 +6,7 @@ import wait from 'ember-test-helpers/wait';
 
 let server;
 let commitsCallback, packageCallback;
-let commitsRequest,  packageRequest;
-let getCommitsResponse, getPackageResponse;
+let commitsResponse, packageResponse;
 let testDate, testRepo, testCommit;
 let onDateChanged, onFoundCommitData, onReceivedJson, onError;
 let commitRequestCount, packageRequestCount;
@@ -30,21 +29,12 @@ moduleForComponent('dependency-date', 'Integration | Component | dependency date
     commitsCallback = () => {};
     packageCallback = () => {};
 
-    getCommitsResponse = () => ([200, {}, [{
+    commitsResponse = () => ([200, {}, [{
       sha: testCommit
     }]]);
-    getPackageResponse = () => ([200, {}, {
+    packageResponse = () => ([200, {}, {
       contents: 'test-contents'
     }]);
-
-    commitsRequest = function() {
-      commitsCallback(...arguments);
-      return getCommitsResponse(...arguments);
-    };
-    packageRequest = function() {
-      packageCallback(...arguments);
-      return getPackageResponse(...arguments);
-    };
 
     commitRequestCount = 0;
     packageRequestCount = 0;
@@ -71,8 +61,14 @@ function render() {
   this.on('receivedJson', onReceivedJson);
   this.on('error', onError);
 
-  server.get('https://api.github.com/repos/:repo/commits', commitsRequest);
-  server.get('https://raw.githubusercontent.com/:repo/:commit/package.json', packageRequest);
+  server.get('https://api.github.com/repos/:repo/commits', function() {
+    commitsCallback(...arguments);
+    return commitsResponse(...arguments);
+  });
+  server.get('https://raw.githubusercontent.com/:repo/:commit/package.json', function() {
+    packageCallback(...arguments);
+    return packageResponse(...arguments);
+  });
 
   this.render(hbs`
     {{dependency-date
@@ -221,7 +217,7 @@ test('handles error retrieving commits', function(assert) {
     assert.strictEqual(error, 'Error retrieving latest commit: Error: Ajax operation failed');
   };
 
-  getCommitsResponse = () => [500, {}, {}];
+  commitsResponse = () => [500, {}, {}];
 
   render.call(this);
 
@@ -367,7 +363,7 @@ test('handles error retrieving package.json', function(assert) {
     assert.strictEqual(error, 'Error retrieving package.json: Error: Ajax operation failed');
   };
 
-  getPackageResponse = () => [500, {}, {}];
+  packageResponse = () => [500, {}, {}];
 
   render.call(this);
 
