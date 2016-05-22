@@ -17,13 +17,13 @@ export default Component.extend({
   // semaphore:    service(),
   requestCache: service(),
 
-  module:            readOnly('dep.module'),
-  firstVersionHint:  readOnly('dep.firstVersionHint'),
-  secondVersionHint: readOnly('dep.secondVersionHint'),
+  module:            readOnly('dependency.module'),
+  firstVersionHint:  readOnly('dependency.firstVersionHint'),
+  secondVersionHint: readOnly('dependency.secondVersionHint'),
 
   // nestingLevel: 0,
 
-  _numberOfAwaitingRequests: 0,
+  // _numberOfAwaitingRequests: 0,
 
   isFirstVersionHintMissing:  not('firstVersionHint'),
   isSecondVersionHintMissing: not('secondVersionHint'),
@@ -49,7 +49,7 @@ export default Component.extend({
     //     return semaphore.leave();
     //   }
     //
-    this.incrementProperty('_numberOfAwaitingRequests');
+    // this.incrementProperty('_numberOfAwaitingRequests');
 
     let path = `npm/${module}/versions`;
     get(this, 'getVersionsTask').perform(path);
@@ -58,9 +58,9 @@ export default Component.extend({
   getVersionsTask: task(function * (path) {
     yield get(this, 'requestCache').cacheRequest(path).then(data => {
       set(this, 'versions', pairs(data));
-      if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
-        this.sendAction('doneCrawling', get(this, 'dep'));
-      }
+      // if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
+        this.sendAction('doneCrawling', get(this, 'dependency'));
+      // }
     }).catch(error => {
       set(this, 'error', `Error retrieving module from npm: ${error}`);
     // }).finally(() => {
@@ -96,7 +96,7 @@ export default Component.extend({
   actions: {
     // doneCrawling() {
     //   if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
-    //     this.sendAction('doneCrawling', get(this, 'dep'));
+    //     this.sendAction('doneCrawling', get(this, 'dependency'));
     //   }
     // }
   }

@@ -6,7 +6,7 @@ import wait from 'ember-test-helpers/wait';
 
 let server;
 let versionsCallback, versionsBody, versionsResponse;
-let dep, shouldOnlyShowDifferent, stopCrawling;
+let dependency, shouldOnlyShowDifferent, stopCrawling;
 let onDoneCrawling;
 
 moduleForComponent('dependency-row', 'Integration | Component | dependency row', {
@@ -24,7 +24,7 @@ moduleForComponent('dependency-row', 'Integration | Component | dependency row',
 
     versionsResponse = () => [200, {}, versionsBody];
 
-    dep = {
+    dependency = {
       module: 'test-module',
       firstVersionHint: '^1.0.0',
       secondVersionHint: '^2.0.0'
@@ -45,7 +45,7 @@ moduleForComponent('dependency-row', 'Integration | Component | dependency row',
 });
 
 function render() {
-  this.set('dep', dep);
+  this.set('dependency', dependency);
   this.set('shouldOnlyShowDifferent', shouldOnlyShowDifferent);
   this.set('stopCrawling', stopCrawling);
 
@@ -58,7 +58,7 @@ function render() {
 
   this.render(hbs`
     {{dependency-row
-      dep=dep
+      dependency=dependency
       repoWorkingDate=repoWorkingDate
       repoBrokenDate=repoBrokenDate
       shouldOnlyShowDifferent=shouldOnlyShowDifferent
@@ -71,7 +71,7 @@ function render() {
 test('hides row when same', function(assert) {
   assert.expect(1);
 
-  dep.secondVersionHint = '^1.0.0';
+  dependency.secondVersionHint = '^1.0.0';
   shouldOnlyShowDifferent = true;
 
   versionsBody = {
@@ -88,7 +88,7 @@ test('hides row when same', function(assert) {
 test('doesn\'t hide row when same', function(assert) {
   assert.expect(1);
 
-  dep.secondVersionHint = '^1.0.0';
+  dependency.secondVersionHint = '^1.0.0';
 
   versionsBody = {
     "1.0.1": "2015-01-01T00:00:00.000Z"
@@ -114,7 +114,7 @@ test('shows module', function(assert) {
 test('doesn\'t make request if no module', function(assert) {
   assert.expect(1);
 
-  delete dep['module'];
+  delete dependency['module'];
 
   let called = false;
   versionsCallback = () => {
@@ -169,8 +169,8 @@ test('handles failed request', function(assert) {
 test('handles missing versions', function(assert) {
   assert.expect(4);
 
-  delete dep['firstVersionHint'];
-  delete dep['secondVersionHint'];
+  delete dependency['firstVersionHint'];
+  delete dependency['secondVersionHint'];
 
   render.call(this);
 
@@ -185,7 +185,7 @@ test('handles missing versions', function(assert) {
 test('handles first version missing', function(assert) {
   assert.expect(8);
 
-  delete dep['firstVersionHint'];
+  delete dependency['firstVersionHint'];
 
   render.call(this);
 
@@ -204,7 +204,7 @@ test('handles first version missing', function(assert) {
 test('handles second version missing', function(assert) {
   assert.expect(8);
 
-  delete dep['secondVersionHint'];
+  delete dependency['secondVersionHint'];
 
   render.call(this);
 
@@ -238,7 +238,7 @@ test('hints display correctly', function(assert) {
 test('hints are same', function(assert) {
   assert.expect(2);
 
-  dep.secondVersionHint = '^1.0.0';
+  dependency.secondVersionHint = '^1.0.0';
 
   render.call(this);
 
@@ -277,7 +277,7 @@ test('versions display correctly', function(assert) {
 test('versions are same', function(assert) {
   assert.expect(2);
 
-  dep.secondVersionHint = '^1.0.0';
+  dependency.secondVersionHint = '^1.0.0';
 
   render.call(this);
 
@@ -301,8 +301,8 @@ test('versions are different', function(assert) {
 test('sends action when done', function(assert) {
   assert.expect(1);
 
-  onDoneCrawling = dep => {
-    assert.deepEqual(dep, {
+  onDoneCrawling = dependency => {
+    assert.deepEqual(dependency, {
       module: 'test-module',
       firstVersionHint: '^1.0.0',
       secondVersionHint: '^2.0.0'
