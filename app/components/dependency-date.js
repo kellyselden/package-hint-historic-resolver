@@ -4,7 +4,7 @@ import moment from 'moment';
 const {
   Component,
   get, set,
-  on, computed, observer,
+  on, observer,
   inject: { service }
 } = Ember;
 
@@ -13,23 +13,15 @@ const MyComponent = Component.extend({
 
   classNames: ['dependency-date'],
 
-  _until: computed('date', function() {
-    let date = get(this, 'date');
-    if (!date) {
-      return;
-    }
-
-    return moment(date).toJSON();
-  }),
-
-  latestCommitDataObserver: on('init', observer('repo', '_until', function() {
-    let repo  = get(this, 'repo'),
-        until = get(this, '_until');
-    if (!repo || !until) {
+  latestCommitDataObserver: on('init', observer('repo', 'date', function() {
+    let repo = get(this, 'repo'),
+        date = get(this, 'date');
+    if (!repo || !date) {
       set(this, '_commit', undefined);
       return;
     }
 
+    let until = moment(date).toJSON();
     let url = `https://api.github.com/repos/${repo}/commits?until=${until}`;
     get(this, 'ajax').request(url).then(([latestCommit]) => {
       set(this, '_commit', latestCommit.sha);
@@ -43,7 +35,6 @@ const MyComponent = Component.extend({
     let repo   = get(this, 'repo'),
         commit = get(this, '_commit');
     if (!repo || !commit) {
-      set(this, '_commit', undefined);
       return;
     }
 
