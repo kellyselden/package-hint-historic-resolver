@@ -5,6 +5,9 @@ import cache from 'npm:memory-cache';
 import wait from 'ember-test-helpers/wait';
 
 let server;
+let versionsRequest;
+let dep, shouldOnlyShowDifferent;
+let onDoneCrawling;
 
 moduleForComponent('dependency-row', 'Integration | Component | dependency row', {
   integration: true,
@@ -12,8 +15,24 @@ moduleForComponent('dependency-row', 'Integration | Component | dependency row',
     server = new Pretender();
     server.prepareBody = JSON.stringify;
 
+    versionsRequest = () => {
+      return [200, {}, {
+        "1.0.1": "2015-01-01T00:00:00.000Z",
+        "2.0.1": "2015-03-01T00:00:00.000Z"
+      }];
+    };
+
+    dep = {
+      module: 'test-module',
+      firstVersionHint: '^1.0.0',
+      secondVersionHint: '^2.0.0'
+    };
+    shouldOnlyShowDifferent = false;
+
     this.set('repoWorkingDate', new Date(Date.UTC(2015, 1, 1)));
     this.set('repoBrokenDate',  new Date(Date.UTC(2015, 3, 1)));
+
+    onDoneCrawling = () => {};
   },
   afterEach() {
     server.shutdown();
@@ -22,53 +41,66 @@ moduleForComponent('dependency-row', 'Integration | Component | dependency row',
   }
 });
 
-test('hides row when same', function(assert) {
-  assert.expect(1);
+function render() {
+  this.set('dep', dep);
+  this.set('shouldOnlyShowDifferent', shouldOnlyShowDifferent);
 
-  this.set('dep', {
-    module: 'test-module',
-    firstVersionHint: '^1.0.0',
-    secondVersionHint: '^1.0.0'
-  });
+  server.get('http://test-host/api/npm/test-module/versions', versionsRequest);
 
-  server.get('http://test-host/api/npm/test-module/versions', () => {
-    return [200, {}, {
-      "1.0.1": "2015-01-01T00:00:00.000Z"
-    }];
-  });
+  this.on('doneCrawling', onDoneCrawling);
 
   this.render(hbs`
     {{dependency-row
       dep=dep
       repoWorkingDate=repoWorkingDate
       repoBrokenDate=repoBrokenDate
-      shouldOnlyShowDifferent=true
+      shouldOnlyShowDifferent=shouldOnlyShowDifferent
+      doneCrawling="doneCrawling"
     }}
   `);
+}
+
+test('hides row when same', function(assert) {
+  assert.expect(1);
+
+  dep.secondVersionHint = '^1.0.0';
+  shouldOnlyShowDifferent = true;
+
+  versionsRequest = () => {
+    return [200, {}, {
+      "1.0.1": "2015-01-01T00:00:00.000Z"
+    }];
+  };
+
+  render.call(this);
 
   return wait().then(() => {
     assert.strictEqual(this.$().text().trim(), '');
   });
 });
 
+// test('doesn\'t hide row when same', function(assert) {
+//   assert.expect(1);
+// 
+//   dep.secondVersionHint = '^1.0.0';
+//
+//   versionsRequest = () => {
+//     return [200, {}, {
+//       "1.0.1": "2015-01-01T00:00:00.000Z"
+//     }];
+//   };
+//
+//   render.call(this);
+//
+//   return wait().then(() => {
+//     assert.strictNotEqual(this.$().text().trim(), '');
+//   });
+// });
+
 test('shows module', function(assert) {
   assert.expect(1);
 
-  this.set('dep', {
-    module: 'test-module'
-  });
-
-  server.get('http://test-host/api/npm/test-module/versions', () => {
-    return [200, {}, {
-      "1.0.1": "2015-01-01T00:00:00.000Z"
-    }];
-  });
-
-  this.render(hbs`
-    {{dependency-row
-      dep=dep
-    }}
-  `);
+  render.call(this);
 
   return wait().then(() => {
     assert.strictEqual(this.$('.module').text().trim(), 'test-module');
@@ -78,23 +110,11 @@ test('shows module', function(assert) {
 test('handles failed request', function(assert) {
   assert.expect(2);
 
-  this.set('dep', {
-    module: 'test-module',
-    firstVersionHint: '^1.0.0',
-    secondVersionHint: '^1.0.0'
-  });
-
-  server.get('http://test-host/api/npm/test-module/versions', () => {
+  versionsRequest = () => {
     return [500, {}, {}];
-  });
+  };
 
-  this.render(hbs`
-    {{dependency-row
-      dep=dep
-      repoWorkingDate=repoWorkingDate
-      repoBrokenDate=repoBrokenDate
-    }}
-  `);
+  render.call(this);
 
   return wait().then(() => {
     assert.strictEqual(this.$('.first-version').text().trim(), 'Error: Ember Data Request undefined http://test-host/api/npm/test-module/versions returned a 500\nPayload (Empty Content-Type)\n[object Object]');
@@ -105,24 +125,10 @@ test('handles failed request', function(assert) {
 test('handles missing versions', function(assert) {
   assert.expect(4);
 
-  this.set('dep', {
-    module: 'test-module'
-  });
+  dep.firstVersionHint  = undefined;
+  dep.secondVersionHint = undefined;
 
-  server.get('http://test-host/api/npm/test-module/versions', () => {
-    return [200, {}, {
-      "1.0.1": "2015-01-01T00:00:00.000Z",
-      "2.0.1": "2015-03-01T00:00:00.000Z"
-    }];
-  });
-
-  this.render(hbs`
-    {{dependency-row
-      dep=dep
-      repoWorkingDate=repoWorkingDate
-      repoBrokenDate=repoBrokenDate
-    }}
-  `);
+  render.call(this);
 
   return wait().then(() => {
     assert.strictEqual(this.$('.first-version-hint').text().trim(), 'missing');
@@ -135,24 +141,9 @@ test('handles missing versions', function(assert) {
 test('handles first version missing', function(assert) {
   assert.expect(8);
 
-  this.set('dep', {
-    module: 'test-module',
-    secondVersionHint: '^1.0.0'
-  });
+  dep.firstVersionHint = undefined;
 
-  server.get('http://test-host/api/npm/test-module/versions', () => {
-    return [200, {}, {
-      "1.0.1": "2015-01-01T00:00:00.000Z"
-    }];
-  });
-
-  this.render(hbs`
-    {{dependency-row
-      dep=dep
-      repoWorkingDate=repoWorkingDate
-      repoBrokenDate=repoBrokenDate
-    }}
-  `);
+  render.call(this);
 
   return wait().then(() => {
     assert.strictEqual(this.$('.first-version-hint').text().trim(), 'missing');
@@ -169,24 +160,9 @@ test('handles first version missing', function(assert) {
 test('handles second version missing', function(assert) {
   assert.expect(8);
 
-  this.set('dep', {
-    module: 'test-module',
-    firstVersionHint: '^1.0.0'
-  });
+  dep.secondVersionHint = undefined;
 
-  server.get('http://test-host/api/npm/test-module/versions', () => {
-    return [200, {}, {
-      "1.0.1": "2015-01-01T00:00:00.000Z"
-    }];
-  });
-
-  this.render(hbs`
-    {{dependency-row
-      dep=dep
-      repoWorkingDate=repoWorkingDate
-      repoBrokenDate=repoBrokenDate
-    }}
-  `);
+  render.call(this);
 
   return wait().then(() => {
     assert.notStrictEqual(this.$('.first-version-hint').text().trim(), 'missing');
@@ -203,25 +179,13 @@ test('handles second version missing', function(assert) {
 test('hints display correctly', function(assert) {
   assert.expect(2);
 
-  this.set('dep', {
-    module: 'test-module',
-    firstVersionHint: '^1.0.0',
-    secondVersionHint: '^2.0.0'
-  });
-
-  server.get('http://test-host/api/npm/test-module/versions', () => {
+  versionsRequest = () => {
     return [200, {}, {
       "1.0.1": "2015-01-01T00:00:00.000Z"
     }];
-  });
+  };
 
-  this.render(hbs`
-    {{dependency-row
-      dep=dep
-      repoWorkingDate=repoWorkingDate
-      repoBrokenDate=repoBrokenDate
-    }}
-  `);
+  render.call(this);
 
   return wait().then(() => {
     assert.strictEqual(this.$('.first-version-hint').text().trim(), '^1.0.0');
@@ -232,25 +196,9 @@ test('hints display correctly', function(assert) {
 test('hints are same', function(assert) {
   assert.expect(2);
 
-  this.set('dep', {
-    module: 'test-module',
-    firstVersionHint: '^1.0.0',
-    secondVersionHint: '^1.0.0'
-  });
+  dep.secondVersionHint = '^1.0.0';
 
-  server.get('http://test-host/api/npm/test-module/versions', () => {
-    return [200, {}, {
-      "1.0.1": "2015-01-01T00:00:00.000Z"
-    }];
-  });
-
-  this.render(hbs`
-    {{dependency-row
-      dep=dep
-      repoWorkingDate=repoWorkingDate
-      repoBrokenDate=repoBrokenDate
-    }}
-  `);
+  render.call(this);
 
   return wait().then(() => {
     assert.strictEqual(this.$('.first-version-hint .hints-are-different').length, 0);
@@ -261,25 +209,13 @@ test('hints are same', function(assert) {
 test('hints are different', function(assert) {
   assert.expect(2);
 
-  this.set('dep', {
-    module: 'test-module',
-    firstVersionHint: '^1.0.0',
-    secondVersionHint: '^2.0.0'
-  });
-
-  server.get('http://test-host/api/npm/test-module/versions', () => {
+  versionsRequest = () => {
     return [200, {}, {
       "1.0.1": "2015-01-01T00:00:00.000Z"
     }];
-  });
+  };
 
-  this.render(hbs`
-    {{dependency-row
-      dep=dep
-      repoWorkingDate=repoWorkingDate
-      repoBrokenDate=repoBrokenDate
-    }}
-  `);
+  render.call(this);
 
   return wait().then(() => {
     assert.strictEqual(this.$('.first-version-hint .hints-are-different').length, 1);
@@ -290,26 +226,7 @@ test('hints are different', function(assert) {
 test('versions display correctly', function(assert) {
   assert.expect(2);
 
-  this.set('dep', {
-    module: 'test-module',
-    firstVersionHint: '^1.0.0',
-    secondVersionHint: '^2.0.0'
-  });
-
-  server.get('http://test-host/api/npm/test-module/versions', () => {
-    return [200, {}, {
-      "1.0.1": "2015-01-01T00:00:00.000Z",
-      "2.0.1": "2015-03-01T00:00:00.000Z"
-    }];
-  });
-
-  this.render(hbs`
-    {{dependency-row
-      dep=dep
-      repoWorkingDate=repoWorkingDate
-      repoBrokenDate=repoBrokenDate
-    }}
-  `);
+  render.call(this);
 
   return wait().then(() => {
     assert.strictEqual(this.$('.first-version').text().trim(), '1.0.1');
@@ -320,25 +237,9 @@ test('versions display correctly', function(assert) {
 test('versions are same', function(assert) {
   assert.expect(2);
 
-  this.set('dep', {
-    module: 'test-module',
-    firstVersionHint: '^1.0.0',
-    secondVersionHint: '^1.0.0'
-  });
+  dep.secondVersionHint = '^1.0.0';
 
-  server.get('http://test-host/api/npm/test-module/versions', () => {
-    return [200, {}, {
-      "1.0.1": "2015-01-01T00:00:00.000Z"
-    }];
-  });
-
-  this.render(hbs`
-    {{dependency-row
-      dep=dep
-      repoWorkingDate=repoWorkingDate
-      repoBrokenDate=repoBrokenDate
-    }}
-  `);
+  render.call(this);
 
   return wait().then(() => {
     assert.strictEqual(this.$('.first-version .versions-are-different').length, 0);
@@ -349,26 +250,7 @@ test('versions are same', function(assert) {
 test('versions are different', function(assert) {
   assert.expect(2);
 
-  this.set('dep', {
-    module: 'test-module',
-    firstVersionHint: '^1.0.0',
-    secondVersionHint: '^2.0.0'
-  });
-
-  server.get('http://test-host/api/npm/test-module/versions', () => {
-    return [200, {}, {
-      "1.0.1": "2015-01-01T00:00:00.000Z",
-      "2.0.1": "2015-03-01T00:00:00.000Z"
-    }];
-  });
-
-  this.render(hbs`
-    {{dependency-row
-      dep=dep
-      repoWorkingDate=repoWorkingDate
-      repoBrokenDate=repoBrokenDate
-    }}
-  `);
+  render.call(this);
 
   return wait().then(() => {
     assert.strictEqual(this.$('.first-version .versions-are-different').length, 1);
@@ -379,37 +261,15 @@ test('versions are different', function(assert) {
 test('sends action when done', function(assert) {
   assert.expect(1);
 
-  let done = assert.async();
-
-  this.set('dep', {
-    module: 'test-module',
-    firstVersionHint: '^1.0.0',
-    secondVersionHint: '^2.0.0'
-  });
-
-  server.get('http://test-host/api/npm/test-module/versions', () => {
-    return [200, {}, {
-      "1.0.1": "2015-01-01T00:00:00.000Z",
-      "2.0.1": "2015-03-01T00:00:00.000Z"
-    }];
-  });
-
-  this.render(hbs`
-    {{dependency-row
-      dep=dep
-      repoWorkingDate=repoWorkingDate
-      repoBrokenDate=repoBrokenDate
-      doneCrawling="doneCrawling"
-    }}
-  `);
-
-  this.on('doneCrawling', dep => {
+  onDoneCrawling = dep => {
     assert.deepEqual(dep, {
       module: 'test-module',
       firstVersionHint: '^1.0.0',
       secondVersionHint: '^2.0.0'
     });
+  };
 
-    done();
-  });
+  render.call(this);
+
+  return wait();
 });
