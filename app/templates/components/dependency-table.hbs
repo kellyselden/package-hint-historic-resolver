@@ -1,6 +1,6 @@
 <table>
   <tr>
-    <th>{{title}}</th>
+    <th class="group-title">{{title}}</th>
     <th>First Commit Date</th>
     <th>Second Commit Date</th>
     <th>Repo is Working Date</th>
@@ -8,10 +8,10 @@
   </tr>
   <tr>
     <th></th>
-    <th>{{format-date-time firstCommitDate}}</th>
-    <th>{{format-date-time secondCommitDate}}</th>
-    <th>{{format-date-time repoWorkingDate}}</th>
-    <th>{{format-date-time repoBrokenDate}}</th>
+    <th class="first-commit-date">{{format-date-time firstCommitDate}}</th>
+    <th class="second-commit-date">{{format-date-time secondCommitDate}}</th>
+    <th class="repo-working-date">{{format-date-time repoWorkingDate}}</th>
+    <th class="repo-broken-date">{{format-date-time repoBrokenDate}}</th>
   </tr>
   {{#each dependencies as |dependency|}}
     {{dependency-row

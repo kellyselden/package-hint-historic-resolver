@@ -59,9 +59,9 @@
     }}
     Only show different
   </label>
-  {{#each dependencyGroups as |dep|}}
+  {{#each dependencyGroups as |dependencyGroup|}}
     {{dependency-table
-      dep=dep
+      dependencyGroup=dependencyGroup
       firstCommitDate=firstCommitDate
       secondCommitDate=secondCommitDate
       repoWorkingDate=_repoWorkingDate
