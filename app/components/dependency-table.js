@@ -1,22 +1,26 @@
 import Ember from 'ember';
 
-const { computed: { readOnly } } = Ember;
+const {
+  Component,
+  get, set,
+  computed: { readOnly }
+} = Ember;
 
-export default Ember.Component.extend({
-  title:        readOnly('dep.title'),
-  dependencies: readOnly('dep.dependencies'),
+export default Component.extend({
+  title:        readOnly('dependencyGroup.title'),
+  dependencies: readOnly('dependencyGroup.dependencies'),
 
   _checkIfAllDoneCrawling() {
-    let dependencies = this.get('dependencies');
+    let dependencies = get(this, 'dependencies');
     let areAllDoneCrawling = !dependencies.filterBy('isDoneCrawling', undefined).length;
     if (areAllDoneCrawling) {
-      this.sendAction('doneCrawling', this.get('dep'));
+      this.sendAction('doneCrawling', get(this, 'dependencyGroup'));
     }
   },
 
   actions: {
-    doneCrawling(dep) {
-      dep.set('isDoneCrawling', true);
+    doneCrawling(dependencyGroup) {
+      set(dependencyGroup, 'isDoneCrawling', true);
 
       this._checkIfAllDoneCrawling();
     }
