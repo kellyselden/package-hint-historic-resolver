@@ -59,6 +59,7 @@ function render() {
   this.render(hbs`
     {{dependency-row
       dependency=dependency
+      nestingLevel=2
       repoWorkingDate=repoWorkingDate
       repoBrokenDate=repoBrokenDate
       shouldOnlyShowDifferent=shouldOnlyShowDifferent
@@ -98,6 +99,16 @@ test('doesn\'t hide row when same', function(assert) {
 
   return wait().then(() => {
     assert.notStrictEqual(this.$().text().trim(), '');
+  });
+});
+
+test('respects nesting level', function(assert) {
+  assert.expect(1);
+
+  render.call(this);
+
+  return wait().then(() => {
+    assert.strictEqual(this.$('.module')[0].style.paddingLeft, '2em');
   });
 });
 
