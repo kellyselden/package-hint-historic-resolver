@@ -53,5 +53,33 @@ export default Service.extend({
         });
       });
     });
+  },
+  cacheRequestLimiter(url) {
+    return new Promise(resolve => {
+      let cache = get(this, 'cache');
+      let data = cache.get(url);
+      if (data) {
+        return resolve(data);
+      }
+
+      get(this, 'limiter').removeTokens(1, () => {
+        get(this, 'adapter').ajax(url).then(response => {
+          let data = cache.put(url, response, get(this, 'cacheTime'));
+
+          resolve(data);
+        });
+      });
+    });
+  },
+  cacheRequestRaw(url) {
+    let cache = get(this, 'cache');
+    let data = cache.get(url);
+    if (data) {
+      return Promise.resolve(data);
+    }
+
+    return get(this, 'adapter').ajax(url).then(response => {
+      return cache.put(url, response, get(this, 'cacheTime'));
+    });
   }
 });

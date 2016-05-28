@@ -9,5 +9,7 @@ export default function getRealVersion(versionHint, versions, dateCeiling) {
     return semver.valid(version) && new Date(date) <= dateCeiling;
   }).map(([version]) => version);
 
-  return semver.maxSatisfying(versions, versionHint);
+  let realVersion = semver.maxSatisfying(versions, versionHint);
+
+  return realVersion;
 }
