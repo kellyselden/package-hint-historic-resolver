@@ -8,7 +8,7 @@ import mergeModules from '../utils/merge-modules';
 const {
   Component,
   get,
-  // computed,
+  computed,
   inject: { service },
   RSVP: { Promise }
 } = Ember;
@@ -24,11 +24,11 @@ export default Component.extend({
 
   _numberOfAwaitingRequests: 0,
 
-  firstDependencies: promiseArray('module', 'firstVersion', 'stopCrawling', function() {
+  firstDependencies: computed('module', 'firstVersion', 'stopCrawling', function() {
     // return this._getDependencies('firstVersion');
     return this._getDependencies('firstVersion');
   }),
-  secondDependencies: promiseArray('module', 'secondVersion', 'stopCrawling', function() {
+  secondDependencies: computed('module', 'secondVersion', 'stopCrawling', function() {
     // return this._getDependencies('secondVersion');
     return this._getDependencies('secondVersion');
   }),
@@ -39,27 +39,25 @@ export default Component.extend({
     });
   },
   getDependenciesTask: task(function * (versionProp) {
-    let dependencies = [];
-
     let module  = this.get('module');
     let version = this.get(versionProp);
     if (!module || !version || this.get('stopCrawling')) {
-      return dependencies;
+      return;
     }
 
     // this.incrementProperty('_numberOfAwaitingRequests');
 
     try {
-      dependencies = yield get(this, 'task.getDependencies').perform(module, version);
+      let dependencies = yield get(this, 'task.getDependencies').perform(module, version);
 
       // if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
         // this.sendAction('doneCrawling');
       // }
+
+      return dependencies;
     } catch (e) {
       this.set('error', e);
     }
-
-    return dependencies;
   }),
   // _getDependencies(versionProp) {
   //   return new Promise(resolve => {
@@ -99,12 +97,12 @@ export default Component.extend({
   //   });
   // },
 
-  dependencies: promiseArray('firstDependencies.length', 'secondDependencies.length', function() {
+  dependencies: promiseArray('firstDependencies', 'secondDependencies', function() {
     let firstDependencies = get(this, 'firstDependencies');
     let secondDependencies = get(this, 'secondDependencies');
-    if (get(firstDependencies, 'isPending') || get(secondDependencies, 'isPending')) {
-      return Promise.resolve([]);
-    }
+    // if (get(firstDependencies, 'isPending') || get(secondDependencies, 'isPending')) {
+    //   return Promise.resolve([]);
+    // }
 
     return Promise.all([
       firstDependencies,
@@ -113,13 +111,17 @@ export default Component.extend({
       firstDependencies,
       secondDependencies
     ]) => {
+      if (!firstDependencies || !secondDependencies) {
+        return [];
+      }
+
       let dependencies = mergeModules(
         firstDependencies,
         secondDependencies
       );
 
       if (!dependencies.length) {
-        // this.sendAction('doneCrawling');
+        this.sendAction('doneCrawling');
       } else {
         this.incrementProperty('_numberOfAwaitingRequests', dependencies.length);
       }
@@ -131,7 +133,7 @@ export default Component.extend({
   actions: {
     doneCrawling() {
       if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
-        // this.sendAction('doneCrawling');
+        this.sendAction('doneCrawling');
       }
     }
   }
