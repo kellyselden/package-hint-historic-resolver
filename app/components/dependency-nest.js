@@ -1,6 +1,7 @@
 import Ember from 'ember';
 import { task } from 'ember-concurrency';
 import sum from 'ember-cpm/macros/sum';
+import promiseAll from 'ember-awesome-macros/promise-all';
 import promiseArray from 'ember-awesome-macros/promise-array';
 // import normalizeDependencies from '../utils/normalize-dependencies';
 import mergeModules from '../utils/merge-modules';
@@ -9,8 +10,7 @@ const {
   Component,
   get,
   computed,
-  inject: { service },
-  RSVP: { Promise }
+  inject: { service }
 } = Ember;
 
 export default Component.extend({
@@ -97,17 +97,10 @@ export default Component.extend({
   //   });
   // },
 
-  dependencies: promiseArray('firstDependencies', 'secondDependencies', function() {
-    let firstDependencies = get(this, 'firstDependencies');
-    let secondDependencies = get(this, 'secondDependencies');
-    // if (get(firstDependencies, 'isPending') || get(secondDependencies, 'isPending')) {
-    //   return Promise.resolve([]);
-    // }
+  dependenciesPromise: promiseAll('firstDependencies', 'secondDependencies'),
 
-    return Promise.all([
-      firstDependencies,
-      secondDependencies
-    ]).then(([
+  dependencies: promiseArray('dependenciesPromise', function() {
+    return get(this, 'dependenciesPromise').then(([
       firstDependencies,
       secondDependencies
     ]) => {
