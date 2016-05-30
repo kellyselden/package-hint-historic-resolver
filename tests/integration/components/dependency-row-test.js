@@ -2,11 +2,18 @@ import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
 import Pretender from 'pretender';
 import cache from 'npm:memory-cache';
-import wait from 'ember-test-helpers/wait';
+import waitWithoutTimeoutsAndIntervals from 'ember-test-helpers/wait';
+
+function wait() {
+  return waitWithoutTimeoutsAndIntervals({ waitForTimersAndIntervals: false });
+}
 
 let server;
 let versionsCallback, versionsBody, versionsResponse;
-let dependency, shouldOnlyShowDifferent, stopCrawling;
+let firstDependenciesCallback, firstDependenciesBody, firstDependenciesResponse;
+let secondDependenciesCallback, secondDependenciesBody, secondDependenciesResponse;
+let childVersionsCallback, childVersionsCallBody, childVersionsResponse;
+let dependency, nestingLevel, shouldOnlyShowDifferent, stopCrawling;
 let onDoneCrawling;
 
 moduleForComponent('dependency-row', 'Integration | Component | dependency row', {
@@ -15,20 +22,37 @@ moduleForComponent('dependency-row', 'Integration | Component | dependency row',
     server = new Pretender();
     server.prepareBody = JSON.stringify;
 
-    versionsCallback = () => {};
+    versionsCallback           = () => {};
+    firstDependenciesCallback  = () => {};
+    secondDependenciesCallback = () => {};
+    childVersionsCallback      = () => {};
 
     versionsBody = {
-      "1.0.1": "2015-01-01T00:00:00.000Z",
-      "2.0.1": "2015-03-01T00:00:00.000Z"
+      '1.0.1': '2015-01-01T00:00:00.000Z',
+      '2.0.1': '2015-03-01T00:00:00.000Z'
+    };
+    firstDependenciesBody = {
+      'test-child-module': '^1.0.0'
+    };
+    secondDependenciesBody = {
+      'test-child-module': '^2.0.0'
+    };
+    childVersionsCallBody = {
+      '1.1.0': '2015-01-01T00:00:00.000Z',
+      '2.1.0': '2015-03-01T00:00:00.000Z'
     };
 
-    versionsResponse = () => [200, {}, versionsBody];
+    versionsResponse           = () => [200, {}, versionsBody];
+    firstDependenciesResponse  = () => [200, {}, firstDependenciesBody];
+    secondDependenciesResponse = () => [200, {}, secondDependenciesBody];
+    childVersionsResponse      = () => [200, {}, childVersionsCallBody];
 
     dependency = {
       module: 'test-module',
       firstVersionHint: '^1.0.0',
       secondVersionHint: '^2.0.0'
     };
+    nestingLevel = 2;
     shouldOnlyShowDifferent = false;
     stopCrawling = false;
 
@@ -36,6 +60,9 @@ moduleForComponent('dependency-row', 'Integration | Component | dependency row',
     this.set('repoBrokenDate',  new Date(Date.UTC(2015, 3, 1)));
 
     onDoneCrawling = () => {};
+
+    // this.inject.service('config', { as: 'config' });
+    // this.set('config.cacheTime', 10);
   },
   afterEach() {
     server.shutdown();
@@ -46,6 +73,7 @@ moduleForComponent('dependency-row', 'Integration | Component | dependency row',
 
 function render() {
   this.set('dependency', dependency);
+  this.set('nestingLevel', nestingLevel);
   this.set('shouldOnlyShowDifferent', shouldOnlyShowDifferent);
   this.set('stopCrawling', stopCrawling);
 
@@ -53,13 +81,25 @@ function render() {
     versionsCallback(...arguments);
     return versionsResponse(...arguments);
   });
+  server.get('http://test-host/api/npm/test-module@1.0.1/dependencies', function() {
+    firstDependenciesCallback(...arguments);
+    return firstDependenciesResponse(...arguments);
+  });
+  server.get('http://test-host/api/npm/test-module@2.0.1/dependencies', function() {
+    secondDependenciesCallback(...arguments);
+    return secondDependenciesResponse(...arguments);
+  });
+  server.get('http://test-host/api/npm/test-child-module/versions', function() {
+    childVersionsCallback(...arguments);
+    return childVersionsResponse(...arguments);
+  });
 
   this.on('doneCrawling', onDoneCrawling);
 
   this.render(hbs`
     {{dependency-row
       dependency=dependency
-      nestingLevel=2
+      nestingLevel=nestingLevel
       repoWorkingDate=repoWorkingDate
       repoBrokenDate=repoBrokenDate
       shouldOnlyShowDifferent=shouldOnlyShowDifferent
@@ -108,7 +148,19 @@ test('respects nesting level', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$('.module')[0].style.paddingLeft, '2em');
+    assert.strictEqual(this.$('.dependency-row.test-module > .module')[0].style.paddingLeft, '2em');
+  });
+});
+
+test('doesn\'t show unnecessary nesting level', function(assert) {
+  assert.expect(1);
+
+  nestingLevel = 0;
+
+  render.call(this);
+
+  return wait().then(() => {
+    assert.strictEqual(this.$('.dependency-row.test-module > .module')[0].style.paddingLeft, '');
   });
 });
 
@@ -118,7 +170,7 @@ test('shows module', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$('.module').text().trim(), 'test-module');
+    assert.strictEqual(this.$('.dependency-row.test-module > .module').text().trim(), 'test-module');
   });
 });
 
@@ -171,8 +223,8 @@ test('handles failed request', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$('.first-version').text().trim(), 'Error retrieving module from npm: Error: Ember Data Request undefined http://test-host/api/npm/test-module/versions returned a 500\nPayload (Empty Content-Type)\n[object Object]');
-    assert.strictEqual(this.$('.second-version').text().trim(), 'Error retrieving module from npm: Error: Ember Data Request undefined http://test-host/api/npm/test-module/versions returned a 500\nPayload (Empty Content-Type)\n[object Object]');
+    assert.strictEqual(this.$('.dependency-row.test-module > .first-version').text().trim(), 'Error retrieving module from npm: Error: Ember Data Request undefined http://test-host/api/npm/test-module/versions returned a 500\nPayload (Empty Content-Type)\n[object Object]');
+    assert.strictEqual(this.$('.dependency-row.test-module > .second-version').text().trim(), 'Error retrieving module from npm: Error: Ember Data Request undefined http://test-host/api/npm/test-module/versions returned a 500\nPayload (Empty Content-Type)\n[object Object]');
     assert.notOk(called);
   });
 });
@@ -186,10 +238,10 @@ test('handles missing versions', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$('.first-version-hint').text().trim(), 'missing');
-    assert.strictEqual(this.$('.second-version-hint').text().trim(), 'missing');
-    assert.strictEqual(this.$('.first-version').text().trim(), 'missing');
-    assert.strictEqual(this.$('.second-version').text().trim(), 'missing');
+    assert.strictEqual(this.$('.dependency-row.test-module > .first-version-hint').text().trim(), 'missing');
+    assert.strictEqual(this.$('.dependency-row.test-module > .second-version-hint').text().trim(), 'missing');
+    assert.strictEqual(this.$('.dependency-row.test-module > .first-version').text().trim(), 'missing');
+    assert.strictEqual(this.$('.dependency-row.test-module > .second-version').text().trim(), 'missing');
   });
 });
 
@@ -201,14 +253,14 @@ test('handles first version missing', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$('.first-version-hint').text().trim(), 'missing');
-    assert.notStrictEqual(this.$('.second-version-hint').text().trim(), 'missing');
-    assert.strictEqual(this.$('.first-version').text().trim(), 'missing');
-    assert.notStrictEqual(this.$('.second-version').text().trim(), 'missing');
-    assert.strictEqual(this.$('.first-version-hint .is-missing').length, 1);
-    assert.strictEqual(this.$('.second-version-hint .is-missing').length, 1);
-    assert.strictEqual(this.$('.first-version .is-missing').length, 1);
-    assert.strictEqual(this.$('.second-version .is-missing').length, 1);
+    assert.strictEqual(   this.$('.dependency-row.test-module > .first-version-hint').text().trim(), 'missing');
+    assert.notStrictEqual(this.$('.dependency-row.test-module > .second-version-hint').text().trim(), 'missing');
+    assert.strictEqual(   this.$('.dependency-row.test-module > .first-version').text().trim(), 'missing');
+    assert.notStrictEqual(this.$('.dependency-row.test-module > .second-version').text().trim(), 'missing');
+    assert.strictEqual(   this.$('.dependency-row.test-module > .first-version-hint .is-missing').length, 1);
+    assert.strictEqual(   this.$('.dependency-row.test-module > .second-version-hint .is-missing').length, 1);
+    assert.strictEqual(   this.$('.dependency-row.test-module > .first-version .is-missing').length, 1);
+    assert.strictEqual(   this.$('.dependency-row.test-module > .second-version .is-missing').length, 1);
   });
 });
 
@@ -220,14 +272,14 @@ test('handles second version missing', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.notStrictEqual(this.$('.first-version-hint').text().trim(), 'missing');
-    assert.strictEqual(this.$('.second-version-hint').text().trim(), 'missing');
-    assert.notStrictEqual(this.$('.first-version').text().trim(), 'missing');
-    assert.strictEqual(this.$('.second-version').text().trim(), 'missing');
-    assert.strictEqual(this.$('.first-version-hint .is-missing').length, 1);
-    assert.strictEqual(this.$('.second-version-hint .is-missing').length, 1);
-    assert.strictEqual(this.$('.first-version .is-missing').length, 1);
-    assert.strictEqual(this.$('.second-version .is-missing').length, 1);
+    assert.notStrictEqual(this.$('.dependency-row.test-module > .first-version-hint').text().trim(), 'missing');
+    assert.strictEqual(   this.$('.dependency-row.test-module > .second-version-hint').text().trim(), 'missing');
+    assert.notStrictEqual(this.$('.dependency-row.test-module > .first-version').text().trim(), 'missing');
+    assert.strictEqual(   this.$('.dependency-row.test-module > .second-version').text().trim(), 'missing');
+    assert.strictEqual(   this.$('.dependency-row.test-module > .first-version-hint .is-missing').length, 1);
+    assert.strictEqual(   this.$('.dependency-row.test-module > .second-version-hint .is-missing').length, 1);
+    assert.strictEqual(   this.$('.dependency-row.test-module > .first-version .is-missing').length, 1);
+    assert.strictEqual(   this.$('.dependency-row.test-module > .second-version .is-missing').length, 1);
   });
 });
 
@@ -241,8 +293,8 @@ test('hints display correctly', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$('.first-version-hint').text().trim(), '^1.0.0');
-    assert.strictEqual(this.$('.second-version-hint').text().trim(), '^2.0.0');
+    assert.strictEqual(this.$('.dependency-row.test-module > .first-version-hint').text().trim(), '^1.0.0');
+    assert.strictEqual(this.$('.dependency-row.test-module > .second-version-hint').text().trim(), '^2.0.0');
   });
 });
 
@@ -254,8 +306,8 @@ test('hints are same', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$('.first-version-hint .hints-are-different').length, 0);
-    assert.strictEqual(this.$('.second-version-hint .hints-are-different').length, 0);
+    assert.strictEqual(this.$('.dependency-row.test-module > .first-version-hint .hints-are-different').length, 0);
+    assert.strictEqual(this.$('.dependency-row.test-module > .second-version-hint .hints-are-different').length, 0);
   });
 });
 
@@ -269,8 +321,8 @@ test('hints are different', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$('.first-version-hint .hints-are-different').length, 1);
-    assert.strictEqual(this.$('.second-version-hint .hints-are-different').length, 1);
+    assert.strictEqual(this.$('.dependency-row.test-module > .first-version-hint .hints-are-different').length, 1);
+    assert.strictEqual(this.$('.dependency-row.test-module > .second-version-hint .hints-are-different').length, 1);
   });
 });
 
@@ -280,8 +332,8 @@ test('versions display correctly', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$('.first-version').text().trim(), '1.0.1');
-    assert.strictEqual(this.$('.second-version').text().trim(), '2.0.1');
+    assert.strictEqual(this.$('.dependency-row.test-module > .first-version').text().trim(), '1.0.1');
+    assert.strictEqual(this.$('.dependency-row.test-module > .second-version').text().trim(), '2.0.1');
   });
 });
 
@@ -293,8 +345,8 @@ test('versions are same', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$('.first-version .versions-are-different').length, 0);
-    assert.strictEqual(this.$('.second-version .versions-are-different').length, 0);
+    assert.strictEqual(this.$('.dependency-row.test-module > .first-version .versions-are-different').length, 0);
+    assert.strictEqual(this.$('.dependency-row.test-module > .second-version .versions-are-different').length, 0);
   });
 });
 
@@ -304,8 +356,8 @@ test('versions are different', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$('.first-version .versions-are-different').length, 1);
-    assert.strictEqual(this.$('.second-version .versions-are-different').length, 1);
+    assert.strictEqual(this.$('.dependency-row.test-module > .first-version .versions-are-different').length, 1);
+    assert.strictEqual(this.$('.dependency-row.test-module > .second-version .versions-are-different').length, 1);
   });
 });
 
@@ -323,4 +375,18 @@ test('sends action when done', function(assert) {
   render.call(this);
 
   return wait();
+});
+
+test('shows child dependencies', function(assert) {
+  assert.expect(5);
+
+  render.call(this);
+
+  return wait().then(() => {
+    assert.strictEqual(this.$('.dependency-row.test-child-module > .module').text().trim(), 'test-child-module');
+    assert.strictEqual(this.$('.dependency-row.test-child-module > .first-version-hint').text().trim(), '^1.0.0');
+    assert.strictEqual(this.$('.dependency-row.test-child-module > .second-version-hint').text().trim(), '^2.0.0');
+    assert.strictEqual(this.$('.dependency-row.test-child-module > .first-version').text().trim(), '1.1.0');
+    assert.strictEqual(this.$('.dependency-row.test-child-module > .second-version').text().trim(), '2.1.0');
+  });
 });

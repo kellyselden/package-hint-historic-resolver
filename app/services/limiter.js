@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import { task, timeout } from 'ember-concurrency';
 import nodeRateLimiter from 'npm:limiter';
 
 const {
@@ -23,6 +24,12 @@ export default Service.extend({
 
     return limiter.removeTokens(...arguments);
   },
+
+  run: task(function * (fn) {
+    let result = yield fn();
+    yield timeout(get(this, 'limiterTime'));
+    return result;
+  }).maxConcurrency(1).enqueue(),
 
   reset() {
     limiter = null;

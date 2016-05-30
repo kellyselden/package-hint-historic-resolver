@@ -52,8 +52,7 @@
     <button {{action 'toggleCrawling'}}>{{toggleCrawlingText}}</button>
   {{/if}}
   <label>
-    {{one-way-input
-      type="checkbox"
+    {{one-way-checkbox
       value=shouldOnlyShowDifferent
       update=(action (mut shouldOnlyShowDifferent))
     }}

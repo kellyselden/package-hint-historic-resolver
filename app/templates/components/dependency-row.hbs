@@ -1,6 +1,6 @@
 {{#unless shouldHideRow}}
-  <tr>
-    <td class="module" style="padding-left: {{nestingLevel}}em;">
+  <tr class="dependency-row {{module}}">
+    <td class="module" style="{{if nestingLevel (concat "padding-left: " nestingLevel "em;")}}">
       {{module}}
     </td>
     <td class="first-version-hint">
@@ -42,7 +42,7 @@
       {{error}}
     </td>
   </tr>
-  <!-- {{dependency-nest
+  {{dependency-nest
     module=module
     incomingNestingLevel=nestingLevel
     repoWorkingDate=repoWorkingDate
@@ -52,5 +52,5 @@
     stopCrawling=stopCrawling
     shouldOnlyShowDifferent=shouldOnlyShowDifferent
     doneCrawling="doneCrawling"
-  }} -->
+  }}
 {{/unless}}

@@ -1,12 +1,13 @@
 import Ember from 'ember';
 import { task } from 'ember-concurrency';
+import promiseArray from 'ember-awesome-macros/promise-array';
 import getRealVersion from '../utils/get-real-version';
-import pairs from 'lodash/object/pairs';
+// import pairs from 'lodash/object/pairs';
 
 const {
   Component,
   get, set,
-  on, observer, computed,
+  computed,
   computed: { not, readOnly, or, and },
   inject: { service }
 } = Ember;
@@ -15,13 +16,14 @@ export default Component.extend({
   tagName: '',
 
   // semaphore:    service(),
-  requestCache: service(),
+  // requestCache: service(),
+  task: service(),
 
   module:            readOnly('dependency.module'),
   firstVersionHint:  readOnly('dependency.firstVersionHint'),
   secondVersionHint: readOnly('dependency.secondVersionHint'),
 
-  // nestingLevel: 0,
+  nestingLevel: 0,
 
   // _numberOfAwaitingRequests: 0,
 
@@ -36,11 +38,10 @@ export default Component.extend({
 
   _areVersionsSame: not('areVersionsDifferent'),
   shouldHideRow: and('shouldOnlyShowDifferent', '_areVersionsSame'),
-
-  getVersions: on('init', observer('module', 'stopCrawling', function() {
+  versions: promiseArray('module', 'stopCrawling', function() {
     let module = get(this, 'module');
     if (!module || get(this, 'stopCrawling')) {
-      return;
+      return Ember.RSVP.resolve([]);
     }
 
     // let semaphore = get(this, 'semaphore.moduleSemaphore');
@@ -51,37 +52,76 @@ export default Component.extend({
     //
     // this.incrementProperty('_numberOfAwaitingRequests');
 
-    let path = `npm/${module}/versions`;
-    get(this, 'getVersionsTask').perform(path);
-  })),
+    return get(this, 'getVersionsTask').perform(module);
+    // return get(this, 'requestCache').cacheRequest(path).then(data => {
+    //   // if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
+    //     this.sendAction('doneCrawling', get(this, 'dependency'));
+    //   // }
+    //
+    //   return pairs(data);
+    // }).catch(error => {
+    //   set(this, 'error', `Error retrieving module from npm: ${error}`);
+    // // }).finally(() => {
+    // //   semaphore.leave();
+    // });
+  }),
 
   getVersionsTask: task(function * (path) {
-    yield get(this, 'requestCache').cacheRequest(path).then(data => {
-      set(this, 'versions', pairs(data));
+    try {
+      let versions = yield get(this, 'task.getVersions').perform(path);
+
       // if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
         this.sendAction('doneCrawling', get(this, 'dependency'));
       // }
-    }).catch(error => {
+
+      return versions;
+    } catch (error) {
       set(this, 'error', `Error retrieving module from npm: ${error}`);
-    // }).finally(() => {
-    //   semaphore.leave();
-    });
+
+      return [];
+    }
   }),
 
+
   firstVersion: computed('firstVersionHint', 'versions.length', 'repoWorkingDate', function() {
-    return getRealVersion(
-      get(this, 'firstVersionHint'),
-      get(this, 'versions'),
-      get(this, 'repoWorkingDate')
+    let firstVersionHint = get(this, 'firstVersionHint');
+    let repoWorkingDate  = get(this, 'repoWorkingDate');
+
+    let realVersion = this._getRealVersion(
+      firstVersionHint,
+      repoWorkingDate
     );
+
+    return realVersion;
   }),
   secondVersion: computed('secondVersionHint', 'versions.length', 'repoBrokenDate', function() {
-    return getRealVersion(
-      get(this, 'secondVersionHint'),
-      get(this, 'versions'),
-      get(this, 'repoBrokenDate')
+    let secondVersionHint = get(this, 'secondVersionHint');
+    let repoBrokenDate    = get(this, 'repoBrokenDate');
+
+    let realVersion = this._getRealVersion(
+      secondVersionHint,
+      repoBrokenDate
     );
+
+    return realVersion;
   }),
+  _getRealVersion(
+    versionHint,
+    repoDate
+  ) {
+    let versions = get(this, 'versions');
+    if (get(versions, 'isPending')) {
+      return;
+    }
+
+    let realVersion = getRealVersion(
+      versionHint,
+      versions,
+      repoDate
+    );
+
+    return realVersion;
+  },
 
   areVersionsDifferent: computed('firstVersion', 'secondVersion', function() {
     let firstVersion  = get(this, 'firstVersion'),
@@ -94,10 +134,10 @@ export default Component.extend({
   }),
 
   actions: {
-    // doneCrawling() {
-    //   if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
-    //     this.sendAction('doneCrawling', get(this, 'dependency'));
-    //   }
-    // }
+    doneCrawling() {
+      // if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
+        this.sendAction('doneCrawling', get(this, 'dependency'));
+      // }
+    }
   }
 });

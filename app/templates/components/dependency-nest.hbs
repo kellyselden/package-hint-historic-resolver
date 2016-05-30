@@ -1,12 +1,12 @@
 {{#each dependencies as |dependency|}}
-  <!-- <tr>
-    <td>&nbsp;&nbsp;{{dependency.module}}</td>
-    <td>{{dependency.firstVersionHint}}</td>
-    <td>{{dependency.secondVersionHint}}</td>
+  <!-- <tr class="dependency-row {{dependency.module}}">
+    <td class="module" style="padding-left: {{nestingLevel}}em;">{{dependency.module}}</td>
+    <td class="first-version-hint">{{dependency.firstVersionHint}}</td>
+    <td class="second-version-hint">{{dependency.secondVersionHint}}</td>
     <td>test</td>
     <td>test</td>
   </tr> -->
-  <!-- {{dependency-row
+  {{dependency-row
     dependency=dependency
     nestingLevel=nestingLevel
     repoWorkingDate=repoWorkingDate
@@ -14,6 +14,6 @@
     stopCrawling=stopCrawling
     shouldOnlyShowDifferent=shouldOnlyShowDifferent
     doneCrawling="doneCrawling"
-  }} -->
+  }}
 {{/each}}
 {{error}}
