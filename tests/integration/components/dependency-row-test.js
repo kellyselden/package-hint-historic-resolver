@@ -13,6 +13,8 @@ let versionsCallback, versionsBody, versionsResponse;
 let firstDependenciesCallback, firstDependenciesBody, firstDependenciesResponse;
 let secondDependenciesCallback, secondDependenciesBody, secondDependenciesResponse;
 let childVersionsCallback, childVersionsCallBody, childVersionsResponse;
+let firstChildDependenciesCallback, firstChildDependenciesBody, firstChildDependenciesResponse;
+let secondChildDependenciesCallback, secondChildDependenciesBody, secondChildDependenciesResponse;
 let dependency, nestingLevel, shouldOnlyShowDifferent, stopCrawling;
 let onDoneCrawling;
 
@@ -22,10 +24,12 @@ moduleForComponent('dependency-row', 'Integration | Component | dependency row',
     server = new Pretender();
     server.prepareBody = JSON.stringify;
 
-    versionsCallback           = () => {};
-    firstDependenciesCallback  = () => {};
-    secondDependenciesCallback = () => {};
-    childVersionsCallback      = () => {};
+    versionsCallback                = () => {};
+    firstDependenciesCallback       = () => {};
+    secondDependenciesCallback      = () => {};
+    childVersionsCallback           = () => {};
+    firstChildDependenciesCallback  = () => {};
+    secondChildDependenciesCallback = () => {};
 
     versionsBody = {
       '1.0.1': '2015-01-01T00:00:00.000Z',
@@ -41,11 +45,15 @@ moduleForComponent('dependency-row', 'Integration | Component | dependency row',
       '1.1.0': '2015-01-01T00:00:00.000Z',
       '2.1.0': '2015-03-01T00:00:00.000Z'
     };
+    firstChildDependenciesBody = {};
+    secondChildDependenciesBody = {};
 
-    versionsResponse           = () => [200, {}, versionsBody];
-    firstDependenciesResponse  = () => [200, {}, firstDependenciesBody];
-    secondDependenciesResponse = () => [200, {}, secondDependenciesBody];
-    childVersionsResponse      = () => [200, {}, childVersionsCallBody];
+    versionsResponse                = () => [200, {}, versionsBody];
+    firstDependenciesResponse       = () => [200, {}, firstDependenciesBody];
+    secondDependenciesResponse      = () => [200, {}, secondDependenciesBody];
+    childVersionsResponse           = () => [200, {}, childVersionsCallBody];
+    firstChildDependenciesResponse  = () => [200, {}, firstChildDependenciesBody];
+    secondChildDependenciesResponse = () => [200, {}, secondChildDependenciesBody];
 
     dependency = {
       module: 'test-module',
@@ -92,6 +100,14 @@ function render() {
   server.get('http://test-host/api/npm/test-child-module/versions', function() {
     childVersionsCallback(...arguments);
     return childVersionsResponse(...arguments);
+  });
+  server.get('http://test-host/api/npm/test-child-module@1.1.0/dependencies', function() {
+    firstChildDependenciesCallback(...arguments);
+    return firstChildDependenciesResponse(...arguments);
+  });
+  server.get('http://test-host/api/npm/test-child-module@2.1.0/dependencies', function() {
+    secondChildDependenciesCallback(...arguments);
+    return secondChildDependenciesResponse(...arguments);
   });
 
   this.on('doneCrawling', onDoneCrawling);

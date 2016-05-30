@@ -71,7 +71,7 @@ export default Component.extend({
       let versions = yield get(this, 'task.getVersions').perform(path);
 
       // if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
-        this.sendAction('doneCrawling', get(this, 'dependency'));
+        // this.sendAction('doneCrawling', get(this, 'dependency'));
       // }
 
       return versions;
