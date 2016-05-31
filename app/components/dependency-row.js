@@ -2,30 +2,90 @@ import Ember from 'ember';
 import { task } from 'ember-concurrency';
 import promiseArray from 'ember-awesome-macros/promise-array';
 import getRealVersion from '../utils/get-real-version';
-// import pairs from 'lodash/object/pairs';
 
 const {
   Component,
   get, set,
   computed,
   computed: { not, readOnly, or, and },
-  inject: { service }
+  inject: { service },
+  A: newArray
 } = Ember;
 
 export default Component.extend({
   tagName: '',
 
-  // semaphore:    service(),
-  // requestCache: service(),
   task: service(),
 
   module:            readOnly('dependency.module'),
   firstVersionHint:  readOnly('dependency.firstVersionHint'),
   secondVersionHint: readOnly('dependency.secondVersionHint'),
 
-  nestingLevel: 0,
+  nestingLevel: 1,
 
-  // _numberOfAwaitingRequests: 0,
+  parentDependencies: newArray(),
+
+  childDependencies: computed('parentDependencies.length', 'module', 'firstVersion', 'secondVersion', function() {
+    let parentDependencies = get(this, 'parentDependencies');
+    let module             = get(this, 'module');
+    let firstVersion       = get(this, 'firstVersion');
+    let secondVersion      = get(this, 'secondVersion');
+    if (!module || !firstVersion || !secondVersion) {
+      return parentDependencies;
+    }
+
+    let childDependencies = parentDependencies.slice();
+
+    childDependencies.pushObject({
+      module,
+      firstVersion,
+      secondVersion
+    });
+
+    return childDependencies;
+  }),
+
+  hasFirstCircularReferenceFromParent: false,
+  hasSecondCircularReferenceFromParent: false,
+
+  _hasCircularReference(circularReferenceFromParentProp, versionProp) {
+    if (get(this, circularReferenceFromParentProp)) {
+      return true;
+    }
+
+    let module       = get(this, 'module');
+    let version = get(this, versionProp);
+    if (!module || !version) {
+      return false;
+    }
+
+    let parentDependencies = get(this, 'parentDependencies');
+
+    let hasCircularReference = parentDependencies.filter(dep => {
+      return dep.module       === module ||
+             dep[versionProp] === version;
+    }).length;
+
+    if (hasCircularReference) {
+      this.send('doneCrawling');
+    }
+
+    return hasCircularReference;
+  },
+
+  hasFirstCircularReference: computed('hasFirstCircularReferenceFromParent', 'parentDependencies.length', 'module', 'firstVersion', function() {
+    let hasFirstCircularReference = this._hasCircularReference('hasFirstCircularReferenceFromParent', 'firstVersion');
+
+    return hasFirstCircularReference;
+  }),
+
+  hasSecondCircularReference: computed('hasSecondCircularReferenceFromParent', 'parentDependencies.length', 'module', 'secondVersion', function() {
+    let hasSecondCircularReference = this._hasCircularReference('hasSecondCircularReferenceFromParent', 'secondVersion');
+
+    return hasSecondCircularReference;
+  }),
+
+  hasBothCircularReference: and('hasFirstCircularReference', 'hasSecondCircularReference'),
 
   isFirstVersionHintMissing:  not('firstVersionHint'),
   isSecondVersionHintMissing: not('secondVersionHint'),
@@ -38,41 +98,19 @@ export default Component.extend({
 
   _areVersionsSame: not('areVersionsDifferent'),
   shouldHideRow: and('shouldOnlyShowDifferent', '_areVersionsSame'),
-  versions: promiseArray('module', 'stopCrawling', function() {
-    let module = get(this, 'module');
-    if (!module || get(this, 'stopCrawling')) {
+  versions: promiseArray('module', 'hasFirstCircularReferenceFromParent', 'stopCrawling', function() {
+    let module       = get(this, 'module');
+    let stopCrawling = get(this, 'stopCrawling');
+    if (!module || stopCrawling) {
       return Ember.RSVP.resolve([]);
     }
 
-    // let semaphore = get(this, 'semaphore.moduleSemaphore');
-    // semaphore.take(() => {
-    //   if (get(this, 'versions')) {
-    //     return semaphore.leave();
-    //   }
-    //
-    // this.incrementProperty('_numberOfAwaitingRequests');
-
     return get(this, 'getVersionsTask').perform(module);
-    // return get(this, 'requestCache').cacheRequest(path).then(data => {
-    //   // if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
-    //     this.sendAction('doneCrawling', get(this, 'dependency'));
-    //   // }
-    //
-    //   return pairs(data);
-    // }).catch(error => {
-    //   set(this, 'error', `Error retrieving module from npm: ${error}`);
-    // // }).finally(() => {
-    // //   semaphore.leave();
-    // });
   }),
 
   getVersionsTask: task(function * (path) {
     try {
       let versions = yield get(this, 'task.getVersions').perform(path);
-
-      // if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
-        // this.sendAction('doneCrawling', get(this, 'dependency'));
-      // }
 
       return versions;
     } catch (error) {
@@ -135,9 +173,7 @@ export default Component.extend({
 
   actions: {
     doneCrawling() {
-      // if (this.decrementProperty('_numberOfAwaitingRequests') === 0) {
-        this.sendAction('doneCrawling', get(this, 'dependency'));
-      // }
+      this.sendAction('doneCrawling', get(this, 'dependency'));
     }
   }
 });
