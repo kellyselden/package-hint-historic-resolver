@@ -21,16 +21,18 @@ export default Component.extend({
 
   _numberOfAwaitingRequests: 0,
 
-  firstDependencies: computed('module', 'firstVersion', 'stopCrawling', function() {
-    return get(this, 'getDependenciesTask').perform('firstVersion');
+  firstDependencies: computed('module', 'firstVersion', 'hasFirstCircularReference', 'stopCrawling', function() {
+    return get(this, 'getDependenciesTask').perform('firstVersion', 'hasFirstCircularReference');
   }),
-  secondDependencies: computed('module', 'secondVersion', 'stopCrawling', function() {
-    return get(this, 'getDependenciesTask').perform('secondVersion');
+  secondDependencies: computed('module', 'secondVersion', 'hasSecondCircularReference', 'stopCrawling', function() {
+    return get(this, 'getDependenciesTask').perform('secondVersion', 'hasSecondCircularReference');
   }),
-  getDependenciesTask: task(function * (versionProp) {
-    let module  = get(this, 'module');
-    let version = get(this, versionProp);
-    if (!module || !version || get(this, 'stopCrawling')) {
+  getDependenciesTask: task(function * (versionProp, circularReferenceProp) {
+    let module               = get(this, 'module');
+    let version              = get(this, versionProp);
+    let hasCircularReference = get(this, circularReferenceProp);
+    let stopCrawling         = get(this, 'stopCrawling');
+    if (!module || !version || hasCircularReference || stopCrawling) {
       return;
     }
 

@@ -4,11 +4,14 @@
     nestingLevel=nestingLevel
     repoWorkingDate=repoWorkingDate
     repoBrokenDate=repoBrokenDate
+    parentDependencies=parentDependencies
+    hasFirstCircularReferenceFromParent=hasFirstCircularReference
+    hasSecondCircularReferenceFromParent=hasSecondCircularReference
     stopCrawling=stopCrawling
     shouldOnlyShowDifferent=shouldOnlyShowDifferent
     doneCrawling="doneCrawling"
   }}
 {{/each}}
 {{#if error}}
-  <tr>{{error}}</tr>
+  <tr><td>{{error}}</td></tr>
 {{/if}}

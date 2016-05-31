@@ -1,56 +1,75 @@
 {{#unless shouldHideRow}}
-  <tr class="dependency-row {{module}}">
-    <td class="module" style="{{if nestingLevel (concat "padding-left: " nestingLevel "em;")}}">
+  <tr class="dependency-row {{module}} depth-{{nestingLevel}}">
+    <td class="module" style="padding-left: {{nestingLevel}}em;">
       {{module}}
     </td>
     <td class="first-version-hint">
-      {{version-display
-        firstVersionHint
-        isMissing=isFirstVersionHintMissing
-        isOneMissing=isOneMissing
-        areVersionsDifferent=areVersionHintsDifferent
-        areVersionsDifferentClass="hints-are-different"
-      }}
+      {{#unless hasFirstCircularReferenceFromParent}}
+        {{version-display
+          firstVersionHint
+          isMissing=isFirstVersionHintMissing
+          isOneMissing=isOneMissing
+          areVersionsDifferent=areVersionHintsDifferent
+          areVersionsDifferentClass="hints-are-different"
+        }}
+      {{/unless}}
     </td>
     <td class="second-version-hint">
-      {{version-display
-        secondVersionHint
-        isMissing=isSecondVersionHintMissing
-        isOneMissing=isOneMissing
-        areVersionsDifferent=areVersionHintsDifferent
-        areVersionsDifferentClass="hints-are-different"
-      }}
+      {{#unless hasSecondCircularReferenceFromParent}}
+        {{version-display
+          secondVersionHint
+          isMissing=isSecondVersionHintMissing
+          isOneMissing=isOneMissing
+          areVersionsDifferent=areVersionHintsDifferent
+          areVersionsDifferentClass="hints-are-different"
+        }}
+      {{/unless}}
     </td>
     <td class="first-version">
-      {{version-display
-        firstVersion
-        isMissing=isFirstVersionHintMissing
-        isOneMissing=isOneMissing
-        areVersionsDifferent=areVersionsDifferent
-        areVersionsDifferentClass="versions-are-different"
-      }}
-      {{error}}
+      {{#unless hasFirstCircularReferenceFromParent}}
+        {{version-display
+          firstVersion
+          isMissing=isFirstVersionHintMissing
+          isOneMissing=isOneMissing
+          areVersionsDifferent=areVersionsDifferent
+          areVersionsDifferentClass="versions-are-different"
+        }}
+        {{#if hasFirstCircularReference}}
+          <span class="circular-reference">circular reference</span>
+        {{/if}}
+        {{error}}
+      {{/unless}}
     </td>
     <td class="second-version">
-      {{version-display
-        secondVersion
-        isMissing=isSecondVersionHintMissing
-        isOneMissing=isOneMissing
-        areVersionsDifferent=areVersionsDifferent
-        areVersionsDifferentClass="versions-are-different"
-      }}
-      {{error}}
+      {{#unless hasSecondCircularReferenceFromParent}}
+        {{version-display
+          secondVersion
+          isMissing=isSecondVersionHintMissing
+          isOneMissing=isOneMissing
+          areVersionsDifferent=areVersionsDifferent
+          areVersionsDifferentClass="versions-are-different"
+        }}
+        {{#if hasFirstCircularReference}}
+          <span class="circular-reference">circular reference</span>
+        {{/if}}
+        {{error}}
+      {{/unless}}
     </td>
   </tr>
-  {{dependency-nest
-    module=module
-    incomingNestingLevel=nestingLevel
-    repoWorkingDate=repoWorkingDate
-    repoBrokenDate=repoBrokenDate
-    firstVersion=firstVersion
-    secondVersion=secondVersion
-    stopCrawling=stopCrawling
-    shouldOnlyShowDifferent=shouldOnlyShowDifferent
-    doneCrawling="doneCrawling"
-  }}
+  {{#unless hasBothCircularReference}}
+    {{dependency-nest
+      module=module
+      incomingNestingLevel=nestingLevel
+      repoWorkingDate=repoWorkingDate
+      repoBrokenDate=repoBrokenDate
+      firstVersion=firstVersion
+      secondVersion=secondVersion
+      parentDependencies=childDependencies
+      hasFirstCircularReference=hasFirstCircularReference
+      hasSecondCircularReference=hasSecondCircularReference
+      stopCrawling=stopCrawling
+      shouldOnlyShowDifferent=shouldOnlyShowDifferent
+      doneCrawling="doneCrawling"
+    }}
+  {{/unless}}
 {{/unless}}
