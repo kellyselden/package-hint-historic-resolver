@@ -18,6 +18,9 @@ let secondChildDependenciesCallback, secondChildDependenciesBody, secondChildDep
 let dependency, nestingLevel, shouldOnlyShowDifferent, stopCrawling;
 let onDoneCrawling;
 
+let testFirstVersion, testSecondVersion, testFirstVersionHint, testSecondVersionHint;
+let testChildFirstVersion, testChildSecondVersion;
+
 moduleForComponent('dependency-row', 'Integration | Component | dependency row', {
   integration: true,
   beforeEach() {
@@ -31,25 +34,30 @@ moduleForComponent('dependency-row', 'Integration | Component | dependency row',
     firstChildDependenciesCallback  = () => {};
     secondChildDependenciesCallback = () => {};
 
-    versionsBody = {
-      '1.0.1': '2015-01-01T00:00:00.000Z',
-      '2.0.1': '2015-03-01T00:00:00.000Z'
-    };
+    testFirstVersion  = '1.2.1';
+    testSecondVersion = '1.5.0';
+    versionsBody = {};
+    versionsBody[testFirstVersion]  = '2015-01-01T00:00:00.000Z';
+    versionsBody[testSecondVersion] = '2015-03-01T00:00:00.000Z';
+
     firstDependenciesBody = {
       'test-child-module': '^1.0.0'
     };
     secondDependenciesBody = {
-      'test-child-module': '^2.0.0'
+      'test-child-module': '^1.1.0'
     };
-    childVersionsCallBody = {
-      '1.1.0': '2015-01-01T00:00:00.000Z',
-      '2.1.0': '2015-03-01T00:00:00.000Z'
-    };
+
+    testChildFirstVersion  = '1.2.1';
+    testChildSecondVersion = '1.5.0';
+    childVersionsCallBody = {};
+    childVersionsCallBody[testChildFirstVersion]  = '2015-01-01T00:00:00.000Z';
+    childVersionsCallBody[testChildSecondVersion] = '2015-03-01T00:00:00.000Z';
+
     firstChildDependenciesBody = {
       'test-module': '^1.0.0'
     };
     secondChildDependenciesBody = {
-      'test-module': '^2.0.0'
+      'test-module': '^1.1.0'
     };
 
     versionsResponse                = () => [200, {}, versionsBody];
@@ -59,10 +67,12 @@ moduleForComponent('dependency-row', 'Integration | Component | dependency row',
     firstChildDependenciesResponse  = () => [200, {}, firstChildDependenciesBody];
     secondChildDependenciesResponse = () => [200, {}, secondChildDependenciesBody];
 
+    testFirstVersionHint  = '^1.0.0';
+    testSecondVersionHint = '^1.1.0';
     dependency = {
       module: 'test-module',
-      firstVersionHint: '^1.0.0',
-      secondVersionHint: '^2.0.0'
+      firstVersionHint: testFirstVersionHint,
+      secondVersionHint: testSecondVersionHint
     };
     nestingLevel = 2;
     shouldOnlyShowDifferent = false;
@@ -94,11 +104,11 @@ function render() {
     versionsCallback(...arguments);
     return versionsResponse(...arguments);
   });
-  server.get('http://test-host/api/npm/test-module@1.0.1/dependencies', function() {
+  server.get(`http://test-host/api/npm/test-module@${testFirstVersion}/dependencies`, function() {
     firstDependenciesCallback(...arguments);
     return firstDependenciesResponse(...arguments);
   });
-  server.get('http://test-host/api/npm/test-module@2.0.1/dependencies', function() {
+  server.get(`http://test-host/api/npm/test-module@${testSecondVersion}/dependencies`, function() {
     secondDependenciesCallback(...arguments);
     return secondDependenciesResponse(...arguments);
   });
@@ -106,11 +116,11 @@ function render() {
     childVersionsCallback(...arguments);
     return childVersionsResponse(...arguments);
   });
-  server.get('http://test-host/api/npm/test-child-module@1.1.0/dependencies', function() {
+  server.get(`http://test-host/api/npm/test-child-module@${testChildFirstVersion}/dependencies`, function() {
     firstChildDependenciesCallback(...arguments);
     return firstChildDependenciesResponse(...arguments);
   });
-  server.get('http://test-host/api/npm/test-child-module@2.1.0/dependencies', function() {
+  server.get(`http://test-host/api/npm/test-child-module@${testChildSecondVersion}/dependencies`, function() {
     secondChildDependenciesCallback(...arguments);
     return secondChildDependenciesResponse(...arguments);
   });
@@ -130,15 +140,13 @@ function render() {
   `);
 }
 
-test('hides row when same', function(assert) {
+test('hides when parent and children are same', function(assert) {
   assert.expect(1);
 
-  dependency.secondVersionHint = '^1.0.0';
+  delete versionsBody[testSecondVersion];
+  delete childVersionsCallBody[testChildSecondVersion];
+  firstChildDependenciesBody = {};
   shouldOnlyShowDifferent = true;
-
-  versionsBody = {
-    "1.0.1": "2015-01-01T00:00:00.000Z"
-  };
 
   render.call(this);
 
@@ -147,21 +155,31 @@ test('hides row when same', function(assert) {
   });
 });
 
-test('doesn\'t hide row when same', function(assert) {
-  assert.expect(1);
+test('doesn\'t hide when parent and children are different', function(assert) {
+  assert.expect(2);
 
-  dependency.secondVersionHint = '^1.0.0';
-
-  versionsBody = {
-    "1.0.1": "2015-01-01T00:00:00.000Z"
-  };
+  shouldOnlyShowDifferent = true;
 
   render.call(this);
 
   return wait().then(() => {
-    assert.notStrictEqual(this.$().text().trim(), '');
+    assert.strictEqual(this.$('.dependency-row.test-module.depth-2').length, 1);
+    assert.strictEqual(this.$('.dependency-row.test-child-module.depth-3').length, 1);
   });
 });
+
+// test('doesn\'t hide same parent when children different', function(assert) {
+//   assert.expect(1);
+//
+//   delete versionsBody[testSecondVersion];
+//   shouldOnlyShowDifferent = true;
+//
+//   render.call(this);
+//
+//   return wait().then(() => {
+//     assert.strictEqual(this.$('.dependency-row.test-module.depth-2').length, 1);
+//   });
+// });
 
 test('respects nesting level', function(assert) {
   assert.expect(1);
@@ -295,22 +313,20 @@ test('handles second version missing', function(assert) {
 test('hints display correctly', function(assert) {
   assert.expect(2);
 
-  versionsBody = {
-    "1.0.1": "2015-01-01T00:00:00.000Z"
-  };
+  delete versionsBody[testSecondVersion];
 
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$('.dependency-row.test-module.depth-2 > .first-version-hint').text().trim(), '^1.0.0');
-    assert.strictEqual(this.$('.dependency-row.test-module.depth-2 > .second-version-hint').text().trim(), '^2.0.0');
+    assert.strictEqual(this.$('.dependency-row.test-module.depth-2 > .first-version-hint').text().trim(), testFirstVersionHint);
+    assert.strictEqual(this.$('.dependency-row.test-module.depth-2 > .second-version-hint').text().trim(), testSecondVersionHint);
   });
 });
 
 test('hints are same', function(assert) {
   assert.expect(2);
 
-  dependency.secondVersionHint = '^1.0.0';
+  dependency.secondVersionHint = testFirstVersionHint;
 
   render.call(this);
 
@@ -323,9 +339,7 @@ test('hints are same', function(assert) {
 test('hints are different', function(assert) {
   assert.expect(2);
 
-  versionsBody = {
-    "1.0.1": "2015-01-01T00:00:00.000Z"
-  };
+  delete versionsBody[testSecondVersion];
 
   render.call(this);
 
@@ -341,15 +355,15 @@ test('versions display correctly', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$('.dependency-row.test-module.depth-2 > .first-version').text().trim(), '1.0.1');
-    assert.strictEqual(this.$('.dependency-row.test-module.depth-2 > .second-version').text().trim(), '2.0.1');
+    assert.strictEqual(this.$('.dependency-row.test-module.depth-2 > .first-version').text().trim(), testFirstVersion);
+    assert.strictEqual(this.$('.dependency-row.test-module.depth-2 > .second-version').text().trim(), testSecondVersion);
   });
 });
 
 test('versions are same', function(assert) {
   assert.expect(2);
 
-  dependency.secondVersionHint = '^1.0.0';
+  delete versionsBody[testSecondVersion];
 
   render.call(this);
 
@@ -376,8 +390,8 @@ test('sends action when done', function(assert) {
   onDoneCrawling = dependency => {
     assert.deepEqual(dependency, {
       module: 'test-module',
-      firstVersionHint: '^1.0.0',
-      secondVersionHint: '^2.0.0'
+      firstVersionHint: testFirstVersionHint,
+      secondVersionHint: testSecondVersionHint
     });
   };
 
@@ -393,10 +407,10 @@ test('shows child dependencies', function(assert) {
 
   return wait().then(() => {
     assert.strictEqual(this.$('.dependency-row.test-child-module.depth-3 > .module').text().trim(), 'test-child-module');
-    assert.strictEqual(this.$('.dependency-row.test-child-module.depth-3 > .first-version-hint').text().trim(), '^1.0.0');
-    assert.strictEqual(this.$('.dependency-row.test-child-module.depth-3 > .second-version-hint').text().trim(), '^2.0.0');
-    assert.strictEqual(this.$('.dependency-row.test-child-module.depth-3 > .first-version').text().trim(), '1.1.0');
-    assert.strictEqual(this.$('.dependency-row.test-child-module.depth-3 > .second-version').text().trim(), '2.1.0');
+    assert.strictEqual(this.$('.dependency-row.test-child-module.depth-3 > .first-version-hint').text().trim(), testFirstVersionHint);
+    assert.strictEqual(this.$('.dependency-row.test-child-module.depth-3 > .second-version-hint').text().trim(), testSecondVersionHint);
+    assert.strictEqual(this.$('.dependency-row.test-child-module.depth-3 > .first-version').text().trim(), testFirstVersion);
+    assert.strictEqual(this.$('.dependency-row.test-child-module.depth-3 > .second-version').text().trim(), testSecondVersion);
   });
 });
 

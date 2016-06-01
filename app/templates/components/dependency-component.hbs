@@ -9,15 +9,14 @@
   <tr>
     <td>Repo is Working Date</td>
     <td>
-      {{dependency-date
+      {{date-time-picker
         repoWorkingDate
-        repo=repo
-        dateChanged="changeRepoWorkingDate"
-        foundCommitData="updateFirstCommitData"
-        receivedJson="updateFirstJson"
+        action="changeRepoWorkingDate"
       }}
     </td>
     <td>
+      {{firstCommitError}}
+      {{repoWorkingDateError}}
       {{#if firstCommit}}
         Latest commit {{firstCommit}}
       {{/if}}
@@ -26,18 +25,17 @@
   <tr>
     <td>Repo is Broken Date</td>
     <td>
-      {{dependency-date
+      {{date-time-picker
         repoBrokenDate
-        repo=repo
-        dateChanged="changeRepoBrokenDate"
-        foundCommitData="updateSecondCommitData"
-        receivedJson="updateSecondJson"
+        action="changeRepoBrokenDate"
       }}
     </td>
     <td>
       {{#if areDatesOutOfOrder}}
         Broken date must be after working date
       {{else}}
+        {{secondCommitError}}
+        {{repoBrokenDateError}}
         {{#if secondCommit}}
           Latest commit {{secondCommit}}
         {{/if}}
@@ -49,7 +47,9 @@
   {{#if isDoneCrawling}}
     Done crawling
   {{else}}
-    <button {{action 'toggleCrawling'}}>{{toggleCrawlingText}}</button>
+    <button {{action 'toggleCrawling'}}>
+      {{if stopCrawling "Start Crawling" "Stop Crawling"}}
+    </button>
   {{/if}}
   <label>
     {{one-way-checkbox
@@ -63,8 +63,8 @@
       dependencyGroup=dependencyGroup
       firstCommitDate=firstCommitDate
       secondCommitDate=secondCommitDate
-      repoWorkingDate=_repoWorkingDate
-      repoBrokenDate=_repoBrokenDate
+      repoWorkingDate=repoWorkingDate
+      repoBrokenDate=repoBrokenDate
       stopCrawling=stopCrawling
       shouldOnlyShowDifferent=shouldOnlyShowDifferent
       doneCrawling="doneCrawling"

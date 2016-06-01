@@ -62,7 +62,7 @@ export default Component.extend({
     let parentDependencies = get(this, 'parentDependencies');
 
     let hasCircularReference = parentDependencies.filter(dep => {
-      return dep.module       === module ||
+      return dep.module       === module &&
              dep[versionProp] === version;
     }).length;
 
