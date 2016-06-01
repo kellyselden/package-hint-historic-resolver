@@ -48,6 +48,8 @@ module.exports = function(environment) {
   var host;
   var namespace = 'api/v1';
 
+  var testHost = 'http://test-host';
+
   if (environment === 'development') {
     // ENV.APP.LOG_RESOLVER = true;
     // ENV.APP.LOG_ACTIVE_GENERATION = true;
@@ -62,6 +64,8 @@ module.exports = function(environment) {
     contentSecurityPolicy['script-src'] += " 'unsafe-inline'";
 
     host = 'http://localhost:3000';
+
+    contentSecurityPolicy['connect-src'] += ' ' + testHost;
   }
 
   if (environment === 'test') {
@@ -75,7 +79,7 @@ module.exports = function(environment) {
 
     ENV.APP.rootElement = '#ember-testing';
 
-    host = 'http://test-host';
+    host = testHost;
     namespace = 'api';
   }
 
