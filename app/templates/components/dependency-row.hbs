@@ -57,19 +57,22 @@
     </td>
   </tr>
   {{#unless hasBothCircularReference}}
-    {{dependency-nest
-      module=module
-      incomingNestingLevel=nestingLevel
-      repoWorkingDate=repoWorkingDate
-      repoBrokenDate=repoBrokenDate
-      firstVersion=firstVersion
-      secondVersion=secondVersion
-      parentDependencies=childDependencies
-      hasFirstCircularReference=hasFirstCircularReference
-      hasSecondCircularReference=hasSecondCircularReference
-      stopCrawling=stopCrawling
-      shouldOnlyShowDifferent=shouldOnlyShowDifferent
-      doneCrawling="doneCrawling"
-    }}
+    {{#each nestedDependencies as |dependency|}}
+      {{dependency-row
+        dependency=dependency
+        nestingLevel=childNestingLevel
+        repoWorkingDate=repoWorkingDate
+        repoBrokenDate=repoBrokenDate
+        parentDependencies=childDependencies
+        hasFirstCircularReferenceFromParent=hasFirstCircularReference
+        hasSecondCircularReferenceFromParent=hasSecondCircularReference
+        stopCrawling=stopCrawling
+        shouldOnlyShowDifferent=shouldOnlyShowDifferent
+        doneCrawling="doneCrawling"
+      }}
+    {{/each}}
+    {{#if nestedError}}
+      <tr><td>{{nestedError}}</td></tr>
+    {{/if}}
   {{/unless}}
 {{/unless}}
