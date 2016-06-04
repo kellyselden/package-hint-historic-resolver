@@ -206,7 +206,7 @@ test('doesn\'t make request if no module', function(assert) {
 
   delete dependency['module'];
 
-  let called = false;
+  let called;
   versionsCallback = () => {
     called = true;
   };
@@ -242,7 +242,7 @@ test('handles failed request', function(assert) {
     return [500, {}, {}];
   };
 
-  let called = false;
+  let called;
   onDoneCrawling = () => {
     called = true;
   };
@@ -387,17 +387,16 @@ test('versions are different', function(assert) {
 test('sends action when done', function(assert) {
   assert.expect(1);
 
-  onDoneCrawling = dependency => {
-    assert.deepEqual(dependency, {
-      module: 'test-module',
-      firstVersionHint: testFirstVersionHint,
-      secondVersionHint: testSecondVersionHint
-    });
+  let called;
+  onDoneCrawling = () => {
+    called = true;
   };
 
   render.call(this);
 
-  return wait();
+  return wait().then(() => {
+    assert.ok(called);
+  });
 });
 
 test('shows child dependencies', function(assert) {
