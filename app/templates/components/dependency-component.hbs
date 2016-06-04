@@ -2,72 +2,64 @@
   <tr>
     <td>Repo URL</td>
     <td>
-      <input value="{{repoUrl}}" onchange={{action "changeRepoUrl" value="target.value"}} />
-    </td>
-    <td>{{repo}}</td>
-  </tr>
-  <tr>
-    <td>Repo is Working Date</td>
-    <td>
-      {{date-time-picker
-        repoWorkingDate
-        action="changeRepoWorkingDate"
-      }}
+      <input class="repo-url" value="{{repoUrl}}" onchange={{action "changeRepoUrl" value="target.value"}} />
     </td>
     <td>
-      {{firstCommitError}}
-      {{repoWorkingDateError}}
-      {{#if firstCommit}}
-        Latest commit {{firstCommit}}
-      {{/if}}
-    </td>
-  </tr>
-  <tr>
-    <td>Repo is Broken Date</td>
-    <td>
-      {{date-time-picker
-        repoBrokenDate
-        action="changeRepoBrokenDate"
-      }}
-    </td>
-    <td>
-      {{#if areDatesOutOfOrder}}
-        Broken date must be after working date
+      {{#if isRepoUrlInvalid}}
+        <span class="repo-error">Could not parse Repo URL: {{repoUrl}}</span>
       {{else}}
-        {{secondCommitError}}
-        {{repoBrokenDateError}}
-        {{#if secondCommit}}
-          Latest commit {{secondCommit}}
-        {{/if}}
+        <span class="repo">{{repo}}</span>
       {{/if}}
     </td>
   </tr>
-</table>
-{{#if shouldShowTable}}
-  {{#if isDoneCrawling}}
-    Done crawling
-  {{else}}
-    <button {{action 'toggleCrawling'}}>
-      {{if stopCrawling "Start Crawling" "Stop Crawling"}}
-    </button>
+  {{repo-date-row
+    class="repo-working-date"
+    title="Repo is Working Date"
+    repoDate=repoWorkingDate
+    repoDateError=repoWorkingDateError
+    commit=firstCommit
+    commitDate=firstCommitDate
+    commitError=firstCommitError
+    changeRepoDate=(action "changeRepoWorkingDate")
+  }}
+  {{repo-date-row
+    class="repo-broken-date"
+    title="Repo is Broken Date"
+    repoDate=repoBrokenDate
+    repoDateError=repoBrokenDateError
+    commit=secondCommit
+    commitDate=secondCommitDate
+    commitError=secondCommitError
+    changeRepoDate=(action "changeRepoBrokenDate")
+  }}
+  {{#if areDatesOutOfOrder}}
+    <tr class="dates-out-of-order">Broken date must be after working date</tr>
   {{/if}}
-  <label>
-    {{one-way-checkbox
-      value=shouldOnlyShowDifferent
-      update=(action (mut shouldOnlyShowDifferent))
+</table>
+{{#if shouldShowTables}}
+  <div class="crawling-section">
+    {{#if isDoneCrawling}}
+      <span class="done-crawling">Done crawling</span>
+    {{else}}
+      <button class="stop-crawling" {{action "toggleCrawling"}}>
+        {{if stopCrawling "Start Crawling" "Stop Crawling"}}
+      </button>
+    {{/if}}
+    Number different: {{numberOfDifferences}}
+    {{checkbox-with-label
+      shouldOnlyShowDifferent
+      "Only show different"
+      update=(action shouldOnlyShowDifferentUpdated)
     }}
-    Only show different
-  </label>
-  {{#each dependencyGroups as |dependencyGroup|}}
-    {{dependency-table
-      dependencyGroup=dependencyGroup
-      firstCommitDate=firstCommitDate
-      secondCommitDate=secondCommitDate
-      repoWorkingDate=repoWorkingDate
-      repoBrokenDate=repoBrokenDate
-      stopCrawling=stopCrawling
-      shouldOnlyShowDifferent=shouldOnlyShowDifferent
-      doneCrawling="doneCrawling"
-    }}
-  {{/each}}
+    {{#each dependencyGroups as |dependencyGroup|}}
+      {{dependency-table
+        dependencyGroup=dependencyGroup
+        firstCommitDate=firstCommitDate
+        secondCommitDate=secondCommitDate
+        repoWorkingDate=repoWorkingDate
+        repoBrokenDate=repoBrokenDate
+        shouldOnlyShowDifferent=shouldOnlyShowDifferent
+      }}
+    {{/each}}
+  </div>
 {{/if}}

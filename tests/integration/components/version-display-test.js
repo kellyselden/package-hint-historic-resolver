@@ -5,10 +5,10 @@ moduleForComponent('version-display', 'Integration | Component | version display
   integration: true
 });
 
-test('it renders', function(assert) {
+test('it has a class', function(assert) {
   this.render(hbs`{{version-display}}`);
 
-  assert.strictEqual(this.$().text().trim(), '');
+  assert.strictEqual(this.$('.version-display').length, 1);
 });
 
 test('it shows version', function(assert) {

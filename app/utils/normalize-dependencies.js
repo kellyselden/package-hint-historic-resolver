@@ -1,15 +1,21 @@
+import Ember from 'ember';
 import pairs from 'lodash/object/pairs';
 
+const {
+  A: newArray
+} = Ember;
+
 export default function normalizeDependencies(dependencies) {
-  if (!dependencies) {
-    return [];
+  if (dependencies) {
+    dependencies = pairs(dependencies).map(([module, version]) => {
+      return Ember.Object.create({
+        module,
+        version
+      });
+    });
+  } else {
+    dependencies = [];
   }
 
-  return pairs(dependencies).map(dep => {
-    let [module, version] = dep;
-    return {
-      module,
-      version
-    };
-  });
+  return newArray(dependencies);
 }

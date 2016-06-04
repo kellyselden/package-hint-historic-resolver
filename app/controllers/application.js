@@ -1,11 +1,11 @@
 import Ember from 'ember';
+import computed from 'ember-computed-decorators';
 import getRepo from '../utils/get-repo';
 
 const {
   Controller,
   inject: { service },
-  get, set,
-  computed
+  get, set, setProperties
 } = Ember;
 
 export default Controller.extend({
@@ -14,21 +14,35 @@ export default Controller.extend({
   queryParams: {
     repoUrl: 'repoUrl',
     repoWorkingDateSerialized: 'repoWorkingDate',
-    repoBrokenDateSerialized: 'repoBrokenDate'
+    repoBrokenDateSerialized: 'repoBrokenDate',
+    shouldOnlyShowDifferent: 'shouldOnlyShowDifferent'
   },
 
-  repoWorkingDate: computed('repoWorkingDateSerialized', function() {
-    return deserializeDate(get(this, 'repoWorkingDateSerialized'));
-  }),
-  repoBrokenDate: computed('repoBrokenDateSerialized', function() {
-    return deserializeDate(get(this, 'repoBrokenDateSerialized'));
-  }),
+  shouldOnlyShowDifferent: false,
 
-  repo: computed('repoUrl', function() {
-    let repoUrl = get(this, 'repoUrl');
+  firstJson: {},
+  secondJson: {},
+
+  @computed('repoWorkingDateSerialized')
+  repoWorkingDate(repoWorkingDateSerialized) {
+    return deserializeDate(repoWorkingDateSerialized);
+  },
+  @computed('repoBrokenDateSerialized')
+  repoBrokenDate(repoBrokenDateSerialized) {
+    return deserializeDate(repoBrokenDateSerialized);
+  },
+
+  @computed('repoUrl')
+  repo(repoUrl) {
     let repo = getRepo(repoUrl);
     return repo;
-  }),
+  },
+
+  // Ember.computed.gt doesn't work with dates
+  @computed('repoWorkingDate', 'repoBrokenDate')
+  areDatesOutOfOrder(repoWorkingDate, repoBrokenDate) {
+    return repoWorkingDate > repoBrokenDate;
+  },
 
   rebuild() {
     this._rebuildWorking();
@@ -37,6 +51,7 @@ export default Controller.extend({
   _rebuildWorking() {
     this._rebuild(
       'repoWorkingDate',
+      'firstCommit',
       'firstCommitError',
       'firstCommitDate',
       'repoWorkingDateError',
@@ -46,6 +61,7 @@ export default Controller.extend({
   _rebuildBroken() {
     this._rebuild(
       'repoBrokenDate',
+      'secondCommit',
       'secondCommitError',
       'secondCommitDate',
       'repoBrokenDateError',
@@ -54,25 +70,50 @@ export default Controller.extend({
   },
   _rebuild(
     repoDateProp,
+    commitProp,
     commitErrorProp,
     commitDateProp,
     packageErrorProp,
     jsonProp
   ) {
-    let treeBuilder = get(this, 'treeBuilder');
     let repo = get(this, 'repo');
+    if (!repo) {
+      return;
+    }
+
+    let areDatesOutOfOrder = get(this, 'areDatesOutOfOrder');
+    if (areDatesOutOfOrder) {
+      return;
+    }
+
+    let treeBuilder = get(this, 'treeBuilder');
     let repoDate = get(this, repoDateProp);
 
-    return get(treeBuilder, 'getCommit').perform(repo, repoDate).catch(error => {
-      set(this, commitErrorProp, error);
-    }).then(({ commit, sha }) => {
-      set(this, commitDateProp, commit.author.date);
+    let properties = {};
+    properties[commitErrorProp] = undefined;
+    properties[packageErrorProp] = undefined;
+    setProperties(this, properties);
+
+    let promise = get(treeBuilder, 'getCommit').perform(repo, repoDate);
+
+    promise.then(({ sha, commit }) => {
+      let properties = {};
+      properties[commitProp] = sha;
+      properties[commitDateProp] = commit.author.date;
+      setProperties(this, properties);
 
       return get(treeBuilder, 'getPackage').perform(repo, sha);
     }).catch(error => {
-      set(this, packageErrorProp, error);
+      set(this, commitErrorProp, error);
     }).then(data => {
+      if (!data) {
+        // the above failed
+        return;
+      }
+
       set(this, jsonProp, data);
+    }).catch(error => {
+      set(this, packageErrorProp, error);
     });
   },
 

@@ -6,7 +6,9 @@ module.exports = function(defaults) {
   var app = new EmberApp(defaults, {
     babel: {
       // ember-concurrency
-      includePolyfill: true
+      includePolyfill: true,
+      // ember-computed-decorators
+      optional: ['es7.decorators']
     }
   });
 

@@ -16,11 +16,7 @@
   {{#each dependencies as |dependency|}}
     {{dependency-row
       dependency=dependency
-      repoWorkingDate=repoWorkingDate
-      repoBrokenDate=repoBrokenDate
-      stopCrawling=stopCrawling
       shouldOnlyShowDifferent=shouldOnlyShowDifferent
-      doneCrawling="doneCrawling"
     }}
   {{/each}}
 </table>

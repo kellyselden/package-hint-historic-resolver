@@ -7,7 +7,7 @@ const {
   Service,
   inject: { service },
   RSVP: { Promise },
-  get,
+  get
 } = Ember;
 
 export default Service.extend({
@@ -56,5 +56,5 @@ export default Service.extend({
     let data = yield get(this, 'requestCache').cacheRequestLimiter(path);
 
     return data;
-  }).enqueue(),
+  }).enqueue()
 });

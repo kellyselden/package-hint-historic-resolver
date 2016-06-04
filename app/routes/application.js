@@ -1,7 +1,8 @@
 import Ember from 'ember';
 
 const {
-  Route
+  Route,
+  run: { scheduleOnce }
 } = Ember;
 
 export default Route.extend({
@@ -9,5 +10,16 @@ export default Route.extend({
     this._super(...arguments);
 
     controller.rebuild();
+  },
+
+  actions: {
+    queryParamsDidChange() {
+      let { controller } = this;
+      if (controller) {
+        scheduleOnce('afterRender', () => {
+          controller.rebuild();
+        });
+      }
+    }
   }
 });

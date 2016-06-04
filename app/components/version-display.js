@@ -6,6 +6,7 @@ const {
 } = Ember;
 
 const MyComponent = Component.extend({
+  classNames: ['version-display'],
   classNameBindings: ['areDifferent', 'isOneMissing:is-missing'],
 
   areDifferent: computed('areVersionsDifferent', 'areVersionsDifferentClass', function() {
