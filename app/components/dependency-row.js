@@ -127,7 +127,6 @@ export default Component.extend({
     }
   }),
 
-
   firstVersion: computed('firstVersionHint', 'versions.length', 'repoWorkingDate', function() {
     let firstVersionHint = get(this, 'firstVersionHint');
     let repoWorkingDate  = get(this, 'repoWorkingDate');
