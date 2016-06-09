@@ -24,7 +24,7 @@
     "coveralls": "^2.0.0",
     "cross-env": "^1.0.0",
     "ember-ajax": "0.7.1",
-    "ember-awesome-macros": "0.0.6",
+    "ember-awesome-macros": "0.0.7",
     "ember-browserify": "^1.0.0",
     "ember-cli": "2.5.1",
     "ember-cli-app-version": "^1.0.0",
