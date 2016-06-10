@@ -32,7 +32,6 @@
     "ember-cli-app-version": "^1.0.0",
     "ember-cli-babel": "^5.1.6",
     "ember-cli-code-coverage": "kellyselden/ember-cli-code-coverage#coveralls",
-    "ember-cli-content-security-policy": "0.5.0",
     "ember-cli-dependency-checker": "^1.2.0",
     "ember-cli-eslint": "1.6.0",
     "ember-cli-htmlbars": "^1.0.3",

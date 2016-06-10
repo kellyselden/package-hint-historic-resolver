@@ -63,7 +63,7 @@ module.exports = function(environment) {
     // /tests
     contentSecurityPolicy['script-src'] += " 'unsafe-inline'";
 
-    host = 'http://localhost:3000';
+    host = 'http://packager-api-wrapper.herokuapp.com';
 
     contentSecurityPolicy['connect-src'] += ' ' + testHost;
   }
