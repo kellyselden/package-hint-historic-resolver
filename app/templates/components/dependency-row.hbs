@@ -2,77 +2,64 @@
   <tr class="dependency-row {{module}} depth-{{nestingLevel}}">
     <td class="module" style="padding-left: {{nestingLevel}}em;">
       {{module}}
+      {{#if versionsError}}
+        Error getting versions: {{versionsError}}
+      {{/if}}
     </td>
     <td class="first-version-hint">
-      {{#unless hasFirstCircularReferenceFromParent}}
-        {{version-display
-          firstVersionHint
-          isMissing=isFirstVersionHintMissing
-          isOneMissing=isOneMissing
-          areVersionsDifferent=areVersionHintsDifferent
-          areVersionsDifferentClass="hints-are-different"
-        }}
-      {{/unless}}
+      {{version-display
+        firstVersionHint
+        isMissing=isFirstVersionHintMissing
+        isOneMissing=isOneMissing
+        areVersionsDifferent=areVersionHintsDifferent
+        areVersionsDifferentClass="hints-are-different"
+      }}
+      {{#if firstDependenciesError}}
+        <span class="error">Error getting dependencies: {{firstDependenciesError}}</span>
+      {{/if}}
     </td>
     <td class="second-version-hint">
-      {{#unless hasSecondCircularReferenceFromParent}}
-        {{version-display
-          secondVersionHint
-          isMissing=isSecondVersionHintMissing
-          isOneMissing=isOneMissing
-          areVersionsDifferent=areVersionHintsDifferent
-          areVersionsDifferentClass="hints-are-different"
-        }}
-      {{/unless}}
+      {{version-display
+        secondVersionHint
+        isMissing=isSecondVersionHintMissing
+        isOneMissing=isOneMissing
+        areVersionsDifferent=areVersionHintsDifferent
+        areVersionsDifferentClass="hints-are-different"
+      }}
+      {{#if secondDependenciesError}}
+        <span class="error">Error getting dependencies: {{secondDependenciesError}}</span>
+      {{/if}}
     </td>
     <td class="first-version">
-      {{#unless hasFirstCircularReferenceFromParent}}
-        {{version-display
-          firstVersion
-          isMissing=isFirstVersionHintMissing
-          isOneMissing=isOneMissing
-          areVersionsDifferent=areVersionsDifferent
-          areVersionsDifferentClass="versions-are-different"
-        }}
-        {{#if hasFirstCircularReference}}
-          <span class="circular-reference">circular reference</span>
-        {{/if}}
-        {{error}}
-      {{/unless}}
+      {{version-display
+        firstVersion
+        isMissing=isFirstVersionHintMissing
+        isOneMissing=isOneMissing
+        areVersionsDifferent=areVersionsDifferent
+        areVersionsDifferentClass="versions-are-different"
+      }}
+      {{#if hasFirstCircularReference}}
+        <span class="circular-reference">circular reference</span>
+      {{/if}}
     </td>
     <td class="second-version">
-      {{#unless hasSecondCircularReferenceFromParent}}
-        {{version-display
-          secondVersion
-          isMissing=isSecondVersionHintMissing
-          isOneMissing=isOneMissing
-          areVersionsDifferent=areVersionsDifferent
-          areVersionsDifferentClass="versions-are-different"
-        }}
-        {{#if hasFirstCircularReference}}
-          <span class="circular-reference">circular reference</span>
-        {{/if}}
-        {{error}}
-      {{/unless}}
+      {{version-display
+        secondVersion
+        isMissing=isSecondVersionHintMissing
+        isOneMissing=isOneMissing
+        areVersionsDifferent=areVersionsDifferent
+        areVersionsDifferentClass="versions-are-different"
+      }}
+      {{#if hasFirstCircularReference}}
+        <span class="circular-reference">circular reference</span>
+      {{/if}}
     </td>
   </tr>
-  {{#unless hasBothCircularReference}}
-    {{#each nestedDependencies as |dependency|}}
-      {{dependency-row
-        dependency=dependency
-        nestingLevel=childNestingLevel
-        repoWorkingDate=repoWorkingDate
-        repoBrokenDate=repoBrokenDate
-        parentDependencies=childDependencies
-        hasFirstCircularReferenceFromParent=hasFirstCircularReference
-        hasSecondCircularReferenceFromParent=hasSecondCircularReference
-        stopCrawling=stopCrawling
-        shouldOnlyShowDifferent=shouldOnlyShowDifferent
-        doneCrawling="doneCrawling"
-      }}
-    {{/each}}
-    {{#if nestedError}}
-      <tr><td>{{nestedError}}</td></tr>
-    {{/if}}
-  {{/unless}}
+  {{#each dependencies as |dependency|}}
+    {{dependency-row
+      dependency=dependency
+      nestingLevel=childNestingLevel
+      shouldOnlyShowDifferent=shouldOnlyShowDifferent
+    }}
+  {{/each}}
 {{/unless}}

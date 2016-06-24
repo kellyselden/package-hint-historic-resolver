@@ -1,0 +1,17 @@
+<td class="title">{{title}}</td>
+<td>
+  {{date-time-picker
+    repoDate
+    action=(action changeRepoDate)
+  }}
+</td>
+<td>
+  {{#if commitError}}
+    <span class="commit-error">Error getting commit: {{commitError}}</span>
+  {{else}}
+    <span class="commit">Latest commit {{commit}} on {{commitDate}}</span>
+  {{/if}}
+  {{#if repoDateError}}
+    <span class="repo-date-error">Error getting package.json: {{repoDateError}}</span>
+  {{/if}}
+</td>

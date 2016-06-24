@@ -131,6 +131,8 @@ test('cache invalidates after given time', function(assert) {
 
   return service.cacheRequest('test-url').then(() => {
     let timeCacheWasSet = Date.now();
+
+    // eslint-disable-next-line no-empty
     while (Date.now() - timeCacheWasSet <= cacheTime) {}
 
     server.get('http://test-host/api/test-url', () => {

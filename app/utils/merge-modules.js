@@ -1,27 +1,34 @@
 import Ember from 'ember';
 
+const {
+  A: newArray,
+  get, set
+} = Ember;
+
 export default function mergeModules(firstDependencies, secondDependencies) {
-  let dependencies = [];
+  let dependencies = newArray();
   if (firstDependencies && secondDependencies) {
     firstDependencies.forEach(dep1 => {
+      let module = get(dep1, 'module');
       let dep = Ember.Object.create({
-        module: dep1.module,
-        firstVersionHint: dep1.version
+        module,
+        firstVersionHint: get(dep1, 'version')
       });
-      let dep2 = secondDependencies.filter(dep2 => dep1.module === dep2.module)[0];
+      let dep2 = secondDependencies.filterBy('module', module)[0];
       if (dep2) {
-        dep.set('secondVersionHint', dep2.version);
+        set(dep, 'secondVersionHint', get(dep2, 'version'));
       }
-      dependencies.push(dep);
+      dependencies.pushObject(dep);
     });
     secondDependencies.forEach(dep2 => {
-      let dep1 = firstDependencies.filter(dep1 => dep1.module === dep2.module)[0];
+      let module = get(dep2, 'module');
+      let dep1 = firstDependencies.filterBy('module', module)[0];
       if (dep1) {
         return;
       }
-      dependencies.push(Ember.Object.create({
-        module: dep2.module,
-        secondVersionHint: dep2.version
+      dependencies.pushObject(Ember.Object.create({
+        module,
+        secondVersionHint: get(dep2, 'version')
       }));
     });
   }
