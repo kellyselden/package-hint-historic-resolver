@@ -14,13 +14,13 @@ export default Service.extend({
   getCommit: task(function * (repo, date) {
     let until = moment(date).toJSON();
     let url = `https://api.github.com/repos/${repo}/commits?until=${until}`;
-    let [latestCommit] = yield get(this, 'requestCache').cacheRequest(url);
+    let [latestCommit] = yield get(this, 'requestCache').cacheRequestAjax(url);
     return latestCommit;
   }),
 
   getPackage: task(function * (repo, commit) {
     let url = `https://raw.githubusercontent.com/${repo}/${commit}/package.json`;
-    let data = yield get(this, 'requestCache').cacheRequest(url);
+    let data = yield get(this, 'requestCache').cacheRequestAjax(url);
 
     return data;
   })

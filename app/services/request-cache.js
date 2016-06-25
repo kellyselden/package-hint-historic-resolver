@@ -14,9 +14,47 @@ export default Service.extend({
   semaphore: service(),
   limiter: service(),
   adapter: service(),
+  ajax: service(),
 
   mySemaphore: readOnly('semaphore.requestCacheSemaphore'),
   cacheTime: readOnly('config.cacheTime'),
+
+  cacheRequestAjax(url) {
+    return new Promise(resolve => {
+      let cache = get(this, 'cache');
+
+      // don't bother waiting for the semaphore
+      // if the cache has a value
+      let data = cache.get(url);
+      if (data) {
+        return resolve(data);
+      }
+
+      let semaphore = get(this, 'mySemaphore');
+
+      semaphore.take(() => {
+        // while you were waiting on the semaphore
+        // the data could have since been cached
+        // so check again
+        let data = cache.get(url);
+        if (data) {
+          semaphore.leave();
+
+          return resolve(data);
+        }
+
+        get(this, 'limiter').removeTokens(1, () => {
+          let promise = get(this, 'ajax').request(url).then(response => {
+            return cache.put(url, response, get(this, 'cacheTime'));
+          }).finally(() => {
+            semaphore.leave();
+          });
+
+          resolve(promise);
+        });
+      });
+    });
+  },
 
   cacheRequest(url) {
     return new Promise(resolve => {
