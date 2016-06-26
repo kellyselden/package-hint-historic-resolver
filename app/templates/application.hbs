@@ -1,5 +1,24 @@
 <h2>Why is CI Broken?</h2>
 
+<div class="gtihub-client-id">GitHub client ID: {{githubClientId}}{{githubClientIdError}}</div>
+{{#if githubClientId}}
+  <div class="github-auth">
+    {{#unless session.isAuthenticated}}
+      <button class="log-in" {{action "logIn"}}>Log in</button>
+    {{else}}
+      <button {{action "logOut"}}>Log out</button>
+    {{/unless}}
+    {{#if session.data.authenticated.authorizationCode}}
+      <div class="github-auth-code">GitHub authorization code: {{session.data.authenticated.authorizationCode}}</div>
+    {{/if}}
+    {{#if session.data.authenticated.accessToken}}
+      <div class="github-access-token">GitHub access token: {{session.data.authenticated.accessToken}}</div>
+    {{/if}}
+  </div>
+{{/if}}
+<div class="github-rate-limit">GitHub API rate limit: {{githubRateLimit}}</div>
+<div class="github-rate-remaining">GitHub API rate remaining: {{githubRateRemaining}}</div>
+
 {{dependency-component
   repoUrl=repoUrl
   repo=repo

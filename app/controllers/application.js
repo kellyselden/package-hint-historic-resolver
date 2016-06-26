@@ -9,6 +9,7 @@ const {
 } = Ember;
 
 export default Controller.extend({
+  session: service(),
   treeBuilder: service(),
 
   queryParams: {
@@ -96,8 +97,13 @@ export default Controller.extend({
 
     let promise = get(treeBuilder, 'getCommit').perform(repo, repoDate);
 
-    promise.then(({ sha, commit }) => {
+    promise.then(({ responseHeaders, response }) => {
+      let [latestCommit] = response;
+      let { sha, commit } = latestCommit;
+
       let properties = {};
+      properties['githubRateLimit'] = responseHeaders['X-RateLimit-Limit'];
+      properties['githubRateRemaining'] = responseHeaders['X-RateLimit-Remaining'];
       properties[commitProp] = sha;
       properties[commitDateProp] = commit.author.date;
       setProperties(this, properties);
@@ -118,6 +124,12 @@ export default Controller.extend({
   },
 
   actions: {
+    logIn() {
+      get(this, 'session').authenticate('authenticator:torii', 'github');
+    },
+    logOut() {
+      get(this, 'session').invalidate();
+    },
     updateRepoUrl(url) {
       let oldUrl = get(this, 'repoUrl');
       if (url !== oldUrl) {

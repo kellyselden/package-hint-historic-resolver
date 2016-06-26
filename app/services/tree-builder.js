@@ -10,18 +10,21 @@ const {
 
 export default Service.extend({
   requestCache: service(),
+  githubAjax: service(),
 
   getCommit: task(function * (repo, date) {
     let until = moment(date).toJSON();
-    let url = `https://api.github.com/repos/${repo}/commits?until=${until}`;
-    let [latestCommit] = yield get(this, 'requestCache').cacheRequestAjax(url);
-    return latestCommit;
+    let url = `repos/${repo}/commits?until=${until}`;
+    let ajax = get(this, 'githubAjax');
+    let data = yield get(this, 'requestCache').cacheRequestAjax(url, ajax);
+
+    return data;
   }),
 
   getPackage: task(function * (repo, commit) {
     let url = `https://raw.githubusercontent.com/${repo}/${commit}/package.json`;
-    let data = yield get(this, 'requestCache').cacheRequestAjax(url);
+    let { response } = yield get(this, 'requestCache').cacheRequestAjax(url);
 
-    return data;
+    return response;
   })
 });

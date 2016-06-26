@@ -42,7 +42,15 @@ module.exports = function(environment) {
           id: 'UA-69333483-1'
         }
       }
-    ]
+    ],
+    torii: {
+      sessionServiceName: 'session',
+      providers: {
+        'github-oauth2': {
+          scope: 'user:email'
+        }
+      }
+    }
   };
 
   var host;
