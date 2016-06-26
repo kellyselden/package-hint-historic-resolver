@@ -133,7 +133,7 @@ export default Component.extend({
       merge(props, {
         isFirstVersionHintMissing:  not('firstVersionHint'),
         isSecondVersionHintMissing: not('secondVersionHint'),
-        isOneMissing: or('isFirstVersionHintMissing', 'isSecondVersionHintMissing'),
+        isOneHintMissing: or('isFirstVersionHintMissing', 'isSecondVersionHintMissing'),
         isSomethingWrong: or('isOneMissing', 'areVersionsDifferent')
       });
     }
@@ -253,7 +253,10 @@ export default Component.extend({
 
       setProperties(dependency, {
         firstVersion,
-        secondVersion
+        secondVersion,
+        isFirstVersionMissing:  not('firstVersion'),
+        isSecondVersionMissing: not('secondVersion'),
+        isOneMissing: or('isFirstVersionMissing', 'isSecondVersionMissing')
       });
 
       this._checkForCircularReference(dependency, 'firstVersion',  'hasFirstCircularReference');
