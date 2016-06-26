@@ -18,6 +18,7 @@
 {{/if}}
 <div class="github-rate-limit">GitHub API rate limit: {{githubRateLimit}}</div>
 <div class="github-rate-remaining">GitHub API rate remaining: {{githubRateRemaining}}</div>
+<div class="github-rate-reset">GitHub API rate reset: {{moment-from-now githubRateReset interval=1000}}</div>
 
 {{dependency-component
   repoUrl=repoUrl

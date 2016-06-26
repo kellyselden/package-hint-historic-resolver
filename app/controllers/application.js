@@ -104,6 +104,7 @@ export default Controller.extend({
       let properties = {};
       properties['githubRateLimit'] = responseHeaders['X-RateLimit-Limit'];
       properties['githubRateRemaining'] = responseHeaders['X-RateLimit-Remaining'];
+      properties['githubRateReset'] = parseInt(responseHeaders['X-RateLimit-Reset']) * 1000;
       properties[commitProp] = sha;
       properties[commitDateProp] = commit.author.date;
       setProperties(this, properties);
