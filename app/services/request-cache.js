@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import getResponseHeaders from '../utils/get-response-headers';
 
 const {
   Service,
@@ -19,7 +20,7 @@ export default Service.extend({
   mySemaphore: readOnly('semaphore.requestCacheSemaphore'),
   cacheTime: readOnly('config.cacheTime'),
 
-  cacheRequestAjax(url) {
+  cacheRequestAjax(url, ajax) {
     return new Promise(resolve => {
       let cache = get(this, 'cache');
 
@@ -44,8 +45,14 @@ export default Service.extend({
         }
 
         get(this, 'limiter').removeTokens(1, () => {
-          let promise = get(this, 'ajax').request(url).then(response => {
-            return cache.put(url, response, get(this, 'cacheTime'));
+          ajax = ajax || get(this, 'ajax');
+          let promise = ajax.raw(url).then(({ jqXHR, response }) => {
+            let responseHeaders = getResponseHeaders(jqXHR);
+            let data = {
+              responseHeaders,
+              response
+            };
+            return cache.put(url, data, get(this, 'cacheTime'));
           }).finally(() => {
             semaphore.leave();
           });
