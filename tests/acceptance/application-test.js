@@ -21,6 +21,7 @@ let githubAuthCode;
 let githubAccessToken;
 let githubRateLimit;
 let githubRateRemaining;
+let githubRateReset;
 let githubRequestHeaders;
 
 moduleForAcceptance('Acceptance | application', {
@@ -43,6 +44,7 @@ moduleForAcceptance('Acceptance | application', {
     githubAccessToken = 'test-access-token';
     githubRateLimit = '60';
     githubRateRemaining = '56';
+    githubRateReset = (new Date().getTime() / 1000) + (60 * 60);
 
     githubClientIdUrl = 'http://test-host/api/github/client-id';
     server.get(githubClientIdUrl, () => {
@@ -56,7 +58,8 @@ moduleForAcceptance('Acceptance | application', {
 
       return [200, {
         'X-RateLimit-Limit': githubRateLimit,
-        'X-RateLimit-Remaining': githubRateRemaining
+        'X-RateLimit-Remaining': githubRateRemaining,
+        'X-RateLimit-Reset': githubRateReset
       }, [{
         sha,
         commit: {
@@ -129,6 +132,7 @@ test('visiting /', function(assert) {
     assert.equal(find('.github-access-token').text().trim(), `GitHub access token: ${githubAccessToken}`);
     assert.equal(find('.github-rate-limit').text().trim(), `GitHub API rate limit: ${githubRateLimit}`);
     assert.equal(find('.github-rate-remaining').text().trim(), `GitHub API rate remaining: ${githubRateRemaining}`);
+    assert.equal(find('.github-rate-reset').text().trim(), `GitHub API rate reset: in an hour`);
     assert.equal(githubRequestHeaders['Authorization'], `token ${githubAccessToken}`);
 
     assert.equal(find(`.dependency-row.${module}.depth-1 .module`).text().trim(), module);
