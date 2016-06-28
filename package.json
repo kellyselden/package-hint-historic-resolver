@@ -13,7 +13,7 @@
     "test": "ember test",
     "cover": "cross-env COVERAGE=true npm test"
   },
-  "repository": "",
+  "repository": "https://github.com/kellyselden/package-hint-historic-resolver",
   "engines": {
     "node": ">= 0.10.0"
   },
@@ -51,6 +51,7 @@
     "ember-data-application-adapter-service": "0.0.2",
     "ember-datetimepicker": "0.0.12",
     "ember-export-application-global": "^1.0.5",
+    "ember-fork-me": "0.1.0",
     "ember-load-initializers": "^0.5.1",
     "ember-lodash": "0.0.9",
     "ember-metrics": "^0.6.0",
