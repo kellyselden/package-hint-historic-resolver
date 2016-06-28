@@ -1,5 +1,7 @@
 /* jshint node: true */
 
+var fs = require('fs');
+
 module.exports = function(environment) {
   var contentSecurityPolicy = {
     'default-src': "'none'",
@@ -18,6 +20,9 @@ module.exports = function(environment) {
   contentSecurityPolicy['img-src'] +=
     ' https://www.google-analytics.com';
 
+  var packageJson = fs.readFileSync('package.json');
+  packageJson = JSON.parse(packageJson);
+
   var ENV = {
     modulePrefix: 'package-hint-historic-resolver',
     environment: environment,
@@ -31,8 +36,7 @@ module.exports = function(environment) {
     },
     contentSecurityPolicy: contentSecurityPolicy,
     APP: {
-      // Here you can pass flags/options to your application instance
-      // when it is created
+      repository: packageJson.repository
     },
     metricsAdapters: [
       {

@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import computed from 'ember-computed-decorators';
+import config from '../config/environment';
 import getRepo from '../utils/get-repo';
 
 const {
@@ -8,9 +9,15 @@ const {
   get, set, setProperties
 } = Ember;
 
+const {
+  repository
+} = config.APP;
+
 export default Controller.extend({
   session: service(),
   treeBuilder: service(),
+
+  repository,
 
   queryParams: {
     repoUrl: 'repoUrl',
