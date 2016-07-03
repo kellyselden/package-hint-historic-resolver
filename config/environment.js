@@ -19,6 +19,8 @@ module.exports = function(environment) {
     ' https://raw.githubusercontent.com';
   contentSecurityPolicy['img-src'] +=
     ' https://www.google-analytics.com';
+  contentSecurityPolicy['style-src'] +=
+    ' https://cdnjs.cloudflare.com';
 
   var packageJson = fs.readFileSync('package.json');
   packageJson = JSON.parse(packageJson);
