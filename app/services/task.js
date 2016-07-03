@@ -41,11 +41,11 @@ export default Service.extend({
   },
 
   cacheRequestLimiter: task(function * (path) {
-    let data = yield new Promise(resolve => {
+    let data = yield new Promise((resolve, reject) => {
       get(this, 'limiter').removeTokens(1, () => {
         let promise = get(this, 'requestCache').cacheRequestRaw(path);
 
-        resolve(promise);
+        promise.then(resolve).catch(reject);
       });
     });
 
