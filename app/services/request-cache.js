@@ -21,7 +21,7 @@ export default Service.extend({
   cacheTime: readOnly('config.cacheTime'),
 
   cacheRequestAjax(url, ajax) {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       let cache = get(this, 'cache');
 
       // don't bother waiting for the semaphore
@@ -57,14 +57,14 @@ export default Service.extend({
             semaphore.leave();
           });
 
-          resolve(promise);
+          promise.then(resolve).catch(reject);
         });
       });
     });
   },
 
   cacheRequest(url) {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       let cache = get(this, 'cache');
 
       // don't bother waiting for the semaphore
@@ -94,13 +94,13 @@ export default Service.extend({
             semaphore.leave();
           });
 
-          resolve(promise);
+          promise.then(resolve).catch(reject);
         });
       });
     });
   },
   cacheRequestLimiter(url) {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       let cache = get(this, 'cache');
       let data = cache.get(url);
       if (data) {
@@ -112,7 +112,7 @@ export default Service.extend({
           let data = cache.put(url, response, get(this, 'cacheTime'));
 
           resolve(data);
-        });
+        }).catch(reject);
       });
     });
   },
