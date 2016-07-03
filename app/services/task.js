@@ -37,15 +37,5 @@ export default Service.extend({
     return get(this, 'limiter.removeTokens').perform(1, () => {
       return get(this, 'requestCache').cacheRequestRaw(path);
     });
-  },
-
-  cacheRequestLimiter: task(function * (path) {
-    return yield this._limitRequest(path);
-  }).enqueue(),
-
-  cacheRequest: task(function * (path) {
-    let data = yield get(this, 'requestCache').cacheRequestLimiter(path);
-
-    return data;
-  }).enqueue()
+  }
 });
