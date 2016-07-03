@@ -6,7 +6,6 @@ import normalizeDependencies from '../utils/normalize-dependencies';
 const {
   Service,
   inject: { service },
-  RSVP: { Promise },
   get
 } = Ember;
 
@@ -35,21 +34,13 @@ export default Service.extend({
   }).enqueue(),
 
   _limitRequest(path) {
-    return get(this, 'limiter.run').perform(() => {
+    return get(this, 'limiter.removeTokensTask').perform(1, () => {
       return get(this, 'requestCache').cacheRequestRaw(path);
     });
   },
 
   cacheRequestLimiter: task(function * (path) {
-    let data = yield new Promise((resolve, reject) => {
-      get(this, 'limiter').removeTokens(1, () => {
-        let promise = get(this, 'requestCache').cacheRequestRaw(path);
-
-        promise.then(resolve).catch(reject);
-      });
-    });
-
-    return data;
+    return yield this._limitRequest(path);
   }).enqueue(),
 
   cacheRequest: task(function * (path) {

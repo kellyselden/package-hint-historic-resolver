@@ -6,7 +6,8 @@ const {
   get,
   computed: { readOnly },
   RSVP: { Promise },
-  inject: { service }
+  inject: { service },
+  run
 } = Ember;
 
 export default Service.extend({
@@ -41,23 +42,27 @@ export default Service.extend({
         if (data) {
           semaphore.leave();
 
-          return resolve(data);
+          return run(() => {
+            resolve(data);
+          });
         }
 
-        get(this, 'limiter').removeTokens(1, () => {
-          ajax = ajax || get(this, 'ajax');
-          let promise = ajax.raw(url).then(({ jqXHR, response }) => {
-            let responseHeaders = getResponseHeaders(jqXHR);
-            let data = {
-              responseHeaders,
-              response
-            };
-            return cache.put(url, data, get(this, 'cacheTime'));
-          }).finally(() => {
-            semaphore.leave();
-          });
+        run(() => {
+          get(this, 'limiter.removeTokensTask').perform(1, () => {
+            ajax = ajax || get(this, 'ajax');
+            let promise = ajax.raw(url).then(({ jqXHR, response }) => {
+              let responseHeaders = getResponseHeaders(jqXHR);
+              let data = {
+                responseHeaders,
+                response
+              };
+              return cache.put(url, data, get(this, 'cacheTime'));
+            }).finally(() => {
+              semaphore.leave();
+            });
 
-          promise.then(resolve).catch(reject);
+            return promise.then(resolve).catch(reject);
+          });
         });
       });
     });
@@ -84,7 +89,9 @@ export default Service.extend({
         if (data) {
           semaphore.leave();
 
-          return resolve(data);
+          return run(() => {
+            resolve(data);
+          });
         }
 
         get(this, 'limiter').removeTokens(1, () => {
@@ -100,19 +107,15 @@ export default Service.extend({
     });
   },
   cacheRequestLimiter(url) {
-    return new Promise((resolve, reject) => {
-      let cache = get(this, 'cache');
-      let data = cache.get(url);
-      if (data) {
-        return resolve(data);
-      }
+    let cache = get(this, 'cache');
+    let data = cache.get(url);
+    if (data) {
+      return Promise.resolve(data);
+    }
 
-      get(this, 'limiter').removeTokens(1, () => {
-        get(this, 'adapter').ajax(url).then(response => {
-          let data = cache.put(url, response, get(this, 'cacheTime'));
-
-          resolve(data);
-        }).catch(reject);
+    return get(this, 'limiter.removeTokensTask').perform(1, () => {
+      return get(this, 'adapter').ajax(url).then(response => {
+        return cache.put(url, response, get(this, 'cacheTime'));
       });
     });
   },
