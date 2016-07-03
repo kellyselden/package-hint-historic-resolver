@@ -22,15 +22,7 @@ export default Service.extend({
 
   limiterTime: readOnly('config.limiterTime'),
 
-  removeTokens() {
-    if (!limiter) {
-      limiter = new RateLimiter(1, get(this, 'limiterTime'));
-    }
-
-    return limiter.removeTokens(...arguments);
-  },
-
-  removeTokensTask: task(function * (count, callback) {
+  removeTokens: task(function * (count, callback) {
     return yield new Promise((resolve, reject) => {
       if (!limiter) {
         limiter = new RateLimiter(1, get(this, 'limiterTime'));

@@ -33,7 +33,9 @@ moduleFor('service:request-cache', 'Unit | Service | request cache', {
         }
       },
       limiter: {
-        removeTokens: removeTokensStub
+        removeTokens: {
+          perform: removeTokensStub
+        }
       },
       adapter: {
         ajax: ajaxStub

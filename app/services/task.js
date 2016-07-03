@@ -34,7 +34,7 @@ export default Service.extend({
   }).enqueue(),
 
   _limitRequest(path) {
-    return get(this, 'limiter.removeTokensTask').perform(1, () => {
+    return get(this, 'limiter.removeTokens').perform(1, () => {
       return get(this, 'requestCache').cacheRequestRaw(path);
     });
   },

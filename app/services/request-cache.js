@@ -48,7 +48,7 @@ export default Service.extend({
         }
 
         run(() => {
-          get(this, 'limiter.removeTokensTask').perform(1, () => {
+          get(this, 'limiter.removeTokens').perform(1, () => {
             ajax = ajax || get(this, 'ajax');
             let promise = ajax.raw(url).then(({ jqXHR, response }) => {
               let responseHeaders = getResponseHeaders(jqXHR);
@@ -94,14 +94,16 @@ export default Service.extend({
           });
         }
 
-        get(this, 'limiter').removeTokens(1, () => {
-          let promise = get(this, 'adapter').ajax(url).then(response => {
-            return cache.put(url, response, get(this, 'cacheTime'));
-          }).finally(() => {
-            semaphore.leave();
-          });
+        run(() => {
+          get(this, 'limiter.removeTokens').perform(1, () => {
+            let promise = get(this, 'adapter').ajax(url).then(response => {
+              return cache.put(url, response, get(this, 'cacheTime'));
+            }).finally(() => {
+              semaphore.leave();
+            });
 
-          promise.then(resolve).catch(reject);
+            return promise.then(resolve).catch(reject);
+          });
         });
       });
     });
@@ -113,7 +115,7 @@ export default Service.extend({
       return Promise.resolve(data);
     }
 
-    return get(this, 'limiter.removeTokensTask').perform(1, () => {
+    return get(this, 'limiter.removeTokens').perform(1, () => {
       return get(this, 'adapter').ajax(url).then(response => {
         return cache.put(url, response, get(this, 'cacheTime'));
       });
