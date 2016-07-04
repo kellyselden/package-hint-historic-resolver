@@ -32,7 +32,7 @@ export default Service.extend({
       return data;
     }
 
-    return yield get(this, 'limiter.removeTokens').perform(1, () => {
+    return yield get(this, 'limiter.removeTokens2').perform(1).then(() => {
       // while you were waiting in the limiter
       // the data could have since been cached
       // so check again
@@ -73,7 +73,7 @@ export default Service.extend({
       return data;
     }
 
-    return yield get(this, 'limiter.removeTokens').perform(1, () => {
+    return yield get(this, 'limiter.removeTokens2').perform(1).then(() => {
       data = cache.get(url);
       if (data) {
         return data;
