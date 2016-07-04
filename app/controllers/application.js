@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import computed from 'ember-computed-decorators';
+import { task } from 'ember-concurrency';
 import config from '../config/environment';
 import getRepo from '../utils/get-repo';
 
@@ -57,7 +58,8 @@ export default Controller.extend({
     this._rebuildBroken();
   },
   _rebuildWorking() {
-    this._rebuild(
+    let rebuild = get(this, '_rebuild');
+    rebuild.perform(
       'repoWorkingDate',
       'firstCommit',
       'firstCommitError',
@@ -67,7 +69,8 @@ export default Controller.extend({
     );
   },
   _rebuildBroken() {
-    this._rebuild(
+    let rebuild = get(this, '_rebuild');
+    rebuild.perform(
       'repoBrokenDate',
       'secondCommit',
       'secondCommitError',
@@ -76,7 +79,7 @@ export default Controller.extend({
       'secondJson'
     );
   },
-  _rebuild(
+  _rebuild: task(function * (
     repoDateProp,
     commitProp,
     commitErrorProp,
@@ -102,34 +105,42 @@ export default Controller.extend({
     properties[packageErrorProp] = undefined;
     setProperties(this, properties);
 
-    let promise = get(treeBuilder, 'getCommit').perform(repo, repoDate);
-
-    promise.then(({ responseHeaders, response }) => {
-      let [latestCommit] = response;
-      let { sha, commit } = latestCommit;
-
-      let properties = {};
-      properties['githubRateLimit'] = responseHeaders['X-RateLimit-Limit'];
-      properties['githubRateRemaining'] = responseHeaders['X-RateLimit-Remaining'];
-      properties['githubRateReset'] = parseInt(responseHeaders['X-RateLimit-Reset']) * 1000;
-      properties[commitProp] = sha;
-      properties[commitDateProp] = commit.author.date;
-      setProperties(this, properties);
-
-      return get(treeBuilder, 'getPackage').perform(repo, sha);
-    }).catch(error => {
+    let getCommit = get(treeBuilder, 'getCommit');
+    let commitData;
+    try {
+      commitData = yield getCommit.perform(repo, repoDate);
+    } catch (error) {
       set(this, commitErrorProp, error);
-    }).then(data => {
-      if (!data) {
-        // the above failed
-        return;
-      }
 
-      set(this, jsonProp, data);
-    }).catch(error => {
+      return;
+    }
+
+    let responseHeaders = commitData.responseHeaders;
+    let response = commitData.response;
+
+    let [latestCommit] = response;
+    let { sha, commit } = latestCommit;
+
+    properties = {};
+    properties['githubRateLimit'] = responseHeaders['X-RateLimit-Limit'];
+    properties['githubRateRemaining'] = responseHeaders['X-RateLimit-Remaining'];
+    properties['githubRateReset'] = parseInt(responseHeaders['X-RateLimit-Reset']) * 1000;
+    properties[commitProp] = sha;
+    properties[commitDateProp] = commit.author.date;
+    setProperties(this, properties);
+
+    let getPackage = get(treeBuilder, 'getPackage');
+    let data;
+    try {
+      data = yield getPackage.perform(repo, sha);
+    } catch (error) {
       set(this, packageErrorProp, error);
-    });
-  },
+
+      return;
+    }
+
+    set(this, jsonProp, data);
+  }),
 
   actions: {
     logIn() {
