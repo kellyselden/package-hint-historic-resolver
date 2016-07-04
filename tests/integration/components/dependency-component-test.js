@@ -125,40 +125,40 @@ moduleForComponent('dependency-component', 'Integration | Component | dependency
     sameChildModule = 'test-child-same-module';
     diffChildModule = 'test-child-diff-module';
 
-    sameVersionHint        = '^2.0.0';
+    sameVersionHint            = '^2.0.0';
     diffFirstVersionHint       = '^1.0.0';
     diffSecondVersionHint      = '^1.1.0';
-    sameChildVersionHint   = '^2.0.0';
+    sameChildVersionHint       = '^2.0.0';
     diffChildFirstVersionHint  = '^1.0.0';
     diffChildSecondVersionHint = '^1.1.0';
 
-    sameVersion        = '2.0.1';
+    sameVersion            = '2.0.1';
     diffFirstVersion       = '1.2.1';
     diffSecondVersion      = '1.5.0';
-    sameChildVersion   = '2.0.1';
+    sameChildVersion       = '2.0.1';
     diffChildFirstVersion  = '1.2.1';
     diffChildSecondVersion = '1.5.0';
 
-    sameVersionsBody            = {};
-    sameDependenciesBody        = {};
-    diffVersionsBody            = {};
+    sameVersionsBody                = {};
+    sameDependenciesBody            = {};
+    diffVersionsBody                = {};
     diffFirstDependenciesBody       = {};
     diffSecondDependenciesBody      = {};
-    sameChildVersionsBody       = {};
-    sameChildDependenciesBody   = {};
-    diffChildVersionsBody       = {};
+    sameChildVersionsBody           = {};
+    sameChildDependenciesBody       = {};
+    diffChildVersionsBody           = {};
     diffChildFirstDependenciesBody  = {};
     diffChildSecondDependenciesBody = {};
 
-    sameVersionsBody[sameVersion]             = '2015-01-01T00:00:00.000Z';
+    sameVersionsBody[sameVersion]                 = '2015-01-01T00:00:00.000Z';
     diffVersionsBody[diffFirstVersion]            = '2015-01-01T00:00:00.000Z';
     diffVersionsBody[diffSecondVersion]           = '2015-03-01T00:00:00.000Z';
-    sameChildVersionsBody[sameChildVersion]   = '2015-01-01T00:00:00.000Z';
+    sameChildVersionsBody[sameChildVersion]       = '2015-01-01T00:00:00.000Z';
     diffChildVersionsBody[diffChildFirstVersion]  = '2015-01-01T00:00:00.000Z';
     diffChildVersionsBody[diffChildSecondVersion] = '2015-03-01T00:00:00.000Z';
 
-    sameDependenciesBody[sameChildModule]   = sameChildVersionHint;
-    sameDependenciesBody[diffChildModule]   = diffChildFirstVersionHint;
+    sameDependenciesBody[sameChildModule]       = sameChildVersionHint;
+    sameDependenciesBody[diffChildModule]       = diffChildFirstVersionHint;
     diffFirstDependenciesBody[diffChildModule]  = diffChildFirstVersionHint;
     diffSecondDependenciesBody[diffChildModule] = diffChildSecondVersionHint;
     diffChildFirstDependenciesBody[diffModule]  = diffFirstVersionHint;
@@ -178,36 +178,36 @@ moduleForComponent('dependency-component', 'Integration | Component | dependency
     updateRepoBrokenDate          = sinon.spy();
     updateShouldOnlyShowDifferent = sinon.spy();
 
-    sameVersionsUrl = `http://test-host/api/npm/${sameModule}/versions`;
-    sameDependenciesUrl = `http://test-host/api/npm/${sameModule}@${sameVersion}/dependencies`;
-    diffVersionsUrl = `http://test-host/api/npm/${diffModule}/versions`;
-    diffFirstDependenciesUrl = `http://test-host/api/npm/${diffModule}@${diffFirstVersion}/dependencies`;
-    diffSecondDependenciesUrl = `http://test-host/api/npm/${diffModule}@${diffSecondVersion}/dependencies`;
-    sameChildVersionsUrl = `http://test-host/api/npm/${sameChildModule}/versions`;
-    sameChildDependenciesUrl = `http://test-host/api/npm/${sameChildModule}@${sameChildVersion}/dependencies`;
-    diffChildVersionsUrl = `http://test-host/api/npm/${diffChildModule}/versions`;
-    diffChildFirstDependenciesUrl = `http://test-host/api/npm/${diffChildModule}@${diffChildFirstVersion}/dependencies`;
+    sameVersionsUrl                = `http://test-host/api/npm/${sameModule}/versions`;
+    sameDependenciesUrl            = `http://test-host/api/npm/${sameModule}@${sameVersion}/dependencies`;
+    diffVersionsUrl                = `http://test-host/api/npm/${diffModule}/versions`;
+    diffFirstDependenciesUrl       = `http://test-host/api/npm/${diffModule}@${diffFirstVersion}/dependencies`;
+    diffSecondDependenciesUrl      = `http://test-host/api/npm/${diffModule}@${diffSecondVersion}/dependencies`;
+    sameChildVersionsUrl           = `http://test-host/api/npm/${sameChildModule}/versions`;
+    sameChildDependenciesUrl       = `http://test-host/api/npm/${sameChildModule}@${sameChildVersion}/dependencies`;
+    diffChildVersionsUrl           = `http://test-host/api/npm/${diffChildModule}/versions`;
+    diffChildFirstDependenciesUrl  = `http://test-host/api/npm/${diffChildModule}@${diffChildFirstVersion}/dependencies`;
     diffChildSecondDependenciesUrl = `http://test-host/api/npm/${diffChildModule}@${diffChildSecondVersion}/dependencies`;
 
-    sameVersionsCallback = () => {};
-    sameDependenciesCallback = () => {};
-    diffVersionsCallback            = () => {};
+    sameVersionsCallback                = () => {};
+    sameDependenciesCallback            = () => {};
+    diffVersionsCallback                = () => {};
     diffFirstDependenciesCallback       = () => {};
     diffSecondDependenciesCallback      = () => {};
-    sameChildVersionsCallback   = () => {};
-    sameChildDependenciesCallback = () => {};
-    diffChildVersionsCallback       = () => {};
+    sameChildVersionsCallback           = () => {};
+    sameChildDependenciesCallback       = () => {};
+    diffChildVersionsCallback           = () => {};
     diffChildFirstDependenciesCallback  = () => {};
     diffChildSecondDependenciesCallback = () => {};
 
-    sameVersionsResponse            = () => [200, {}, sameVersionsBody];
-    sameDependenciesResponse        = () => [200, {}, sameDependenciesBody];
-    diffVersionsResponse            = () => [200, {}, diffVersionsBody];
+    sameVersionsResponse                = () => [200, {}, sameVersionsBody];
+    sameDependenciesResponse            = () => [200, {}, sameDependenciesBody];
+    diffVersionsResponse                = () => [200, {}, diffVersionsBody];
     diffFirstDependenciesResponse       = () => [200, {}, diffFirstDependenciesBody];
     diffSecondDependenciesResponse      = () => [200, {}, diffSecondDependenciesBody];
-    sameChildVersionsResponse       = () => [200, {}, sameChildVersionsBody];
-    sameChildDependenciesResponse   = () => [200, {}, sameChildDependenciesBody];
-    diffChildVersionsResponse       = () => [200, {}, diffChildVersionsBody];
+    sameChildVersionsResponse           = () => [200, {}, sameChildVersionsBody];
+    sameChildDependenciesResponse       = () => [200, {}, sameChildDependenciesBody];
+    diffChildVersionsResponse           = () => [200, {}, diffChildVersionsBody];
     diffChildFirstDependenciesResponse  = () => [200, {}, diffChildFirstDependenciesBody];
     diffChildSecondDependenciesResponse = () => [200, {}, diffChildSecondDependenciesBody];
 
@@ -515,6 +515,34 @@ test('shows versions error', function(assert) {
   });
 });
 
+test('shows first dependencies error', function(assert) {
+  assert.expect(1);
+
+  diffFirstDependenciesResponse = () => {
+    return [500, {}, {}];
+  };
+
+  render.call(this);
+
+  return wait().then(() => {
+    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-1 > .first-version-hint .error`).text().trim(), `Error getting dependencies: Error: Ember Data Request undefined ${diffFirstDependenciesUrl} returned a 500\nPayload (Empty Content-Type)\n[object Object]`);
+  });
+});
+
+test('shows second dependencies error', function(assert) {
+  assert.expect(1);
+
+  diffSecondDependenciesResponse = () => {
+    return [500, {}, {}];
+  };
+
+  render.call(this);
+
+  return wait().then(() => {
+    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-1 > .second-version-hint .error`).text().trim(), `Error getting dependencies: Error: Ember Data Request undefined ${diffSecondDependenciesUrl} returned a 500\nPayload (Empty Content-Type)\n[object Object]`);
+  });
+});
+
 function testVersionMissing(assert, render, isFirst, isSecond) {
   assert.expect(8);
 
@@ -571,51 +599,41 @@ test('hints and versions are same', function(assert) {
   });
 });
 
-test('stop crawling at versions shows error', function(assert) {
-  assert.expect(1);
-
-  sameVersionsCallback = () => this.$('.stop-crawling').click();
-
-  render.call(this);
-
-  return wait().then(() => {
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-1 > .module`).text().trim().replace(/\s\s+/g, ' '), `${sameModule} Error getting versions: TaskCancelation: TaskCancelation`);
-  });
-});
-
-test('stop crawling at first dependencies shows error', function(assert) {
-  assert.expect(1);
-
-  diffFirstDependenciesCallback = () => this.$('.stop-crawling').click();
-
-  render.call(this);
-
-  return wait().then(() => {
-    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-1 > .first-version-hint .error`).text().trim(), 'Error getting dependencies: TaskCancelation: TaskCancelation');
-  });
-});
-
-test('stop crawling at second dependencies shows error', function(assert) {
-  assert.expect(1);
-
-  diffSecondDependenciesCallback = () => this.$('.stop-crawling').click();
-
-  render.call(this);
-
-  return wait().then(() => {
-    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-1 > .second-version-hint .error`).text().trim(), 'Error getting dependencies: TaskCancelation: TaskCancelation');
-  });
-});
-
 test('can resume crawling', function(assert) {
-  sameVersionsCallback = () => this.$('.stop-crawling').click();
+  let button;
+
+  sameVersionsCallback = () => button.click();
 
   render.call(this);
 
+  button = this.$('.stop-crawling');
+
   return wait().then(() => {
-    this.$('.stop-crawling').click();
+    button.click();
 
     return testDefault.call(this, assert);
+  });
+});
+
+test('can toggle button state', function(assert) {
+  assert.expect(3);
+
+  let button;
+
+  sameVersionsCallback = () => button.click();
+
+  render.call(this);
+
+  button = this.$('.stop-crawling');
+
+  assert.equal(button.text().trim(), 'Stop Crawling');
+
+  return wait().then(() => {
+    assert.equal(button.text().trim(), 'Start Crawling');
+
+    button.click();
+
+    assert.equal(button.text().trim(), 'Stop Crawling');
   });
 });
 

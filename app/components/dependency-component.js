@@ -8,7 +8,6 @@ import getRealVersion from '../utils/get-real-version';
 
 const {
   Component,
-  RSVP: { all },
   inject: { service },
   get, set, setProperties,
   computed: { not, or, readOnly },
@@ -70,43 +69,42 @@ export default Component.extend({
   },
 
   _setupVersions(dependency) {
-    let module            = get(dependency, 'module');
-    let firstVersionHint  = get(dependency, 'firstVersionHint');
-    let secondVersionHint = get(dependency, 'secondVersionHint');
-
-    let versionsPromise = get(this, 'getVersionsTask').perform(module).then(versions => {
-      let firstVersion  = this._getFirstVersion(versions, firstVersionHint);
-      let secondVersion = this._getSecondVersion(versions, secondVersionHint);
-
-      setProperties(dependency, {
-        firstVersion,
-        secondVersion,
-        isFirstVersionMissing:  not('firstVersion'),
-        isSecondVersionMissing: not('secondVersion'),
-        isOneMissing: or('isFirstVersionMissing', 'isSecondVersionMissing')
-      });
-
-      this._checkForCircularReference(dependency, 'firstVersion',  'hasFirstCircularReference');
-      this._checkForCircularReference(dependency, 'secondVersion', 'hasSecondCircularReference');
-
-      return false;
-    }).catch(error => {
-      set(dependency, 'versionsError', error);
-
-      return true;
-    });
-
     setProperties(dependency, {
-      versionsPromise
+      versionsPromise: get(this, '_setupVersionsTask').perform(dependency)
     });
 
     this._setupDependencies(dependency);
   },
 
-  getVersionsTask: task(function * (path) {
-    let versions = yield get(this, 'task.getVersions').perform(path);
+  _setupVersionsTask: task(function * (dependency) {
+    let module            = get(dependency, 'module');
+    let firstVersionHint  = get(dependency, 'firstVersionHint');
+    let secondVersionHint = get(dependency, 'secondVersionHint');
 
-    return versions;
+    let versions;
+    try {
+       versions = yield get(this, 'task.getVersions').perform(module);
+    } catch (error) {
+      set(dependency, 'versionsError', error);
+
+      return true;
+    }
+
+    let firstVersion  = this._getFirstVersion(versions, firstVersionHint);
+    let secondVersion = this._getSecondVersion(versions, secondVersionHint);
+
+    setProperties(dependency, {
+      firstVersion,
+      secondVersion,
+      isFirstVersionMissing:  not('firstVersion'),
+      isSecondVersionMissing: not('secondVersion'),
+      isOneMissing: or('isFirstVersionMissing', 'isSecondVersionMissing')
+    });
+
+    this._checkForCircularReference(dependency, 'firstVersion',  'hasFirstCircularReference');
+    this._checkForCircularReference(dependency, 'secondVersion', 'hasSecondCircularReference');
+
+    return false;
   }),
 
   _getFirstVersion(versions, firstVersionHint) {
@@ -146,36 +144,32 @@ export default Component.extend({
   },
 
   _setupDependencies(dependency) {
-    let versionsPromise = get(dependency, 'versionsPromise');
-
-    let nestedDependenciesPromise = versionsPromise.then(wasErrorThrown => {
-      if (wasErrorThrown) {
-        return;
-      }
-
-      let firstDependenciesPromise = this._getFirstDependencies(dependency).catch(e => {
-        set(dependency, 'firstDependenciesError', e);
-      });
-      let secondDependenciesPromise = this._getSecondDependencies(dependency).catch(e => {
-        set(dependency, 'secondDependenciesError', e);
-      });
-
-      let dependenciesPromise = all([firstDependenciesPromise, secondDependenciesPromise]);
-
-      return this._getNestedDependencies(dependenciesPromise, dependency);
-    });
+    let nestedDependenciesPromise = get(this, '_setupDependenciesTask').perform(dependency);
 
     setProperties(dependency, {
-      dependencies: promiseArray(() => nestedDependenciesPromise)
+      nestedDependenciesPromise,
+      dependencies: promiseArray(() => {
+        return nestedDependenciesPromise.catch(() => {
+          // catch means task was canceled, return empty array to continue
+          return [];
+        });
+      })
     });
   },
 
-  _getFirstDependencies(dependency) {
-    return get(this, 'getDependenciesTask').perform(dependency, 'firstVersion', 'firstDependenciesError', 'hasFirstCircularReference');
-  },
-  _getSecondDependencies(dependency) {
-    return get(this, 'getDependenciesTask').perform(dependency, 'secondVersion', 'secondDependenciesError', 'hasSecondCircularReference');
-  },
+  _setupDependenciesTask: task(function * (dependency) {
+    let wasErrorThrown = yield get(dependency, 'versionsPromise');
+    if (wasErrorThrown) {
+      return;
+    }
+
+    let getDependenciesTask = get(this, 'getDependenciesTask');
+    let firstDependencies = yield getDependenciesTask.perform(dependency, 'firstVersion', 'firstDependenciesError', 'hasFirstCircularReference');
+    let secondDependencies = yield getDependenciesTask.perform(dependency, 'secondVersion', 'secondDependenciesError', 'hasSecondCircularReference');
+
+    return this._getNestedDependencies(firstDependencies, secondDependencies, dependency);
+  }),
+
   getDependenciesTask: task(function * (dependency, versionProp, errorProp, hasCircularReferenceProp) {
     let dependencies;
 
@@ -190,31 +184,30 @@ export default Component.extend({
       if (!version) {
         dependencies = [];
       } else {
-        dependencies = yield get(this, 'task.getDependencies').perform(module, version);
+        try {
+          dependencies = yield get(this, 'task.getDependencies').perform(module, version);
+        } catch (error) {
+          set(dependency, errorProp, error);
+        }
       }
     }
 
     return dependencies;
   }),
 
-  _getNestedDependencies(dependenciesPromise, parentDependency) {
-    return dependenciesPromise.then(([
-      firstDependencies,
-      secondDependencies
-    ]) => {
-      // error or cancel
-      if (!firstDependencies || !secondDependencies) {
-        return [];
-      }
+  _getNestedDependencies(firstDependencies, secondDependencies, parentDependency) {
+    // error or cancel
+    if (!firstDependencies || !secondDependencies) {
+      return [];
+    }
 
-      let dependencies = this._getDependencies(firstDependencies, secondDependencies);
+    let dependencies = this._getDependencies(firstDependencies, secondDependencies);
 
-      for (let dependency of dependencies) {
-        set(dependency, 'parent', parentDependency);
-      }
+    for (let dependency of dependencies) {
+      set(dependency, 'parent', parentDependency);
+    }
 
-      return dependencies;
-    });
+    return dependencies;
   },
 
   _setupComputeds(dependency, shouldSetupVersions = true) {
@@ -297,28 +290,17 @@ export default Component.extend({
   },
 
   _cancelAll() {
-    get(this, 'getVersionsTask').cancelAll();
-    get(this, 'getDependenciesTask').cancelAll();
+    get(this, '_setupVersionsTask').cancelAll();
+    get(this, '_setupDependenciesTask').cancelAll();
   },
 
   _restartAll(dependency) {
-    let versionsError           = get(dependency, 'versionsError');
-    let firstDependenciesError  = get(dependency, 'firstDependenciesError');
-    let secondDependenciesError = get(dependency, 'secondDependenciesError');
+    let versionsPromise           = get(dependency, 'versionsPromise');
+    let nestedDependenciesPromise = get(dependency, 'nestedDependenciesPromise');
 
-    if (versionsError && versionsError.name === 'TaskCancelation') {
-      set(dependency, 'versionsError', undefined);
-
+    if (versionsPromise && get(versionsPromise, 'isCanceled')) {
       this._setupVersions(dependency);
-    } else if (
-      (firstDependenciesError && firstDependenciesError.name === 'TaskCancelation') ||
-      (secondDependenciesError && secondDependenciesError.name === 'TaskCancelation')
-    ) {
-      setProperties(dependency, {
-        firstDependenciesError: undefined,
-        secondDependenciesError: undefined
-      });
-
+    } else if (nestedDependenciesPromise && get(nestedDependenciesPromise, 'isCanceled')) {
       this._setupDependencies(dependency);
     } else {
       get(dependency, 'dependencies').forEach(this._restartAll.bind(this));
