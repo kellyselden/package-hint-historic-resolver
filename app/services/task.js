@@ -10,32 +10,25 @@ const {
 } = Ember;
 
 export default Service.extend({
-  limiter:      service(),
   requestCache: service(),
 
   getVersions: task(function * (module) {
     let path = `npm/${module}/versions`;
 
-    let data = yield this._limitRequest(path);
+    let data = yield get(this, 'requestCache.cacheRequest2').perform(path);
 
     let versions = pairs(data);
 
     return versions;
-  }).enqueue(),
+  }),
 
   getDependencies: task(function * (module, version) {
     let path = `npm/${module}@${version}/dependencies`;
 
-    let data = yield this._limitRequest(path);
+    let data = yield get(this, 'requestCache.cacheRequest2').perform(path);
 
     let dependencies = normalizeDependencies(data);
 
     return dependencies;
-  }).enqueue(),
-
-  _limitRequest(path) {
-    return get(this, 'limiter.removeTokens').perform(1, () => {
-      return get(this, 'requestCache').cacheRequestRaw(path);
-    });
-  }
+  })
 });

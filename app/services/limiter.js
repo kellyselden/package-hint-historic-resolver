@@ -23,7 +23,7 @@ export default Service.extend({
   limiterTime: readOnly('config.limiterTime'),
 
   removeTokens: task(function * (count, callback) {
-    return yield new Promise((resolve, reject) => {
+    return yield new Promise(resolve => {
       if (!limiter) {
         limiter = new RateLimiter(1, get(this, 'limiterTime'));
       }
@@ -47,7 +47,7 @@ export default Service.extend({
         }
 
         run(() => {
-          callback(arguments).then(resolve).catch(reject);
+          resolve(callback(arguments));
         });
       });
     });
