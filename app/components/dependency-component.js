@@ -74,7 +74,7 @@ export default Component.extend({
     let firstVersionHint  = get(dependency, 'firstVersionHint');
     let secondVersionHint = get(dependency, 'secondVersionHint');
 
-    let versionsPromise = this._getVersionsPromise(module).then(versions => {
+    let versionsPromise = get(this, 'getVersionsTask').perform(module).then(versions => {
       let firstVersion  = this._getFirstVersion(versions, firstVersionHint);
       let secondVersion = this._getSecondVersion(versions, secondVersionHint);
 
@@ -101,10 +101,6 @@ export default Component.extend({
     });
 
     this._setupDependencies(dependency);
-  },
-
-  _getVersionsPromise(module) {
-    return get(this, 'getVersionsTask').perform(module);
   },
 
   getVersionsTask: task(function * (path) {
