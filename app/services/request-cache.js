@@ -29,7 +29,7 @@ export default Service.extend({
     // if the cache has a value
     let data = cache.get(url);
     if (data) {
-      return yield Promise.resolve(data);
+      return data;
     }
 
     return yield get(this, 'limiter.removeTokens').perform(1, () => {
@@ -52,7 +52,7 @@ export default Service.extend({
     // so check again
     let data = cache.get(url);
     if (data) {
-      return yield Promise.resolve(data);
+      return data;
     }
 
     ajax = ajax || get(this, 'ajax');
@@ -70,7 +70,7 @@ export default Service.extend({
     let cache = get(this, 'cache');
     let data = cache.get(url);
     if (data) {
-      return yield Promise.resolve(data);
+      return data;
     }
 
     return yield get(this, 'limiter.removeTokens').perform(1, () => {
@@ -86,7 +86,7 @@ export default Service.extend({
     let cache = get(this, 'cache');
     let data = cache.get(url);
     if (data) {
-      return yield Promise.resolve(data);
+      return data;
     }
 
     return yield get(this, 'adapter').ajax(url).then(response => {
