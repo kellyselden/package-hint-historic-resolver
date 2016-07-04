@@ -5,8 +5,9 @@ import cache from 'npm:memory-cache';
 
 const {
   Service,
-  set,
-  RSVP: { all }
+  RSVP: { all, Promise },
+  run,
+  get, set
 } = Ember;
 
 const config = Service.extend({
@@ -40,12 +41,20 @@ moduleFor('service:request-cache', 'Integration | Service | request cache', {
   }
 });
 
+function cacheRequest() {
+  return new Promise((resolve, reject) => {
+    run(() => {
+      get(service, 'cacheRequest').perform('test-url').then(resolve).catch(reject);
+    });
+  });
+}
+
 test('gets cached data', function(assert) {
   assert.expect(1);
 
   cache.put('test-url', 12);
 
-  return service.cacheRequest('test-url').then(data => {
+  return cacheRequest().then(data => {
     assert.strictEqual(data, 12);
   });
 });
@@ -57,7 +66,7 @@ test('resolves data from request', function(assert) {
     return [200, {}, [12]];
   });
 
-  return service.cacheRequest('test-url').then(data => {
+  return cacheRequest().then(data => {
     assert.deepEqual(data, [12]);
   });
 });
@@ -69,7 +78,7 @@ test('caches data from request', function(assert) {
     return [200, {}, [12]];
   });
 
-  return service.cacheRequest('test-url').then(() => {
+  return cacheRequest().then(() => {
     assert.deepEqual(cache.get('test-url'), [12]);
   });
 });
@@ -81,20 +90,34 @@ test('doesn\'t cache data when request fails', function(assert) {
     return [500, {}, {}];
   });
 
-  return service.cacheRequest('test-url').catch(() => {
+  return cacheRequest().catch(() => {
     assert.strictEqual(cache.get('test-url'), null);
   });
 });
 
-test('second call uses cached data after entering semaphore', function(assert) {
+test('doesn\'t cache data when task cancels', function(assert) {
+  assert.expect(1);
+
+  run(() => {
+    let task = get(service, 'cacheRequest').perform('test-url');
+
+    task.cancel();
+
+    task.catch(() => {
+      assert.strictEqual(cache.get('test-url'), null);
+    });
+  });
+});
+
+test('second call uses cached data after queuing', function(assert) {
   assert.expect(1);
 
   server.get('http://test-host/api/test-url', () => {
     return [200, {}, [12]];
   });
 
-  let promise1 = service.cacheRequest('test-url');
-  let promise2 = service.cacheRequest('test-url');
+  let promise1 = cacheRequest();
+  let promise2 = cacheRequest();
 
   let didRunOnce;
 
@@ -129,7 +152,7 @@ test('cache invalidates after given time', function(assert) {
     return [200, {}, [12]];
   });
 
-  return service.cacheRequest('test-url').then(() => {
+  return cacheRequest().then(() => {
     let timeCacheWasSet = Date.now();
 
     // eslint-disable-next-line no-empty
@@ -139,7 +162,7 @@ test('cache invalidates after given time', function(assert) {
       return [200, {}, [23]];
     });
 
-    return service.cacheRequest('test-url').then(data => {
+    return cacheRequest().then(data => {
       assert.deepEqual(data, [23]);
     });
   });
@@ -157,10 +180,10 @@ test('limits calls', function(assert) {
 
   let timeLimiterWasStarted = Date.now();
 
-  return service.cacheRequest('test-url').then(() => {
+  return cacheRequest().then(() => {
     cache.clear();
 
-    return service.cacheRequest('test-url').then(() => {
+    return cacheRequest().then(() => {
       assert.ok(Date.now() - timeLimiterWasStarted > limiterTime);
     });
   });
