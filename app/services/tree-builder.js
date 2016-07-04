@@ -23,7 +23,7 @@ export default Service.extend({
 
   getPackage: task(function * (repo, commit) {
     let url = `https://raw.githubusercontent.com/${repo}/${commit}/package.json`;
-    let response = yield get(this, 'requestCache.cacheRequest2').perform(url);
+    let response = yield get(this, 'requestCache.cacheRequest').perform(url);
 
     return response;
   })

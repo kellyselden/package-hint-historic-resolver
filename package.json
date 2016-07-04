@@ -67,7 +67,6 @@
     "limiter": "^1.0.0",
     "loader.js": "^4.0.1",
     "memory-cache": "0.1.6",
-    "semaphore": "^1.0.0",
     "semver": "^5.0.0",
     "torii": "^0.8.0"
   }

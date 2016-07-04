@@ -22,39 +22,7 @@ export default Service.extend({
 
   limiterTime: readOnly('config.limiterTime'),
 
-  removeTokens: task(function * (count, callback) {
-    return yield new Promise(resolve => {
-      if (!limiter) {
-        limiter = new RateLimiter(1, get(this, 'limiterTime'));
-      }
-
-      // we need a run loop open during testing for the wait helper to work
-      let timer, createDummyTimer, assignDummyTimer;
-      if (isTestEnvironment) {
-        createDummyTimer = () => {
-          return later(assignDummyTimer);
-        };
-
-        assignDummyTimer = () => {
-          timer = createDummyTimer();
-        };
-
-        assignDummyTimer();
-      }
-
-      return limiter.removeTokens(count, function() {
-        if (isTestEnvironment) {
-          cancel(timer);
-        }
-
-        run(() => {
-          resolve(callback(arguments));
-        });
-      });
-    });
-  }),
-
-  removeTokens2: task(function * (count) {
+  removeTokens: task(function * (count) {
     return yield new Promise(resolve => {
       if (!limiter) {
         limiter = new RateLimiter(1, get(this, 'limiterTime'));
