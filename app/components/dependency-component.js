@@ -85,7 +85,7 @@ export default Component.extend({
     try {
        versions = yield get(this, 'task.getVersions').perform(module);
     } catch (error) {
-      set(dependency, 'versionsError', error);
+      set(dependency, 'versionsError', error.errorThrown);
 
       return true;
     }
@@ -187,7 +187,7 @@ export default Component.extend({
         try {
           dependencies = yield get(this, 'task.getDependencies').perform(module, version);
         } catch (error) {
-          set(dependency, errorProp, error);
+          set(dependency, errorProp, error.errorThrown);
         }
       }
     }

@@ -511,7 +511,7 @@ test('shows versions error', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-1 > .module`).text().trim().replace(/\s\s+/g, ' '), `${sameModule} Error getting versions: Error: Ember Data Request undefined ${sameVersionsUrl} returned a 500\nPayload (Empty Content-Type)\n[object Object]`);
+    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-1 > .module`).text().trim().replace(/\s\s+/g, ' '), `${sameModule} Error getting versions: Internal Server Error`);
   });
 });
 
@@ -525,7 +525,7 @@ test('shows first dependencies error', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-1 > .first-version-hint .error`).text().trim(), `Error getting dependencies: Error: Ember Data Request undefined ${diffFirstDependenciesUrl} returned a 500\nPayload (Empty Content-Type)\n[object Object]`);
+    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-1 > .first-version-hint .error`).text().trim(), 'Error getting dependencies: Internal Server Error');
   });
 });
 
@@ -539,7 +539,7 @@ test('shows second dependencies error', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-1 > .second-version-hint .error`).text().trim(), `Error getting dependencies: Error: Ember Data Request undefined ${diffSecondDependenciesUrl} returned a 500\nPayload (Empty Content-Type)\n[object Object]`);
+    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-1 > .second-version-hint .error`).text().trim(), 'Error getting dependencies: Internal Server Error');
   });
 });
 
