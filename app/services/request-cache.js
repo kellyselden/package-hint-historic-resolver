@@ -14,7 +14,7 @@ export default Service.extend({
   cache: service(),
   limiter: service(),
   adapter: service(),
-  ajax: service(),
+  defaultAjax: service(),
 
   cacheTime: readOnly('config.cacheTime'),
 
@@ -51,7 +51,7 @@ export default Service.extend({
       return data;
     }
 
-    ajax = ajax || get(this, 'ajax');
+    ajax = ajax || get(this, 'defaultAjax');
     return yield ajax.raw(url).then(({ jqXHR, response }) => {
       let responseHeaders = getResponseHeaders(jqXHR);
       let data = {
