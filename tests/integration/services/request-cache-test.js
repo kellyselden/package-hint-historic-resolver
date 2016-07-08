@@ -54,7 +54,7 @@ moduleFor('service:request-cache', 'Integration | Service | request cache', {
     responseBody = [12];
     response = {
       responseHeaders,
-      response: responseBody
+      responseBody
     };
 
     server.get('http://test-host/api/test-url', () => {
@@ -112,7 +112,7 @@ test('allows a custom ajax service', function(assert) {
   return cacheRequest(ajax).then(data => {
     assert.deepEqual(data, {
       responseHeaders: {},
-      response: [56]
+      responseBody: [56]
     });
   });
 });
@@ -199,7 +199,7 @@ test('cache invalidates after given time', function(assert) {
     return cacheRequest().then(data => {
       assert.deepEqual(data, {
         responseHeaders: {},
-        response: [23]
+        responseBody: [23]
       });
     });
   });
