@@ -59,7 +59,7 @@ function subject() {
 function cacheRequest(ajax) {
   return new Promise((resolve, reject) => {
     run(() => {
-      get(service, 'cacheRequestAjax').perform('test-url', ajax).then(resolve).catch(reject);
+      get(service, 'cacheRequest').perform('test-url', ajax).then(resolve).catch(reject);
     });
   });
 }
