@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import { task } from 'ember-concurrency';
-import getResponseHeaders from '../utils/get-response-headers';
+import parseResponseHeaders from '../utils/parse-response-headers';
 
 const {
   Service,
@@ -53,7 +53,8 @@ export default Service.extend({
 
     ajax = ajax || get(this, 'defaultAjax');
     return yield ajax.raw(url).then(({ jqXHR, response }) => {
-      let responseHeaders = getResponseHeaders(jqXHR);
+      let responseHeaders = jqXHR.getAllResponseHeaders();
+      responseHeaders = parseResponseHeaders(responseHeaders);
       let data = {
         responseHeaders,
         response
