@@ -2,8 +2,10 @@ import Ember from 'ember';
 import { moduleFor, test } from 'ember-qunit';
 import Pretender from 'pretender';
 import cache from 'npm:memory-cache';
+import AjaxService from 'ember-ajax/services/ajax';
 
 const {
+  $,
   Service,
   RSVP: { all, Promise },
   run,
@@ -14,9 +16,21 @@ const config = Service.extend({
   limiterTime: 1
 }).create();
 
+const CustomAjaxService = AjaxService.extend({
+  host: 'https://my-custom-host',
+
+  headers: {
+    'my-custom-header': 'my custom value'
+  }
+});
+
 let server;
 let limiter;
 let service;
+
+let responseHeaders;
+let responseBody;
+let response;
 
 moduleFor('service:request-cache', 'Integration | Service | request cache', {
   integration: true,
@@ -33,6 +47,23 @@ moduleFor('service:request-cache', 'Integration | Service | request cache', {
     }
 
     service = this.subject();
+
+    responseHeaders = {
+      'test-header': 'test value'
+    };
+    responseBody = [12];
+    response = {
+      responseHeaders,
+      response: responseBody
+    };
+
+    server.get('http://test-host/api/test-url', () => {
+      return [
+        200,
+        $.extend(true, {}, responseHeaders),
+        responseBody.slice()
+      ];
+    });
   },
   afterEach() {
     server.shutdown();
@@ -41,10 +72,10 @@ moduleFor('service:request-cache', 'Integration | Service | request cache', {
   }
 });
 
-function cacheRequest() {
+function cacheRequest(ajax) {
   return new Promise((resolve, reject) => {
     run(() => {
-      get(service, 'cacheRequest').perform('test-url').then(resolve).catch(reject);
+      get(service, 'cacheRequest').perform('test-url', ajax).then(resolve).catch(reject);
     });
   });
 }
@@ -62,24 +93,35 @@ test('gets cached data', function(assert) {
 test('resolves data from request', function(assert) {
   assert.expect(1);
 
-  server.get('http://test-host/api/test-url', () => {
-    return [200, {}, [12]];
+  return cacheRequest().then(data => {
+    assert.deepEqual(data, response);
+  });
+});
+
+test('allows a custom ajax service', function(assert) {
+  assert.expect(2);
+
+  server.get('http://my-custom-host/test-url', ({ requestHeaders }) => {
+    assert.strictEqual(requestHeaders['my-custom-header'], 'my custom value');
+
+    return [200, {}, [56]];
   });
 
-  return cacheRequest().then(data => {
-    assert.deepEqual(data, [12]);
+  let ajax = CustomAjaxService.create();
+
+  return cacheRequest(ajax).then(data => {
+    assert.deepEqual(data, {
+      responseHeaders: {},
+      response: [56]
+    });
   });
 });
 
 test('caches data from request', function(assert) {
   assert.expect(1);
 
-  server.get('http://test-host/api/test-url', () => {
-    return [200, {}, [12]];
-  });
-
   return cacheRequest().then(() => {
-    assert.deepEqual(cache.get('test-url'), [12]);
+    assert.deepEqual(cache.get('test-url'), response);
   });
 });
 
@@ -112,10 +154,6 @@ test('doesn\'t cache data when task cancels', function(assert) {
 test('second call uses cached data after queuing', function(assert) {
   assert.expect(1);
 
-  server.get('http://test-host/api/test-url', () => {
-    return [200, {}, [12]];
-  });
-
   let promise1 = cacheRequest();
   let promise2 = cacheRequest();
 
@@ -124,7 +162,7 @@ test('second call uses cached data after queuing', function(assert) {
   function handlePromise(promise) {
     return promise.then(data => {
       if (didRunOnce) {
-        return assert.deepEqual(data, [12]);
+        return assert.deepEqual(data, response);
       }
 
       // changing response value to verify the cached value is used
@@ -148,10 +186,6 @@ test('cache invalidates after given time', function(assert) {
   let cacheTime = 1;
   set(config, 'cacheTime', cacheTime);
 
-  server.get('http://test-host/api/test-url', () => {
-    return [200, {}, [12]];
-  });
-
   return cacheRequest().then(() => {
     let timeCacheWasSet = Date.now();
 
@@ -163,7 +197,10 @@ test('cache invalidates after given time', function(assert) {
     });
 
     return cacheRequest().then(data => {
-      assert.deepEqual(data, [23]);
+      assert.deepEqual(data, {
+        responseHeaders: {},
+        response: [23]
+      });
     });
   });
 });
@@ -173,10 +210,6 @@ test('limits calls', function(assert) {
 
   let limiterTime = 100;
   set(config, 'limiterTime', limiterTime);
-
-  server.get('http://test-host/api/test-url', () => {
-    return [200, {}, [12]];
-  });
 
   let timeLimiterWasStarted = Date.now();
 

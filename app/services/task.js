@@ -15,7 +15,7 @@ export default Service.extend({
   getVersions: task(function * (module) {
     let path = `npm/${module}/versions`;
 
-    let { response } = yield get(this, 'requestCache.cacheRequestAjax').perform(path);
+    let { response } = yield get(this, 'requestCache.cacheRequest').perform(path);
 
     let versions = pairs(response);
 
@@ -25,7 +25,7 @@ export default Service.extend({
   getDependencies: task(function * (module, version) {
     let path = `npm/${module}@${version}/dependencies`;
 
-    let { response } = yield get(this, 'requestCache.cacheRequestAjax').perform(path);
+    let { response } = yield get(this, 'requestCache.cacheRequest').perform(path);
 
     let dependencies = normalizeDependencies(response);
 
