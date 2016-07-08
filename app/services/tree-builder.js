@@ -16,15 +16,15 @@ export default Service.extend({
     let until = moment(date).toJSON();
     let url = `repos/${repo}/commits?until=${until}`;
     let ajax = get(this, 'githubAjax');
-    let data = yield get(this, 'requestCache.cacheRequest').perform(url, ajax);
+    let response = yield get(this, 'requestCache.cacheRequest').perform(url, ajax);
 
-    return data;
+    return response;
   }),
 
   getPackage: task(function * (repo, commit) {
     let url = `https://raw.githubusercontent.com/${repo}/${commit}/package.json`;
-    let { response } = yield get(this, 'requestCache.cacheRequest').perform(url);
+    let { responseBody } = yield get(this, 'requestCache.cacheRequest').perform(url);
 
-    return response;
+    return responseBody;
   })
 });

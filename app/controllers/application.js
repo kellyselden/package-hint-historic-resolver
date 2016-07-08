@@ -106,19 +106,18 @@ export default Controller.extend({
     setProperties(this, properties);
 
     let getCommit = get(treeBuilder, 'getCommit');
-    let commitData;
+    let response;
     try {
-      commitData = yield getCommit.perform(repo, repoDate);
+      response = yield getCommit.perform(repo, repoDate);
     } catch (error) {
       set(this, commitErrorProp, error);
 
       return;
     }
 
-    let responseHeaders = commitData.responseHeaders;
-    let response = commitData.response;
+    let { responseHeaders, responseBody } = response;
 
-    let [latestCommit] = response;
+    let [latestCommit] = responseBody;
     let { sha, commit } = latestCommit;
 
     properties = {};

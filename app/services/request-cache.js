@@ -57,7 +57,7 @@ export default Service.extend({
       responseHeaders = parseResponseHeaders(responseHeaders);
       let data = {
         responseHeaders,
-        response
+        responseBody: response
       };
       return cache.put(url, data, get(this, 'cacheTime'));
     });

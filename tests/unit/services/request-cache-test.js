@@ -13,8 +13,8 @@ const {
 let getStub;
 let putStub;
 let removeTokensStub;
+let defaultRawResponseBody;
 let defaultRawResponse;
-let defaultRawData;
 let defaultRawStub;
 let service;
 
@@ -23,16 +23,16 @@ moduleFor('service:request-cache', 'Unit | Service | request cache', {
     getStub = sinon.stub().returns(null);
     putStub = sinon.stub().returns(45);
     removeTokensStub = sinon.stub().returns(resolve());
-    defaultRawResponse = 'test response';
-    defaultRawData = {
+    defaultRawResponseBody = 'test response';
+    defaultRawResponse = {
       jqXHR: {
         getAllResponseHeaders() {
           return 'test-header: test value';
         }
       },
-      response: defaultRawResponse
+      response: defaultRawResponseBody
     };
-    defaultRawStub = sinon.stub().returns(resolve($.extend(true, {}, defaultRawData)));
+    defaultRawStub = sinon.stub().returns(resolve($.extend(true, {}, defaultRawResponse)));
   }
 });
 
@@ -205,7 +205,7 @@ test('allows a custom ajax service', function(assert) {
 
   subject.call(this);
 
-  let rawStub = sinon.stub().returns(resolve(defaultRawData));
+  let rawStub = sinon.stub().returns(resolve(defaultRawResponse));
 
   let ajax = {
     raw: rawStub
@@ -229,7 +229,7 @@ test('caches the data for a length of time', function(assert) {
           responseHeaders: {
             'test-header': 'test value'
           },
-          response: defaultRawResponse
+          responseBody: defaultRawResponseBody
         },
         34
       ]
@@ -292,7 +292,7 @@ test('queues requests', function(assert) {
   assert.equal(removeTokensStub.callCount, 2, 'both have passed the limiter');
   assert.equal(defaultRawStub.callCount, 1, 'one should be stuck in the queue');
 
-  deferred.resolve(defaultRawData);
+  deferred.resolve(defaultRawResponse);
 
   getStub.returns(12);
 
