@@ -3,6 +3,7 @@ import { moduleFor, test } from 'ember-qunit';
 import sinon from 'sinon';
 
 const {
+  $,
   RSVP,
   RSVP: { resolve, reject, Promise },
   run,
@@ -12,8 +13,9 @@ const {
 let getStub;
 let putStub;
 let removeTokensStub;
-let ajaxResponse;
-let ajaxStub;
+let defaultRawResponse;
+let defaultRawData;
+let defaultRawStub;
 let service;
 
 moduleFor('service:request-cache', 'Unit | Service | request cache', {
@@ -21,8 +23,16 @@ moduleFor('service:request-cache', 'Unit | Service | request cache', {
     getStub = sinon.stub().returns(null);
     putStub = sinon.stub().returns(45);
     removeTokensStub = sinon.stub().returns(resolve());
-    ajaxResponse = 23;
-    ajaxStub = sinon.stub().returns(resolve(ajaxResponse));
+    defaultRawResponse = 'test response';
+    defaultRawData = {
+      jqXHR: {
+        getAllResponseHeaders() {
+          return 'test-header: test value';
+        }
+      },
+      response: defaultRawResponse
+    };
+    defaultRawStub = sinon.stub().returns(resolve($.extend(true, {}, defaultRawData)));
   }
 });
 
@@ -40,16 +50,16 @@ function subject() {
         perform: removeTokensStub
       }
     },
-    adapter: {
-      ajax: ajaxStub
+    defaultAjax: {
+      raw: defaultRawStub
     }
   });
 }
 
-function cacheRequest() {
+function cacheRequest(ajax) {
   return new Promise((resolve, reject) => {
     run(() => {
-      get(service, 'cacheRequest').perform('test-url').then(resolve).catch(reject);
+      get(service, 'cacheRequestAjax').perform('test-url', ajax).then(resolve).catch(reject);
     });
   });
 }
@@ -176,7 +186,7 @@ test('sends request after third cache try', function(assert) {
   subject.call(this);
 
   return cacheRequest().then(() => {
-    assert.ok(ajaxStub.getCall(0).calledAfter(getStub.getCall(2)));
+    assert.ok(defaultRawStub.getCall(0).calledAfter(getStub.getCall(2)));
   });
 });
 
@@ -186,7 +196,23 @@ test('sends request with url', function(assert) {
   subject.call(this);
 
   return cacheRequest().then(() => {
-    assert.deepEqual(ajaxStub.args, [['test-url']]);
+    assert.deepEqual(defaultRawStub.args, [['test-url']]);
+  });
+});
+
+test('allows a custom ajax service', function(assert) {
+  assert.expect(1);
+
+  subject.call(this);
+
+  let rawStub = sinon.stub().returns(resolve(defaultRawData));
+
+  let ajax = {
+    raw: rawStub
+  };
+
+  return cacheRequest(ajax).then(() => {
+    assert.deepEqual(rawStub.args, [['test-url']]);
   });
 });
 
@@ -196,7 +222,18 @@ test('caches the data for a length of time', function(assert) {
   subject.call(this);
 
   return cacheRequest().then(() => {
-    assert.deepEqual(putStub.args, [['test-url', 23, 34]]);
+    assert.deepEqual(putStub.args, [
+      [
+        'test-url',
+        {
+          responseHeaders: {
+            'test-header': 'test value'
+          },
+          response: defaultRawResponse
+        },
+        34
+      ]
+    ]);
   });
 });
 
@@ -213,7 +250,7 @@ test('resolves with expected data', function(assert) {
 test('does\'t cache data if request rejects', function(assert) {
   assert.expect(1);
 
-  ajaxStub.returns(reject());
+  defaultRawStub.returns(reject());
 
   subject.call(this);
 
@@ -225,7 +262,7 @@ test('does\'t cache data if request rejects', function(assert) {
 test('does\'t cache data if task cancels', function(assert) {
   assert.expect(1);
 
-  ajaxStub.returns(RSVP.defer().promise);
+  defaultRawStub.returns(RSVP.defer().promise);
 
   subject.call(this);
 
@@ -245,7 +282,7 @@ test('queues requests', function(assert) {
 
   let deferred = RSVP.defer();
 
-  ajaxStub.returns(deferred.promise);
+  defaultRawStub.returns(deferred.promise);
 
   subject.call(this);
 
@@ -253,13 +290,13 @@ test('queues requests', function(assert) {
   let secondPromise = cacheRequest();
 
   assert.equal(removeTokensStub.callCount, 2, 'both have passed the limiter');
-  assert.equal(ajaxStub.callCount, 1, 'one should be stuck in the queue');
+  assert.equal(defaultRawStub.callCount, 1, 'one should be stuck in the queue');
 
-  deferred.resolve(ajaxResponse);
+  deferred.resolve(defaultRawData);
 
   getStub.returns(12);
 
   return secondPromise.then(() => {
-    assert.equal(ajaxStub.callCount, 1, 'must have used the cache');
+    assert.equal(defaultRawStub.callCount, 1, 'must have used the cache');
   });
 });
