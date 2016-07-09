@@ -12,9 +12,9 @@ const {
   get, set
 } = Ember;
 
-const config = Service.extend({
+const ConfigService = Service.extend({
   limiterTime: 1
-}).create();
+});
 
 const CustomAjaxService = AjaxService.extend({
   host: 'https://my-custom-host',
@@ -38,7 +38,7 @@ moduleFor('service:request-cache', 'Integration | Service | request cache', {
     server = new Pretender();
     server.prepareBody = JSON.stringify;
 
-    this.register('service:config', config, { instantiate: false });
+    this.register('service:config', ConfigService);
     this.inject.service('config', { as: 'config' });
 
     // https://github.com/jquery/qunit/pull/919
@@ -184,7 +184,7 @@ test('cache invalidates after given time', function(assert) {
   assert.expect(1);
 
   let cacheTime = 1;
-  set(config, 'cacheTime', cacheTime);
+  set(this, 'config.cacheTime', cacheTime);
 
   return cacheRequest().then(() => {
     let timeCacheWasSet = Date.now();
@@ -209,7 +209,7 @@ test('limits calls', function(assert) {
   assert.expect(1);
 
   let limiterTime = 100;
-  set(config, 'limiterTime', limiterTime);
+  set(this, 'config.limiterTime', limiterTime);
 
   let timeLimiterWasStarted = Date.now();
 
