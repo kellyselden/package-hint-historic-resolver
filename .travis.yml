@@ -5,9 +5,20 @@ node_js:
 
 sudo: false
 
+branches:
+  only:
+    - master
+
 cache:
   directories:
     - node_modules
+
+env:
+  - PARTITION=1
+  - PARTITION=2
+  - PARTITION=3
+  - PARTITION=4
+  - PARTITION=5
 
 before_install:
   - npm config set spin false
@@ -19,7 +30,7 @@ install:
   - bower install
 
 script:
-  - npm run cover
+  - npm run travis
 
 after_script:
   - cat coverage/lcov.info | node_modules/coveralls/bin/coveralls.js
