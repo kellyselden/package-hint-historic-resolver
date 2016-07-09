@@ -30,7 +30,7 @@ install:
   - bower install
 
 script:
-  - npm run travis
+  - ./scripts/travis.sh
 
 after_script:
   - cat coverage/lcov.info | node_modules/coveralls/bin/coveralls.js
