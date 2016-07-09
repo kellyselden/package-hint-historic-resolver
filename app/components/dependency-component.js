@@ -10,8 +10,7 @@ const {
   Component,
   inject: { service },
   get, set, setProperties,
-  computed: { not, or, readOnly },
-  merge
+  computed: { not, or, readOnly }
 } = Ember;
 
 const groups = [
@@ -22,6 +21,7 @@ const groups = [
 
 export default Component.extend({
   task: service(),
+  treeBuilder: service(),
 
   @computed('repoUrl', 'repo')
   isRepoUrlInvalid(repoUrl, repo) {
@@ -34,6 +34,8 @@ export default Component.extend({
     // so cancel all the promises that set values on the old dependency objects
     this._cancelAll();
 
+    let treeBuilder = get(this, 'treeBuilder');
+
     let dependencyGroups = groups.map(([title, prop]) => {
       let firstDependencies = normalizeDependencies(firstJson[prop]);
       let secondDependencies = normalizeDependencies(secondJson[prop]);
@@ -45,7 +47,7 @@ export default Component.extend({
         dependencies
       });
 
-      this._setupComputeds(dependencyGroup, false);
+      treeBuilder.setupComputeds(dependencyGroup, false);
 
       return dependencyGroup;
     }).filter(dependencyGroup => get(dependencyGroup, 'dependencies').length);
@@ -59,10 +61,12 @@ export default Component.extend({
   _getDependencies(firstDependencies, secondDependencies) {
     let dependencies = mergeModules(firstDependencies, secondDependencies);
 
+    let treeBuilder = get(this, 'treeBuilder');
+
     for (let dependency of dependencies) {
       this._setupVersions(dependency);
 
-      this._setupComputeds(dependency);
+      treeBuilder.setupComputeds(dependency);
     }
 
     return dependencies;
@@ -210,57 +214,6 @@ export default Component.extend({
     return dependencies;
   },
 
-  _setupComputeds(dependency, shouldSetupVersions = true) {
-    let props = {
-      @computed('firstVersion', 'secondVersion')
-      areVersionsDifferent(firstVersion, secondVersion) {
-        if (!firstVersion || !secondVersion) {
-          return false;
-        }
-
-        return firstVersion !== secondVersion;
-      },
-
-      @computed('isSomethingWrong', 'dependencies.@each.numberOfDifferences')
-      numberOfDifferences(isSomethingWrong, dependencies) {
-        let initialValue = isSomethingWrong ? 1 : 0;
-
-        if (get(dependencies, 'promise') && !get(dependencies, 'isFulfilled')) {
-          return initialValue;
-        }
-
-        let numberOfDifferences = dependencies.reduce((previousValue, currentValue) => {
-          return previousValue + get(currentValue, 'numberOfDifferences');
-        }, initialValue);
-
-        return numberOfDifferences;
-      },
-
-      @computed('dependencies.@each.isDoneCrawling')
-      isDoneCrawling(dependencies) {
-        if (get(dependencies, 'promise') && !get(dependencies, 'isFulfilled')) {
-          return false;
-        }
-
-        let areChildrenDoneCrawling = !dependencies.filterBy('isDoneCrawling', false).length;
-        let stopCrawling = get(this, 'stopCrawling');
-
-        return areChildrenDoneCrawling && !stopCrawling;
-      }
-    };
-
-    if (shouldSetupVersions) {
-      merge(props, {
-        isFirstVersionHintMissing:  not('firstVersionHint'),
-        isSecondVersionHintMissing: not('secondVersionHint'),
-        isOneHintMissing: or('isFirstVersionHintMissing', 'isSecondVersionHintMissing'),
-        isSomethingWrong: or('isOneMissing', 'areVersionsDifferent')
-      });
-    }
-
-    setProperties(dependency, props);
-  },
-
   @computed(
     'repo',
     'repoWorkingDateError',
@@ -286,7 +239,7 @@ export default Component.extend({
   },
 
   didInsertElement() {
-    this._setupComputeds(this, false);
+    get(this, 'treeBuilder').setupComputeds(this, false);
   },
 
   _cancelAll() {
