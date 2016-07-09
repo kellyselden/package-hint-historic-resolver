@@ -25,7 +25,6 @@ const CustomAjaxService = AjaxService.extend({
 });
 
 let server;
-let limiter;
 let service;
 
 let responseHeaders;
@@ -40,11 +39,6 @@ moduleFor('service:request-cache', 'Integration | Service | request cache', {
 
     this.register('service:config', ConfigService);
     this.inject.service('config', { as: 'config' });
-
-    // https://github.com/jquery/qunit/pull/919
-    if (!limiter) {
-      limiter = this.container.lookup('service:limiter');
-    }
 
     service = this.subject();
 
@@ -67,7 +61,6 @@ moduleFor('service:request-cache', 'Integration | Service | request cache', {
   },
   afterEach() {
     server.shutdown();
-    limiter.reset();
     cache.clear();
   }
 });

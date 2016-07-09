@@ -6,7 +6,7 @@ import config from '../config/environment';
 const {
   Service,
   RSVP: { Promise },
-  get,
+  get, set,
   computed: { readOnly },
   inject: { service },
   run,
@@ -15,17 +15,18 @@ const {
 const { RateLimiter } = nodeRateLimiter;
 const isTestEnvironment = config.environment === 'test';
 
-let limiter;
-
 export default Service.extend({
   config: service(),
 
-  limiterTime: readOnly('config.limiterTime'),
+  _limiterTime: readOnly('config.limiterTime'),
 
   removeTokens: task(function * (count) {
     return yield new Promise(resolve => {
+      let limiter = get(this, '_limiter');
       if (!limiter) {
-        limiter = new RateLimiter(1, get(this, 'limiterTime'));
+        limiter = new RateLimiter(1, get(this, '_limiterTime'));
+
+        set(this, '_limiter', limiter);
       }
 
       // we need a run loop open during testing for the wait helper to work
@@ -50,9 +51,5 @@ export default Service.extend({
         run(resolve);
       });
     });
-  }),
-
-  reset() {
-    limiter = null;
-  }
+  })
 });
