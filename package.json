@@ -10,8 +10,10 @@
   "scripts": {
     "build": "ember build",
     "start": "ember server",
-    "test": "ember test",
-    "cover": "cross-env COVERAGE=true npm test"
+    "test:base": "ember exam",
+    "test": "npm run test:base -- --split 5 --parallel --random",
+    "cover": "cross-env COVERAGE=true npm run test:base --",
+    "travis": "npm run cover -- --split 5 --partition $PARTITION --random \"$TRAVIS_PULL_REQUEST\""
   },
   "repository": "https://github.com/kellyselden/package-hint-historic-resolver",
   "engines": {
@@ -50,6 +52,7 @@
     "ember-data": "^2.6.0",
     "ember-data-application-adapter-service": "0.0.2",
     "ember-datetimepicker": "0.0.12",
+    "ember-exam": "0.4.4",
     "ember-export-application-global": "^1.0.5",
     "ember-fork-me": "0.1.0",
     "ember-load-initializers": "^0.5.1",
