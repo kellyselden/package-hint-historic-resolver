@@ -16,7 +16,7 @@ const {
 
 export default Controller.extend({
   session: service(),
-  treeBuilder: service(),
+  task: service(),
 
   repository,
 
@@ -97,7 +97,7 @@ export default Controller.extend({
       return;
     }
 
-    let treeBuilder = get(this, 'treeBuilder');
+    let task = get(this, 'task');
     let repoDate = get(this, repoDateProp);
 
     let properties = {};
@@ -105,7 +105,7 @@ export default Controller.extend({
     properties[packageErrorProp] = undefined;
     setProperties(this, properties);
 
-    let getCommit = get(treeBuilder, 'getCommit');
+    let getCommit = get(task, 'getCommit');
     let response;
     try {
       response = yield getCommit.perform(repo, repoDate);
@@ -128,7 +128,7 @@ export default Controller.extend({
     properties[commitDateProp] = commit.author.date;
     setProperties(this, properties);
 
-    let getPackage = get(treeBuilder, 'getPackage');
+    let getPackage = get(task, 'getPackage');
     let data;
     try {
       data = yield getPackage.perform(repo, sha);
