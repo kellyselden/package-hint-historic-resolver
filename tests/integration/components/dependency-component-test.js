@@ -399,7 +399,7 @@ test('sends working date update event', function(assert) {
   );
 });
 
-test('sends working date update event', function(assert) {
+test('sends broken date update event', function(assert) {
   return testDateChange(
     assert,
     render.bind(this),
