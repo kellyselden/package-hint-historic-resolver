@@ -43,7 +43,7 @@ export default Route.extend(ApplicationRouteMixin, {
       let { controller } = this;
       if (controller) {
         scheduleOnce('afterRender', () => {
-          controller.rebuild();
+          // controller.rebuild();
         });
       }
     }
