@@ -4,4 +4,6 @@
 [![Dependency Status](https://gemnasium.com/kellyselden/package-hint-historic-resolver.svg)](https://gemnasium.com/kellyselden/package-hint-historic-resolver)
 [![devDependency Status](https://david-dm.org/kellyselden/package-hint-historic-resolver/dev-status.svg)](https://david-dm.org/kellyselden/package-hint-historic-resolver#info=devDependencies)
 
-Why is CI broken? http://package-hint-historic-resolver.herokuapp.com/
+Why is CI broken? http://package-hint-historic-resolver.herokuapp.com
+
+Consumes API [packager-api-wrapper](https://github.com/kellyselden/packager-api-wrapper)
