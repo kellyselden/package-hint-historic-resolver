@@ -93,6 +93,14 @@ moduleForAcceptance('Acceptance | application', {
   }
 });
 
+test('loads a fresh page', function(assert) {
+  visit('/');
+
+  andThen(function() {
+    assert.equal(find('#header').text().trim(), 'Why is CI Broken?');
+  });
+});
+
 test('handles api auth error', function(assert) {
   server.get(githubClientIdUrl, () => {
     return [500, {}, {}];
@@ -106,7 +114,7 @@ test('handles api auth error', function(assert) {
   });
 });
 
-test('visiting /', function(assert) {
+test('loads a populated page', function(assert) {
   let repoWorkingDate = encodeURI(new Date(2016, 5, 1).toISOString());
   let repoBrokenDate  = encodeURI(new Date(2016, 5, 1).toISOString());
   visit(`/?repoWorkingDate=${repoWorkingDate}&repoBrokenDate=${repoBrokenDate}&repoUrl=${user}%2F${repo}`);
