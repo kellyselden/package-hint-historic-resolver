@@ -23,7 +23,9 @@ let githubRequestHeaders;
 
 moduleForAcceptance('Acceptance | application', {
   beforeEach() {
-    server = new Pretender();
+    server = new Pretender(function() {
+      this.post('/_percy/:method', this.passthrough);
+    });
     server.prepareBody = JSON.stringify;
 
     user = 'test-user';
@@ -86,8 +88,13 @@ moduleForAcceptance('Acceptance | application', {
   }
 });
 
-test('loads a fresh page', function(assert) {
+let testName;
+
+testName = 'loads a fresh page';
+test(testName, function(assert) {
   visit('/');
+
+  percySnapshot(testName);
 
   andThen(function() {
     assert.equal(find('#header').text().trim(), 'Why is CI Broken?');

@@ -15,11 +15,15 @@ cache:
     - node_modules
 
 env:
-  - PARTITION=1
-  - PARTITION=2
-  - PARTITION=3
-  - PARTITION=4
-  - PARTITION=5
+  global:
+    - PERCY_PROJECT=kellyselden/package-hint-historic-resolver
+    - PERCY_PARALLEL_TOTAL=5
+  matrix:
+    - PARTITION=1
+    - PARTITION=2
+    - PARTITION=3
+    - PARTITION=4
+    - PARTITION=5
 
 before_install:
   - npm config set spin false
