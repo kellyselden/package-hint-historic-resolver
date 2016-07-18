@@ -65,7 +65,7 @@
     "ember-sinon": "0.5.1",
     "ember-test-helpers": "kellyselden/ember-test-helpers#waitForTimersAndIntervals",
     "ember-wait-for-test-helper": "0.1.1",
-    "eslint": "^2.0.0",
+    "eslint": "^3.1.0",
     "limiter": "^1.0.0",
     "loader.js": "^4.0.1",
     "memory-cache": "0.1.6",
