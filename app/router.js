@@ -3,7 +3,8 @@ import config from './config/environment';
 import EmberMetricsRouterMixin from 'ember-metrics-mixins/mixins/router';
 
 const Router = Ember.Router.extend(EmberMetricsRouterMixin, {
-  location: config.locationType
+  location: config.locationType,
+  rootURL: config.rootURL
 });
 
 Router.map(function() {
