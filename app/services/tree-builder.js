@@ -1,7 +1,7 @@
 import Ember from 'ember';
 import { task } from 'ember-concurrency';
 import computed from 'ember-computed-decorators';
-import promiseArray from 'ember-awesome-macros/promise-array';
+import { promiseArray } from 'ember-awesome-macros';
 import normalizeDependencies from '../utils/normalize-dependencies';
 import mergeModules from '../utils/merge-modules';
 import getRealVersion from '../utils/get-real-version';
