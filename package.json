@@ -53,7 +53,7 @@
     "ember-data": "^2.7.0",
     "ember-data-application-adapter-service": "0.0.2",
     "ember-datetimepicker": "0.0.12",
-    "ember-exam": "0.4.5",
+    "ember-exam": "0.4.6",
     "ember-export-application-global": "^1.0.5",
     "ember-fork-me": "0.1.0",
     "ember-load-initializers": "^0.5.1",
