@@ -31,7 +31,7 @@
     "ember-browserify": "^1.0.0",
     "ember-checkbox-with-label": "0.1.0",
     "ember-cli": "2.7.0",
-    "ember-cli-app-version": "^1.0.0",
+    "ember-cli-app-version": "^2.0.0",
     "ember-cli-babel": "^5.1.6",
     "ember-cli-code-coverage": "kellyselden/ember-cli-code-coverage#coveralls",
     "ember-cli-content-security-policy": "0.5.0",
