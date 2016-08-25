@@ -4,7 +4,6 @@
     "ember": "~2.7.0",
     "ember-cli-shims": "0.1.1",
     "ember-qunit-notifications": "0.1.0",
-    "datetimepicker": "2.4.5",
-    "pretender": "^0.12.0"
+    "datetimepicker": "2.4.5"
   }
 }
