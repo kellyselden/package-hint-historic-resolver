@@ -12,6 +12,8 @@
     "start": "ember server",
     "test:base": "ember exam",
     "test": "npm run test:base -- --split 5 --parallel --random",
+    "lint": "eslint app tests",
+    "lint:fix": "npm run lint -- --fix",
     "cover": "cross-env COVERAGE=true npm run test:base --",
     "travis": "npm run cover -- --split 5 --partition $PARTITION --random $SEED"
   },
