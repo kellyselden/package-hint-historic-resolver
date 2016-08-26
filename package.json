@@ -55,7 +55,7 @@
     "ember-datetimepicker": "0.0.12",
     "ember-exam": "0.5.0",
     "ember-export-application-global": "^1.0.5",
-    "ember-fork-me": "0.1.1",
+    "ember-fork-me": "1.0.0",
     "ember-load-initializers": "^0.5.1",
     "ember-lodash": "0.0.10",
     "ember-metrics": "^0.6.0",
