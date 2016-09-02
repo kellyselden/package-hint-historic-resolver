@@ -15,7 +15,7 @@
     "lint": "eslint app tests",
     "lint:fix": "npm run lint -- --fix",
     "cover": "cross-env COVERAGE=true npm run test:base --",
-    "travis": "npm run cover -- --split 5 --partition $PARTITION --random $SEED"
+    "travis": "npm run cover -- --split 5 --partition $PARTITION --random mth0xzn0bt6v42t9"
   },
   "repository": "https://github.com/kellyselden/package-hint-historic-resolver",
   "engines": {
