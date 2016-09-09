@@ -1,12 +1,9 @@
 import { test } from 'qunit';
 import moduleForAcceptance from 'package-hint-historic-resolver/tests/helpers/module-for-acceptance';
 import Pretender from 'pretender';
-import startApp from '../helpers/start-app';
-import destroyApp from '../helpers/destroy-app';
 import { authenticateSession } from '../helpers/ember-simple-auth';
 
 let server;
-let application;
 let user;
 let repo;
 let userRepo;
@@ -28,8 +25,6 @@ moduleForAcceptance('Acceptance | application', {
   beforeEach() {
     server = new Pretender();
     server.prepareBody = JSON.stringify;
-
-    application = startApp();
 
     user = 'test-user';
     repo = 'test-repo';
@@ -88,8 +83,6 @@ moduleForAcceptance('Acceptance | application', {
   },
   afterEach() {
     server.shutdown();
-
-    destroyApp(application);
   }
 });
 
@@ -119,7 +112,7 @@ test('loads a populated page', function(assert) {
   let repoBrokenDate  = encodeURI(new Date(2016, 5, 1).toISOString());
   visit(`/?repoWorkingDate=${repoWorkingDate}&repoBrokenDate=${repoBrokenDate}&repoUrl=${user}%2F${repo}`);
 
-  authenticateSession(application, {
+  authenticateSession(this.application, {
     authorizationCode: githubAuthCode,
     accessToken: githubAccessToken
   });
