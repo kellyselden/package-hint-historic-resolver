@@ -424,7 +424,7 @@ test('sends show different event', function(assert) {
 function testRepoDateError(assert, render, repoDateError, cssClass) {
   assert.expect(2);
 
-  render();
+  render.call(this);
 
   return wait().then(() => {
     assert.strictEqual(this.$(`${cssClass} .repo-date-error`).text().trim(), `Error getting package.json: ${repoDateError}`);
@@ -435,9 +435,10 @@ function testRepoDateError(assert, render, repoDateError, cssClass) {
 test('shows repo working date error', function(assert) {
   repoWorkingDateError = 'test repo working date error';
 
-  return testRepoDateError(
+  return testRepoDateError.call(
+    this,
     assert,
-    render.bind(this),
+    render,
     repoWorkingDateError,
     '.repo-working-date'
   );
@@ -446,9 +447,10 @@ test('shows repo working date error', function(assert) {
 test('shows repo broken date error', function(assert) {
   repoBrokenDateError = 'test repo broken date error';
 
-  return testRepoDateError(
+  return testRepoDateError.call(
+    this,
     assert,
-    render.bind(this),
+    render,
     repoBrokenDateError,
     '.repo-broken-date'
   );
@@ -457,7 +459,7 @@ test('shows repo broken date error', function(assert) {
 function testCommitError(assert, render, commitError, cssClass) {
   assert.expect(3);
 
-  render();
+  render.call(this);
 
   return wait().then(() => {
     assert.strictEqual(this.$(`${cssClass} .commit-error`).text().trim(), `Error getting commit: ${commitError}`);
@@ -469,9 +471,10 @@ function testCommitError(assert, render, commitError, cssClass) {
 test('shows first commit error', function(assert) {
   firstCommitError = 'test first commit error';
 
-  return testCommitError(
+  return testCommitError.call(
+    this,
     assert,
-    render.bind(this),
+    render,
     firstCommitError,
     '.repo-working-date'
   );
@@ -480,9 +483,10 @@ test('shows first commit error', function(assert) {
 test('shows second commit error', function(assert) {
   secondCommitError = 'test second commit error';
 
-  return testCommitError(
+  return testCommitError.call(
+    this,
     assert,
-    render.bind(this),
+    render,
     secondCommitError,
     '.repo-broken-date'
   );
@@ -567,9 +571,10 @@ function testVersionMissing(assert, render, isFirst, isSecond) {
 test('handles first version missing', function(assert) {
   delete firstDependencies[sameModule];
 
-  return testVersionMissing(
+  return testVersionMissing.call(
+    this,
     assert,
-    render.bind(this),
+    render,
     true,
     false
   );
@@ -578,9 +583,10 @@ test('handles first version missing', function(assert) {
 test('handles second version missing', function(assert) {
   delete secondDependencies[sameModule];
 
-  return testVersionMissing(
+  return testVersionMissing.call(
+    this,
     assert,
-    render.bind(this),
+    render,
     false,
     true
   );
