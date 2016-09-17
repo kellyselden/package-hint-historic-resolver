@@ -20,6 +20,7 @@ let githubRateLimit;
 let githubRateRemaining;
 let githubRateReset;
 let githubRequestHeaders;
+let githubApiHandler;
 
 moduleForAcceptance('Acceptance | application', {
   beforeEach() {
@@ -50,7 +51,7 @@ moduleForAcceptance('Acceptance | application', {
       }];
     });
 
-    server.get(`https://api.github.com/repos/${userRepo}/commits`, request => {
+    githubApiHandler = server.get(`https://api.github.com/repos/${userRepo}/commits`, request => {
       githubRequestHeaders = request.requestHeaders;
 
       return [200, {
@@ -135,7 +136,7 @@ test('loads a populated page', function(assert) {
   andThen(function() {
     assert.equal(find('.repo-broken-date .date-time-picker').val(), '2016/06/01 0:00');
     assert.equal(find('.repo-broken-date .commit').text(), `Latest commit ${sha} on ${commitDate}`);
-    assert.equal(server.handlers[1].numberOfCalls, 1, 'identical calls to github api are consolidated');
+    assert.equal(githubApiHandler.numberOfCalls, 1, 'identical calls to github api are consolidated');
     assert.equal(find('.github-auth-code').text().trim(), `GitHub authorization code: ${githubAuthCode}`);
     assert.equal(find('.github-access-token').text().trim(), `GitHub access token: ${githubAccessToken}`);
     assert.equal(find('.github-rate-limit').text().trim(), `GitHub API rate limit: ${githubRateLimit}`);
