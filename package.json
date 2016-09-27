@@ -24,7 +24,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "babel-eslint": "^6.0.0",
+    "babel-eslint": "^7.0.0",
     "broccoli-asset-rev": "^2.4.2",
     "coveralls": "^2.0.0",
     "cross-env": "^3.0.0",
