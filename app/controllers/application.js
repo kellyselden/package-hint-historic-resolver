@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import computed from 'ember-computed-decorators';
+import { gtKey } from 'ember-awesome-macros';
 import { task } from 'ember-concurrency';
 import config from '../config/environment';
 import getRepo from '../utils/get-repo';
@@ -47,11 +48,7 @@ export default Controller.extend({
     return repo;
   },
 
-  // Ember.computed.gt doesn't work with dates
-  @computed('repoWorkingDate', 'repoBrokenDate')
-  areDatesOutOfOrder(repoWorkingDate, repoBrokenDate) {
-    return repoWorkingDate > repoBrokenDate;
-  },
+  areDatesOutOfOrder: gtKey('repoWorkingDate', 'repoBrokenDate'),
 
   rebuild() {
     this._rebuildWorking();
