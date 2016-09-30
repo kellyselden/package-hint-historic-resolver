@@ -1,17 +1,20 @@
 import Ember from 'ember';
+import conditional from 'ember-cpm/macros/conditional';
 
 const {
-  Component,
-  computed
+  Component
 } = Ember;
 
 const MyComponent = Component.extend({
   classNames: ['version-display'],
   classNameBindings: ['areDifferent', 'isOneMissing:is-missing'],
 
-  areDifferent: computed('areVersionsDifferent', 'areVersionsDifferentClass', function() {
-    return this.get('areVersionsDifferent') ? this.get('areVersionsDifferentClass') : '';
-  })
+  _emptyClass: '',
+  areDifferent: conditional(
+    'areVersionsDifferent',
+    'areVersionsDifferentClass',
+    '_emptyClass'
+  )
 });
 
 MyComponent.reopenClass({

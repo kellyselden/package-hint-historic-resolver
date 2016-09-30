@@ -1,11 +1,10 @@
 import Ember from 'ember';
 import sum from 'ember-cpm/macros/sum';
+import { and, not, equalKey } from 'ember-awesome-macros';
 
 const {
   Component,
-  get,
-  computed,
-  computed: { not, readOnly, and }
+  computed: { readOnly }
 } = Ember;
 
 export default Component.extend({
@@ -36,13 +35,15 @@ export default Component.extend({
 
   childNestingLevel: sum('nestingLevel', 1),
 
-  areVersionHintsDifferent: computed('firstVersionHint', 'secondVersionHint', function() {
-    let firstVersionHint  = get(this, 'firstVersionHint'),
-        secondVersionHint = get(this, 'secondVersionHint');
-    return firstVersionHint && secondVersionHint && firstVersionHint !== secondVersionHint;
-  }),
+  areVersionHintsDifferent: and(
+    'firstVersionHint',
+    'secondVersionHint',
+    not(equalKey('firstVersionHint', 'secondVersionHint'))
+  ),
 
-  _isEverythingOk: not('isSomethingWrong'),
-  _hasNoDifferences: not('numberOfDifferences'),
-  shouldHideRow: and('shouldOnlyShowDifferent', '_isEverythingOk', '_hasNoDifferences')
+  shouldHideRow: and(
+    'shouldOnlyShowDifferent',
+    not('isSomethingWrong'),
+    not('numberOfDifferences')
+  )
 });

@@ -1,5 +1,6 @@
 import Ember from 'ember';
 import computed from 'ember-computed-decorators';
+import { and, not } from 'ember-awesome-macros';
 
 const {
   Component,
@@ -11,10 +12,7 @@ const {
 export default Component.extend({
   treeBuilder: service(),
 
-  @computed('repoUrl', 'repo')
-  isRepoUrlInvalid(repoUrl, repo) {
-    return repoUrl && !repo;
-  },
+  isRepoUrlInvalid: and('repoUrl', not('repo')),
 
   // watching dates because even though commits might not change,
   // nested versions might have
@@ -31,29 +29,14 @@ export default Component.extend({
   // to reuse the crawling logic
   dependencies: readOnly('dependencyGroups'),
 
-  @computed(
+  shouldShowTables: and(
     'repo',
-    'repoWorkingDateError',
-    'repoBrokenDateError',
-    'firstCommitError',
-    'secondCommitError',
-    'areDatesOutOfOrder'
-  )
-  shouldShowTables(
-    repo,
-    repoWorkingDateError,
-    repoBrokenDateError,
-    firstCommitError,
-    secondCommitError,
-    areDatesOutOfOrder
-  ) {
-    return repo &&
-    !repoWorkingDateError &&
-    !repoBrokenDateError &&
-      !firstCommitError &&
-      !secondCommitError &&
-      !areDatesOutOfOrder;
-  },
+    not('repoWorkingDateError'),
+    not('repoBrokenDateError'),
+    not('firstCommitError'),
+    not('secondCommitError'),
+    not('areDatesOutOfOrder')
+  ),
 
   didInsertElement() {
     get(this, 'treeBuilder').setupComputeds(this, false);
