@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import computed from 'ember-computed-decorators';
-import { gtKey } from 'ember-awesome-macros';
+import { gt } from 'ember-awesome-macros';
 import { task } from 'ember-concurrency';
 import config from '../config/environment';
 import getRepo from '../utils/get-repo';
@@ -48,7 +48,7 @@ export default Controller.extend({
     return repo;
   },
 
-  areDatesOutOfOrder: gtKey('repoWorkingDate', 'repoBrokenDate'),
+  areDatesOutOfOrder: gt('repoWorkingDate', 'repoBrokenDate'),
 
   rebuild() {
     this._rebuildWorking();
