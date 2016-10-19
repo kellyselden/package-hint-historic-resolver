@@ -50,7 +50,7 @@
     "ember-cli-test-loader": "^1.1.0",
     "ember-cli-uglify": "^1.2.0",
     "ember-computed-decorators": "0.2.2",
-    "ember-concurrency": "0.7.14",
+    "ember-concurrency": "0.7.15",
     "ember-cpm": "^2.0.0",
     "ember-data": "^2.8.0",
     "ember-data-application-adapter-service": "^1.0.0",
