@@ -1,8 +1,8 @@
 {
   "name": "package-hint-historic-resolver",
   "dependencies": {
-    "ember": "~2.8.0",
-    "ember-cli-shims": "0.1.1",
+    "ember": "~2.9.0",
+    "ember-cli-shims": "0.1.3",
     "datetimepicker": "2.4.5"
   }
 }
