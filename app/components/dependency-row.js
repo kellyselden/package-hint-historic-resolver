@@ -1,6 +1,5 @@
 import Ember from 'ember';
-import sum from 'ember-cpm/macros/sum';
-import { and, not, equal } from 'ember-awesome-macros';
+import { and, not, equal, sum } from 'ember-awesome-macros';
 
 const {
   Component,
