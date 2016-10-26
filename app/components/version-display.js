@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import conditional from 'ember-cpm/macros/conditional';
+import { conditional, raw } from 'ember-awesome-macros';
 
 const {
   Component
@@ -9,11 +9,10 @@ const MyComponent = Component.extend({
   classNames: ['version-display'],
   classNameBindings: ['areDifferent', 'isOneMissing:is-missing'],
 
-  _emptyClass: '',
   areDifferent: conditional(
     'areVersionsDifferent',
     'areVersionsDifferentClass',
-    '_emptyClass'
+    raw('')
   )
 });
 
