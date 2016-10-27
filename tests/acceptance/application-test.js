@@ -24,9 +24,7 @@ let githubApiHandler;
 
 moduleForAcceptance('Acceptance | application', {
   beforeEach() {
-    server = new Pretender(function() {
-      this.post('/_percy/:method', this.passthrough);
-    });
+    server = new Pretender();
     server.prepareBody = JSON.stringify;
 
     user = 'test-user';
