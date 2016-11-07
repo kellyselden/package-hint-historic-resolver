@@ -43,10 +43,7 @@ export default Controller.extend({
   },
 
   @computed('repoUrl')
-  repo(repoUrl) {
-    let repo = getRepo(repoUrl);
-    return repo;
-  },
+  repo: getRepo,
 
   areDatesOutOfOrder: gt('repoWorkingDate', 'repoBrokenDate'),
 
