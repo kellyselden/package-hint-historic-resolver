@@ -34,13 +34,9 @@ export default Controller.extend({
   secondJson: {},
 
   @computed('repoWorkingDateSerialized')
-  repoWorkingDate(repoWorkingDateSerialized) {
-    return deserializeDate(repoWorkingDateSerialized);
-  },
+  repoWorkingDate: deserializeDate,
   @computed('repoBrokenDateSerialized')
-  repoBrokenDate(repoBrokenDateSerialized) {
-    return deserializeDate(repoBrokenDateSerialized);
-  },
+  repoBrokenDate: deserializeDate,
 
   @computed('repoUrl')
   repo: getRepo,
