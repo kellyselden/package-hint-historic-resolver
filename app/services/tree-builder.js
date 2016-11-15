@@ -68,6 +68,10 @@ export default Service.extend({
     for (let dependency of dependencies) {
       this._setupVersions(dependency, repoWorkingDate, repoBrokenDate);
 
+      setProperties(dependency, {
+        dependencies: promiseArray('_nestedDependenciesPromiseCaught')
+      });
+
       this.setupComputeds(dependency);
     }
 
@@ -138,11 +142,9 @@ export default Service.extend({
 
     setProperties(dependency, {
       nestedDependenciesPromise,
-      dependencies: promiseArray(() => {
-        return nestedDependenciesPromise.catch(() => {
-          // catch means task was canceled, return empty array to continue
-          return [];
-        });
+      _nestedDependenciesPromiseCaught: nestedDependenciesPromise.catch(() => {
+        // catch means task was canceled, return empty array to continue
+        return [];
       })
     });
   },
