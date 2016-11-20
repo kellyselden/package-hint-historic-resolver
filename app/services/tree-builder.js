@@ -1,7 +1,7 @@
 import Ember from 'ember';
 import { task } from 'ember-concurrency';
 import computed from 'ember-computed-decorators';
-import { promiseArray } from 'ember-awesome-macros';
+import { promise } from 'ember-awesome-macros';
 import normalizeDependencies from '../utils/normalize-dependencies';
 import mergeModules from '../utils/merge-modules';
 import getRealVersion from '../utils/get-real-version';
@@ -69,7 +69,7 @@ export default Service.extend({
       this._setupVersions(dependency, repoWorkingDate, repoBrokenDate);
 
       setProperties(dependency, {
-        dependencies: promiseArray('_nestedDependenciesPromiseCaught')
+        dependencies: promise.array('_nestedDependenciesPromiseCaught')
       });
 
       this.setupComputeds(dependency);
