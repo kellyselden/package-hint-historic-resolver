@@ -51,6 +51,9 @@ module.exports = function(environment) {
         }
       }
     ],
+    moment: {
+      allowEmpty: true
+    },
     torii: {
       sessionServiceName: 'session',
       providers: {
