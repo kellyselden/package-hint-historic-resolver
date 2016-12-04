@@ -31,7 +31,7 @@ moduleForAcceptance('Acceptance | application', {
     repo = 'test-repo';
     userRepo = `${user}/${repo}`;
     sha = 'test-sha';
-    commitDate = 'test date';
+    commitDate = '2016-12-01T08:00:00.000Z';
     module = 'test-module';
     versionHint = '^1.0.0';
     version = '1.0.0';
