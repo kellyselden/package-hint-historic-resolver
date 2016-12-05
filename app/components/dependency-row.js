@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { and, not, equal, sum } from 'ember-awesome-macros';
+import { and, not, equal, sum, computed } from 'ember-awesome-macros';
 
 const {
   Component,
@@ -31,6 +31,10 @@ export default Component.extend({
   numberOfDifferences:        readOnly('dependency.numberOfDifferences'),
 
   nestingLevel: 0,
+
+  nestingItems: computed('nestingLevel', nestingLevel => {
+    return new Array(nestingLevel);
+  }),
 
   childNestingLevel: sum('nestingLevel', 1),
 
