@@ -30,7 +30,7 @@ export default Component.extend({
   isSomethingWrong:           readOnly('dependency.isSomethingWrong'),
   numberOfDifferences:        readOnly('dependency.numberOfDifferences'),
 
-  nestingLevel: 1,
+  nestingLevel: 0,
 
   childNestingLevel: sum('nestingLevel', 1),
 
