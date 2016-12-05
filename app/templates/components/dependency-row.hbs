@@ -1,6 +1,9 @@
 {{#unless shouldHideRow}}
   <tr class="dependency-row {{module}} depth-{{nestingLevel}}">
-    <td class="module" style="padding-left: {{nestingLevel}}em;">
+    <td class="module">
+      {{#each nestingItems}}
+        <span class="nesting-item">&nbsp;</span>
+      {{/each}}
       {{module}}
       {{#if versionsError}}
         Error getting versions: {{versionsError}}

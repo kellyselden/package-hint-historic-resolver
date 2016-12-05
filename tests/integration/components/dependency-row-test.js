@@ -65,6 +65,6 @@ test('respects nesting level', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$('.dependency-row.test-module.depth-2 > .module')[0].style.paddingLeft, '2em');
+    assert.strictEqual(this.$('.dependency-row.test-module.depth-2 > .module .nesting-item').length, 2);
   });
 });
