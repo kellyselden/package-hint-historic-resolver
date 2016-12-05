@@ -346,12 +346,12 @@ function testDefault(assert) {
       assert.strictEqual(this.$(`${prefix} > .first-version .versions-are-different`).length, firstVersion === secondVersion ? 0 : 1);
       assert.strictEqual(this.$(`${prefix} > .second-version .versions-are-different`).length, firstVersion === secondVersion ? 0 : 1);
     };
-    testRow(`.dependency-row.${sameModule}.depth-1`, sameModule, sameVersionHint, sameVersionHint, sameVersion, sameVersion);
-    testRow(`.dependency-row.${diffModule}.depth-1`, diffModule, diffFirstVersionHint, diffSecondVersionHint, diffFirstVersion, diffSecondVersion);
-    testRow(`.dependency-row.${sameChildModule}.depth-2`, sameChildModule, sameChildVersionHint, sameChildVersionHint, sameChildVersion, sameChildVersion);
-    testRow(`.dependency-row.${diffChildModule}.depth-2:last`, diffChildModule, diffChildFirstVersionHint, diffChildSecondVersionHint, diffChildFirstVersion, diffChildSecondVersion);
-    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-3 > .first-version .circular-reference`).length, 1);
-    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-3 > .second-version .circular-reference`).length, 1);
+    testRow(`.dependency-row.${sameModule}.depth-0`, sameModule, sameVersionHint, sameVersionHint, sameVersion, sameVersion);
+    testRow(`.dependency-row.${diffModule}.depth-0`, diffModule, diffFirstVersionHint, diffSecondVersionHint, diffFirstVersion, diffSecondVersion);
+    testRow(`.dependency-row.${sameChildModule}.depth-1`, sameChildModule, sameChildVersionHint, sameChildVersionHint, sameChildVersion, sameChildVersion);
+    testRow(`.dependency-row.${diffChildModule}.depth-1:last`, diffChildModule, diffChildFirstVersionHint, diffChildSecondVersionHint, diffChildFirstVersion, diffChildSecondVersion);
+    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-2 > .first-version .circular-reference`).length, 1);
+    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-2 > .second-version .circular-reference`).length, 1);
     assert.strictEqual(this.$('.done-crawling').length, 1);
   });
 }
@@ -515,7 +515,7 @@ test('shows versions error', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-1 > .module`).text().trim().replace(/\s\s+/g, ' '), `${sameModule} Error getting versions: Internal Server Error`);
+    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .module`).text().trim().replace(/\s\s+/g, ' '), `${sameModule} Error getting versions: Internal Server Error`);
   });
 });
 
@@ -529,7 +529,7 @@ test('shows first dependencies error', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-1 > .first-version-hint .error`).text().trim(), 'Error getting dependencies: Internal Server Error');
+    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-0 > .first-version-hint .error`).text().trim(), 'Error getting dependencies: Internal Server Error');
   });
 });
 
@@ -543,7 +543,7 @@ test('shows second dependencies error', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-1 > .second-version-hint .error`).text().trim(), 'Error getting dependencies: Internal Server Error');
+    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-0 > .second-version-hint .error`).text().trim(), 'Error getting dependencies: Internal Server Error');
   });
 });
 
@@ -557,14 +557,14 @@ function testVersionMissing(assert, render, isFirst, isSecond) {
     let assertStrictEqual1 = getEqualityFunction(isFirst);
     let assertStrictEqual2 = getEqualityFunction(isSecond);
 
-    assertStrictEqual1(this.$(`.dependency-row.${sameModule}.depth-1 > .first-version-hint`).text().trim(), 'missing');
-    assertStrictEqual2(this.$(`.dependency-row.${sameModule}.depth-1 > .second-version-hint`).text().trim(), 'missing');
-    assertStrictEqual1(this.$(`.dependency-row.${sameModule}.depth-1 > .first-version`).text().trim(), 'missing');
-    assertStrictEqual2(this.$(`.dependency-row.${sameModule}.depth-1 > .second-version`).text().trim(), 'missing');
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-1 > .first-version-hint .is-missing`).length, 1);
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-1 > .second-version-hint .is-missing`).length, 1);
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-1 > .first-version .is-missing`).length, 1);
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-1 > .second-version .is-missing`).length, 1);
+    assertStrictEqual1(this.$(`.dependency-row.${sameModule}.depth-0 > .first-version-hint`).text().trim(), 'missing');
+    assertStrictEqual2(this.$(`.dependency-row.${sameModule}.depth-0 > .second-version-hint`).text().trim(), 'missing');
+    assertStrictEqual1(this.$(`.dependency-row.${sameModule}.depth-0 > .first-version`).text().trim(), 'missing');
+    assertStrictEqual2(this.$(`.dependency-row.${sameModule}.depth-0 > .second-version`).text().trim(), 'missing');
+    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .first-version-hint .is-missing`).length, 1);
+    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .second-version-hint .is-missing`).length, 1);
+    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .first-version .is-missing`).length, 1);
+    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .second-version .is-missing`).length, 1);
   });
 }
 
@@ -598,10 +598,10 @@ test('hints and versions are same', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-1 > .first-version-hint .hints-are-different`).length, 0);
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-1 > .second-version-hint .hints-are-different`).length, 0);
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-1 > .first-version .versions-are-different`).length, 0);
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-1 > .second-version .versions-are-different`).length, 0);
+    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .first-version-hint .hints-are-different`).length, 0);
+    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .second-version-hint .hints-are-different`).length, 0);
+    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .first-version .versions-are-different`).length, 0);
+    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .second-version .versions-are-different`).length, 0);
   });
 });
 
@@ -651,7 +651,7 @@ test('can show only different', function(assert) {
   render.call(this);
 
   return wait().then(() => {
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-1`).length, 1, 'show same when child is different');
-    assert.strictEqual(this.$(`.dependency-row.${sameChildModule}.depth-2`).length, 0, 'hides same when no child is different');
+    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0`).length, 1, 'show same when child is different');
+    assert.strictEqual(this.$(`.dependency-row.${sameChildModule}.depth-1`).length, 0, 'hides same when no child is different');
   });
 });

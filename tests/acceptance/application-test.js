@@ -142,10 +142,10 @@ test('loads a populated page', function(assert) {
     assert.equal(find('.github-rate-reset').text().trim(), `GitHub API rate reset: in an hour`);
     assert.equal(githubRequestHeaders['Authorization'], `token ${githubAccessToken}`);
 
-    assert.equal(find(`.dependency-row.${module}.depth-1 .module`).text().trim(), module);
-    assert.equal(find(`.dependency-row.${module}.depth-1 .first-version-hint`).text().trim(), versionHint);
-    assert.equal(find(`.dependency-row.${module}.depth-1 .second-version-hint`).text().trim(), versionHint);
-    assert.equal(find(`.dependency-row.${module}.depth-1 .first-version`).text().trim(), version);
-    assert.equal(find(`.dependency-row.${module}.depth-1 .second-version`).text().trim(), version);
+    assert.equal(find(`.dependency-row.${module}.depth-0 .module`).text().trim(), module);
+    assert.equal(find(`.dependency-row.${module}.depth-0 .first-version-hint`).text().trim(), versionHint);
+    assert.equal(find(`.dependency-row.${module}.depth-0 .second-version-hint`).text().trim(), versionHint);
+    assert.equal(find(`.dependency-row.${module}.depth-0 .first-version`).text().trim(), version);
+    assert.equal(find(`.dependency-row.${module}.depth-0 .second-version`).text().trim(), version);
   });
 });
