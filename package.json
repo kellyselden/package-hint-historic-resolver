@@ -52,7 +52,7 @@
     "ember-exam": "0.6.0",
     "ember-fork-me": "1.0.0",
     "ember-load-initializers": "^0.6.0",
-    "ember-lodash": "3.10.0",
+    "ember-lodash": "4.17.0",
     "ember-macro-helpers": "^0.9.0",
     "ember-metrics": "^0.8.0",
     "ember-metrics-mixins": "0.1.0",
