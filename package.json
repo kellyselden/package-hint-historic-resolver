@@ -54,7 +54,7 @@
     "ember-export-application-global": "^1.0.5",
     "ember-fork-me": "1.0.0",
     "ember-load-initializers": "^0.6.0",
-    "ember-lodash": "0.0.11",
+    "ember-lodash": "3.10.0",
     "ember-metrics": "^0.7.0",
     "ember-metrics-mixins": "0.1.0",
     "ember-moment": "^7.0.0",
