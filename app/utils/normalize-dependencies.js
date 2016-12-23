@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import pairs from 'lodash/object/pairs';
+import toPairs from 'lodash/toPairs';
 
 const {
   A: emberA
@@ -7,7 +7,7 @@ const {
 
 export default function normalizeDependencies(dependencies) {
   if (dependencies) {
-    dependencies = pairs(dependencies).map(([module, version]) => {
+    dependencies = toPairs(dependencies).map(([module, version]) => {
       return Ember.Object.create({
         module,
         version
