@@ -247,7 +247,7 @@ test('resolves with expected data', function(assert) {
   });
 });
 
-test('does\'t cache data if request rejects', function(assert) {
+test('doesn\'t cache data if request rejects', function(assert) {
   assert.expect(1);
 
   defaultRawStub.returns(reject());
@@ -259,7 +259,7 @@ test('does\'t cache data if request rejects', function(assert) {
   });
 });
 
-test('does\'t cache data if task cancels', function(assert) {
+test('doesn\'t cache data if task cancels', function(assert) {
   assert.expect(1);
 
   defaultRawStub.returns(RSVP.defer().promise);
