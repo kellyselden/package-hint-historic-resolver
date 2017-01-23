@@ -7,4 +7,7 @@
 
 Why is CI broken? http://package-hint-historic-resolver.herokuapp.com
 
+[![Why is CI Broken?
+](http://i3.ytimg.com/vi/0kDQLcOfLVg/hqdefault.jpg)](https://www.youtube.com/watch?v=0kDQLcOfLVg)
+
 Consumes API [packager-api-wrapper](https://github.com/kellyselden/packager-api-wrapper)
