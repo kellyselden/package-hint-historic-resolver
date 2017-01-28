@@ -1,6 +1,6 @@
 import Ember from 'ember';
 import computed from 'ember-computed-decorators';
-import { and, not } from 'ember-awesome-macros';
+import { and, not, hash } from 'ember-awesome-macros';
 
 const {
   Component,
@@ -16,14 +16,14 @@ export default Component.extend({
 
   // watching dates because even though commits might not change,
   // nested versions might have
-  @computed('firstJson', 'secondJson', 'repoWorkingDate', 'repoBrokenDate')
-  dependencyGroups(firstJson, secondJson, repoWorkingDate, repoBrokenDate) {
-    return get(this, 'treeBuilder').getDependencyGroups({
-      firstJson,
-      secondJson,
-      repoWorkingDate,
-      repoBrokenDate
-    });
+  @computed(hash(
+    'firstJson',
+    'secondJson',
+    'repoWorkingDate',
+    'repoBrokenDate'
+  ))
+  dependencyGroups(hash) {
+    return get(this, 'treeBuilder').getDependencyGroups(hash);
   },
 
   // to reuse the crawling logic
