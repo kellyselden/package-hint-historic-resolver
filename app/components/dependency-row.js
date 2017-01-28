@@ -1,5 +1,6 @@
 import Ember from 'ember';
-import { and, not, neq, sum, computed } from 'ember-awesome-macros';
+import computed from 'ember-macro-helpers/computed';
+import { and, not, neq, sum } from 'ember-awesome-macros';
 
 const {
   Component,

@@ -1,5 +1,6 @@
 import Ember from 'ember';
-import { conditional, raw } from 'ember-awesome-macros';
+import raw from 'ember-macro-helpers/raw';
+import { conditional } from 'ember-awesome-macros';
 
 const {
   Component
