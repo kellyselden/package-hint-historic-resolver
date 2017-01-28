@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import computed from 'ember-computed-decorators';
+import computed from 'ember-macro-helpers/computed';
 import { gt } from 'ember-awesome-macros';
 import { task } from 'ember-concurrency';
 import config from '../config/environment';
@@ -33,13 +33,10 @@ export default Controller.extend({
   firstJson: {},
   secondJson: {},
 
-  @computed('repoWorkingDateSerialized')
-  repoWorkingDate: deserializeDate,
-  @computed('repoBrokenDateSerialized')
-  repoBrokenDate: deserializeDate,
+  repoWorkingDate: computed('repoWorkingDateSerialized', deserializeDate),
+  repoBrokenDate: computed('repoBrokenDateSerialized', deserializeDate),
 
-  @computed('repoUrl')
-  repo: getRepo,
+  repo: computed('repoUrl', getRepo),
 
   areDatesOutOfOrder: gt('repoWorkingDate', 'repoBrokenDate'),
 
