@@ -1,5 +1,5 @@
 import Ember from 'ember';
-import { and, not, equal, sum, computed } from 'ember-awesome-macros';
+import { and, not, neq, sum, computed } from 'ember-awesome-macros';
 
 const {
   Component,
@@ -41,7 +41,7 @@ export default Component.extend({
   areVersionHintsDifferent: and(
     'firstVersionHint',
     'secondVersionHint',
-    not(equal('firstVersionHint', 'secondVersionHint'))
+    neq('firstVersionHint', 'secondVersionHint')
   ),
 
   shouldHideRow: and(
