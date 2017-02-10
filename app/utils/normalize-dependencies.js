@@ -2,7 +2,7 @@ import Ember from 'ember';
 import pairs from 'lodash/object/pairs';
 
 const {
-  A: newArray
+  A: emberA
 } = Ember;
 
 export default function normalizeDependencies(dependencies) {
@@ -17,5 +17,5 @@ export default function normalizeDependencies(dependencies) {
     dependencies = [];
   }
 
-  return newArray(dependencies);
+  return emberA(dependencies);
 }

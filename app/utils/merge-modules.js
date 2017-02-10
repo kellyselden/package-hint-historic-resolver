@@ -1,12 +1,12 @@
 import Ember from 'ember';
 
 const {
-  A: newArray,
+  A: emberA,
   get, set
 } = Ember;
 
 export default function mergeModules(firstDependencies, secondDependencies) {
-  let dependencies = newArray();
+  let dependencies = emberA();
   if (firstDependencies && secondDependencies) {
     firstDependencies.forEach(dep1 => {
       let module = get(dep1, 'module');
