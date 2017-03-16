@@ -7,7 +7,8 @@ const {
   RSVP,
   RSVP: { resolve, reject, Promise },
   run,
-  get
+  get,
+  Service
 } = Ember;
 
 let getStub;
@@ -19,6 +20,7 @@ let defaultRawStub;
 let service;
 
 moduleFor('service:request-cache', 'Unit | Service | request cache', {
+  needs: ['service:adapter'],
   beforeEach() {
     getStub = sinon.stub().returns(null);
     putStub = sinon.stub().returns(45);
@@ -37,23 +39,23 @@ moduleFor('service:request-cache', 'Unit | Service | request cache', {
 });
 
 function subject() {
-  service = this.subject({
-    config: {
-      cacheTime: 34
-    },
-    cache: {
-      get: getStub,
-      put: putStub
-    },
-    limiter: {
-      removeTokens: {
-        perform: removeTokensStub
-      }
-    },
-    defaultAjax: {
-      raw: defaultRawStub
+  this.register('service:config', Service.extend({
+    cacheTime: 34
+  }));
+  this.register('service:cache', Service.extend({
+    get: getStub,
+    put: putStub
+  }));
+  this.register('service:limiter', Service.extend({
+    removeTokens: {
+      perform: removeTokensStub
     }
-  });
+  }));
+  this.register('service:defaultAjax', Service.extend({
+    raw: defaultRawStub
+  }));
+
+  service = this.subject();
 }
 
 function cacheRequest(ajax) {
