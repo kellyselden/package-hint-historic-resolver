@@ -28,7 +28,7 @@
     "ember-awesome-macros": "^0.31.0",
     "ember-browserify": "^1.0.0",
     "ember-checkbox-with-label": "0.2.3",
-    "ember-cli": "2.11.1",
+    "ember-cli": "2.12.1",
     "ember-cli-app-version": "^3.0.0",
     "ember-cli-babel": "^5.1.7",
     "ember-cli-code-coverage": "0.3.11",
@@ -40,13 +40,13 @@
     "ember-cli-inject-live-reload": "^1.4.1",
     "ember-cli-moment-shim": "^3.0.0",
     "ember-cli-pretender": "^1.0.0",
-    "ember-cli-qunit": "^3.0.1",
+    "ember-cli-qunit": "^3.1.0",
     "ember-cli-shims": "^1.0.2",
     "ember-cli-sri": "^2.1.0",
     "ember-cli-uglify": "^1.2.0",
     "ember-computed-decorators": "0.3.0",
     "ember-concurrency": "0.7.19",
-    "ember-data": "^2.11.0",
+    "ember-data": "^2.12.0",
     "ember-data-application-adapter-service": "^1.0.0",
     "ember-datetimepicker": "^1.0.0",
     "ember-exam": "0.6.1",
@@ -67,13 +67,13 @@
     "eslint": "^3.0.0",
     "jquery-datetimepicker": "2.5.4",
     "limiter": "^1.0.0",
-    "loader.js": "^4.0.10",
+    "loader.js": "^4.2.3",
     "memory-cache": "0.1.6",
     "semver": "^5.0.0",
     "torii": "^0.8.0"
   },
   "engines": {
-    "node": ">= 0.12.0"
+    "node": ">= 4"
   },
   "private": true
 }

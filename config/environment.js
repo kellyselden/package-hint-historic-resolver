@@ -1,7 +1,10 @@
-var fs = require('fs');
+/* eslint-env node */
+'use strict';
+
+const fs = require('fs');
 
 module.exports = function(environment) {
-  var contentSecurityPolicy = {
+  let contentSecurityPolicy = {
     'default-src': "'none'",
     'script-src': "'self'",
     'font-src': "'self'",
@@ -20,10 +23,10 @@ module.exports = function(environment) {
   contentSecurityPolicy['style-src'] +=
     ' https://cdnjs.cloudflare.com';
 
-  var packageJson = fs.readFileSync('package.json');
+  let packageJson = fs.readFileSync('package.json');
   packageJson = JSON.parse(packageJson);
 
-  var ENV = {
+  let ENV = {
     modulePrefix: 'package-hint-historic-resolver',
     environment: environment,
     rootURL: '/',
@@ -64,10 +67,10 @@ module.exports = function(environment) {
     }
   };
 
-  var host;
-  var namespace = 'api/v1';
+  let host;
+  let namespace = 'api/v1';
 
-  var testHost = 'http://test-host';
+  let testHost = 'http://test-host';
 
   if (environment === 'development') {
     // ENV.APP.LOG_RESOLVER = true;
@@ -84,7 +87,7 @@ module.exports = function(environment) {
 
     host = 'http://localhost:3000';
 
-    contentSecurityPolicy['connect-src'] += ' ' + testHost;
+    contentSecurityPolicy['connect-src'] += ` ${testHost}`;
   }
 
   if (environment === 'test') {
@@ -106,11 +109,11 @@ module.exports = function(environment) {
   }
 
   contentSecurityPolicy['connect-src'] +=
-    ' ' + host;
+    ` ${host}`;
 
   ENV.APP.host = host;
   ENV.APP.namespace = namespace;
-  ENV.APP.serverApiEndpoint = host + '/' + namespace;
+  ENV.APP.serverApiEndpoint = `${host}/${namespace}`;
 
   return ENV;
 };
