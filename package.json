@@ -51,7 +51,7 @@
     "ember-datetimepicker": "^1.0.0",
     "ember-exam": "0.6.0",
     "ember-fork-me": "1.0.0",
-    "ember-load-initializers": "^0.6.0",
+    "ember-load-initializers": "^1.0.0",
     "ember-lodash": "4.17.2",
     "ember-macro-helpers": "^0.10.0",
     "ember-metrics": "^0.10.0",
