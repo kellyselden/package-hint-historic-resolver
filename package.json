@@ -58,7 +58,7 @@
     "ember-metrics-mixins": "0.1.0",
     "ember-moment": "^7.0.0",
     "ember-percy": "^1.2.1",
-    "ember-resolver": "^3.0.0",
+    "ember-resolver": "^4.0.0",
     "ember-simple-auth": "^1.0.0",
     "ember-sinon": "0.6.0",
     "ember-source": "~2.12.0",
