@@ -49,7 +49,7 @@
     "ember-data": "^2.11.0",
     "ember-data-application-adapter-service": "^1.0.0",
     "ember-datetimepicker": "^1.0.0",
-    "ember-exam": "0.6.0",
+    "ember-exam": "0.6.1",
     "ember-fork-me": "1.0.0",
     "ember-load-initializers": "^1.0.0",
     "ember-lodash": "4.17.2",
