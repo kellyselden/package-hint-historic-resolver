@@ -5,10 +5,6 @@ const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 
 module.exports = function(defaults) {
   let app = new EmberApp(defaults, {
-    'ember-cli-babel': {
-      // ember-concurrency
-      includePolyfill: true
-    },
     babel: {
       // ember-computed-decorators
       optional: ['es7.decorators']
