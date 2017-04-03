@@ -6,7 +6,7 @@ const EmberApp = require('ember-cli/lib/broccoli/ember-app');
 module.exports = function(defaults) {
   let app = new EmberApp(defaults, {
     'ember-cli-babel': {
-      // ember-concurrency
+      // Symbol.iterator needed (array destructuring and for...of)
       includePolyfill: true
     },
     babel: {
