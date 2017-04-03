@@ -1,5 +1,7 @@
 # package-hint-historic-resolver
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/kellyselden/package-hint-historic-resolver.svg)](https://greenkeeper.io/)
+
 [![Build Status](https://travis-ci.org/kellyselden/package-hint-historic-resolver.svg?branch=master)](https://travis-ci.org/kellyselden/package-hint-historic-resolver)
 [![Coverage Status](https://coveralls.io/repos/github/kellyselden/package-hint-historic-resolver/badge.svg?branch=master)](https://coveralls.io/github/kellyselden/package-hint-historic-resolver?branch=master)
 [![Dependency Status](https://gemnasium.com/kellyselden/package-hint-historic-resolver.svg)](https://gemnasium.com/kellyselden/package-hint-historic-resolver)
