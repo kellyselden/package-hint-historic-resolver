@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import computed from 'ember-computed-decorators';
 import AjaxService from 'ember-ajax/services/ajax';
 import computed from 'ember-computed-decorators';
 
