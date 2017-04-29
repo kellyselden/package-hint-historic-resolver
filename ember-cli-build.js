@@ -11,7 +11,7 @@ module.exports = function(defaults) {
     },
     babel: {
       // ember-computed-decorators
-      optional: ['es7.decorators']
+      plugins: ['transform-decorators-legacy']
     }
   });
 
