@@ -16,7 +16,6 @@ branches:
 cache:
   directories:
     - $HOME/.npm
-    - $HOME/.cache # includes bowers cache
 
 env:
   global:
@@ -33,12 +32,11 @@ before_install:
   - export DISPLAY=:99
   - sh -e /etc/init.d/xvfb start
   - npm config set spin false
-  - npm install -g bower
-  - bower --version
+  - npm install -g phantomjs-prebuilt
+  - phantomjs --version
 
 install:
   - npm install
-  - bower install
 
 script:
   - ./scripts/travis.sh
