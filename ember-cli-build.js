@@ -9,9 +9,9 @@ module.exports = function(defaults) {
       // Symbol.iterator needed (array destructuring and for...of)
       includePolyfill: true
     },
-    babel: {
+    babel6: {
       // ember-computed-decorators
-      optional: ['es7.decorators']
+      plugins: ['transform-decorators-legacy']
     }
   });
 
