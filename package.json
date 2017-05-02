@@ -29,7 +29,7 @@
     "ember-awesome-macros": "^0.35.1",
     "ember-browserify": "^1.0.0",
     "ember-checkbox-with-label": "^1.0.0",
-    "ember-cli": "2.13.0",
+    "ember-cli": "2.13.1",
     "ember-cli-app-version": "^3.0.0",
     "ember-cli-babel": "^6.0.0",
     "ember-cli-code-coverage": "0.3.12",
