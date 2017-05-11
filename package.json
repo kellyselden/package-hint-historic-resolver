@@ -23,7 +23,7 @@
     "babel-eslint": "^7.0.0",
     "broccoli-asset-rev": "^2.4.5",
     "coveralls": "^2.0.0",
-    "cross-env": "^4.0.0",
+    "cross-env": "^5.0.0",
     "ember-ajax": "^3.0.0",
     "ember-awesome-macros": "^0.35.1",
     "ember-browserify": "^1.0.0",
