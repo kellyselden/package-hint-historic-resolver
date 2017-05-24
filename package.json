@@ -71,7 +71,7 @@
     "loader.js": "^4.2.3",
     "memory-cache": "0.1.6",
     "semver": "^5.0.0",
-    "torii": "^0.9.1"
+    "torii": "^0.9.2"
   },
   "engines": {
     "node": ">= 4"
