@@ -16,8 +16,6 @@ export default Route.extend(ApplicationRouteMixin, {
   setupController(controller) {
     this._super(...arguments);
 
-    controller.rebuild();
-
     get(this, 'getGithubClientId').perform(controller);
   },
 

@@ -40,7 +40,7 @@ export default Controller.extend({
 
   areDatesOutOfOrder: gt('repoWorkingDate', 'repoBrokenDate'),
 
-  rebuild() {
+  setup() {
     this._rebuildWorking();
     this._rebuildBroken();
   },
