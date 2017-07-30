@@ -57,7 +57,7 @@
     "ember-macro-helpers": "^0.16.0",
     "ember-metrics": "^0.12.0",
     "ember-metrics-mixins": "^0.2.2",
-    "ember-moment": "^7.0.0",
+    "ember-moment": "^7.4.1",
     "ember-percy": "^1.2.1",
     "ember-resolver": "^4.0.0",
     "ember-simple-auth": "^1.0.0",
