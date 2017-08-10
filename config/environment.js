@@ -28,7 +28,7 @@ module.exports = function(environment) {
 
   let ENV = {
     modulePrefix: 'package-hint-historic-resolver',
-    environment: environment,
+    environment,
     rootURL: '/',
     locationType: 'auto',
     EmberENV: {
