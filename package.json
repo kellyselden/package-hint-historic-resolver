@@ -61,7 +61,7 @@
     "ember-percy": "^1.2.1",
     "ember-resolver": "^4.0.0",
     "ember-simple-auth": "^1.0.0",
-    "ember-sinon": "0.7.0",
+    "ember-sinon": "1.0.0",
     "ember-source": "~2.14.1",
     "ember-test-helpers": "kellyselden/ember-test-helpers#waitForTimersAndIntervals",
     "ember-wait-for-test-helper": "^2.0.0",
