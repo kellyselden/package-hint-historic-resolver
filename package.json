@@ -17,7 +17,7 @@
     "lint": "eslint app tests",
     "lint:fix": "npm run lint -- --fix",
     "cover": "cross-env COVERAGE=true npm run test:base --",
-    "travis": "npm run cover -- --split 5 --partition $PARTITION --random $SEED"
+    "travis": "npm run test:base -- --split 5 --partition $PARTITION --random $SEED"
   },
   "devDependencies": {
     "babel-eslint": "^8.0.0",
@@ -29,7 +29,7 @@
     "ember-awesome-macros": "^0.40.0",
     "ember-browserify": "^1.0.0",
     "ember-checkbox-with-label": "^1.0.0",
-    "ember-cli": "~2.14.2",
+    "ember-cli": "~2.15.1",
     "ember-cli-app-version": "^3.0.0",
     "ember-cli-babel": "^6.3.0",
     "ember-cli-code-coverage": "^0.4.0",
@@ -37,7 +37,7 @@
     "ember-cli-dependency-checker": "^2.0.0",
     "ember-cli-eslint": "^4.0.0",
     "ember-cli-htmlbars": "^2.0.1",
-    "ember-cli-htmlbars-inline-precompile": "^0.4.3",
+    "ember-cli-htmlbars-inline-precompile": "^1.0.0",
     "ember-cli-inject-live-reload": "^1.4.1",
     "ember-cli-moment-shim": "^3.0.0",
     "ember-cli-pretender": "^1.0.0",
