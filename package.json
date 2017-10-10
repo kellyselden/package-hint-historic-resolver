@@ -62,7 +62,7 @@
     "ember-resolver": "^4.0.0",
     "ember-simple-auth": "^1.0.0",
     "ember-sinon": "^1.0.0",
-    "ember-source": "~2.15.0",
+    "ember-source": "~2.16.0",
     "ember-test-helpers": "kellyselden/ember-test-helpers#waitForTimersAndIntervals",
     "ember-wait-for-test-helper": "^2.0.0",
     "eslint": "^4.0.0",
