@@ -1,14 +1,10 @@
-import Ember from 'ember';
+import Route from '@ember/routing/route';
+import { inject as service } from '@ember/service';
+import { scheduleOnce } from '@ember/runloop';
+import { setProperties, get } from '@ember/object';
 import ApplicationRouteMixin from 'ember-simple-auth/mixins/application-route-mixin';
 import { task } from 'ember-concurrency';
 import config from '../config/environment';
-
-const {
-  Route,
-  inject: { service },
-  run: { scheduleOnce },
-  get, setProperties
-} = Ember;
 
 export default Route.extend(ApplicationRouteMixin, {
   adapter: service(),

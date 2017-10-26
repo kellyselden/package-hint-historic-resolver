@@ -1,14 +1,9 @@
-import Ember from 'ember';
+import Service, { inject as service } from '@ember/service';
+import { get } from '@ember/object';
 import { task } from 'ember-concurrency';
 import moment from 'moment';
 import toPairs from 'lodash/toPairs';
 import normalizeDependencies from '../utils/normalize-dependencies';
-
-const {
-  Service,
-  inject: { service },
-  get
-} = Ember;
 
 export default Service.extend({
   requestCache: service(),

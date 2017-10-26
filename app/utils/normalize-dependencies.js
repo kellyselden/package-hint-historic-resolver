@@ -1,14 +1,11 @@
-import Ember from 'ember';
+import EmberObject from '@ember/object';
+import { A as emberA } from '@ember/array';
 import toPairs from 'lodash/toPairs';
-
-const {
-  A: emberA
-} = Ember;
 
 export default function normalizeDependencies(dependencies) {
   if (dependencies) {
     dependencies = toPairs(dependencies).map(([module, version]) => {
-      return Ember.Object.create({
+      return EmberObject.create({
         module,
         version
       });

@@ -1,16 +1,12 @@
-import Ember from 'ember';
+import $ from 'jquery';
+import Service from '@ember/service';
+import { Promise, all } from 'rsvp';
+import { run } from '@ember/runloop';
+import { set, get } from '@ember/object';
 import { moduleFor, test } from 'ember-qunit';
 import Pretender from 'pretender';
 import cache from 'npm:memory-cache';
 import AjaxService from 'ember-ajax/services/ajax';
-
-const {
-  $,
-  Service,
-  RSVP: { all, Promise },
-  run,
-  get, set
-} = Ember;
 
 const ConfigService = Service.extend({
   limiterTime: 1

@@ -1,17 +1,12 @@
-import Ember from 'ember';
+import { Promise } from 'rsvp';
+import { set, get } from '@ember/object';
+import { readOnly } from '@ember/object/computed';
+import Service, { inject as service } from '@ember/service';
+import { cancel, later, run } from '@ember/runloop';
 import { task } from 'ember-concurrency';
 import nodeRateLimiter from 'npm:limiter';
 import config from '../config/environment';
 
-const {
-  Service,
-  RSVP: { Promise },
-  get, set,
-  computed: { readOnly },
-  inject: { service },
-  run,
-  run: { later, cancel }
-} = Ember;
 const { RateLimiter } = nodeRateLimiter;
 const isTestEnvironment = config.environment === 'test';
 

@@ -1,15 +1,10 @@
-import Ember from 'ember';
+import $ from 'jquery';
+import RSVP, { Promise, reject, resolve } from 'rsvp';
+import { run } from '@ember/runloop';
+import { get } from '@ember/object';
+import Service from '@ember/service';
 import { moduleFor, test } from 'ember-qunit';
 import sinon from 'sinon';
-
-const {
-  $,
-  RSVP,
-  RSVP: { resolve, reject, Promise },
-  run,
-  get,
-  Service
-} = Ember;
 
 let getStub;
 let putStub;

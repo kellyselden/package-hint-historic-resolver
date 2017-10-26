@@ -1,10 +1,6 @@
-import Ember from 'ember';
+import $ from 'jquery';
 import wait from 'ember-test-helpers/wait';
 import { waitFor } from 'ember-wait-for-test-helper/wait-for';
-
-const {
-  $
-} = Ember;
 
 let context = 'body';
 let datePickerSelector = '.xdsoft_datetimepicker:visible';

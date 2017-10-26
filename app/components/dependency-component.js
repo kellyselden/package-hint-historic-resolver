@@ -1,13 +1,9 @@
-import Ember from 'ember';
+import Component from '@ember/component';
+import { inject as service } from '@ember/service';
+import { get } from '@ember/object';
+import { readOnly } from '@ember/object/computed';
 import computed from 'ember-computed-decorators';
 import { and, not, hash } from 'ember-awesome-macros';
-
-const {
-  Component,
-  inject: { service },
-  get,
-  computed: { readOnly }
-} = Ember;
 
 export default Component.extend({
   treeBuilder: service(),

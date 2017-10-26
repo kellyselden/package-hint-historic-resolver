@@ -1,16 +1,12 @@
-import Ember from 'ember';
-
-const {
-  A: emberA,
-  get, set
-} = Ember;
+import { A as emberA } from '@ember/array';
+import EmberObject, { set, get } from '@ember/object';
 
 export default function mergeModules(firstDependencies, secondDependencies) {
   let dependencies = emberA();
   if (firstDependencies && secondDependencies) {
     firstDependencies.forEach(dep1 => {
       let module = get(dep1, 'module');
-      let dep = Ember.Object.create({
+      let dep = EmberObject.create({
         module,
         firstVersionHint: get(dep1, 'version')
       });
@@ -26,7 +22,7 @@ export default function mergeModules(firstDependencies, secondDependencies) {
       if (dep1) {
         return;
       }
-      dependencies.pushObject(Ember.Object.create({
+      dependencies.pushObject(EmberObject.create({
         module,
         secondVersionHint: get(dep2, 'version')
       }));

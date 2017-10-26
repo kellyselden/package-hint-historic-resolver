@@ -1,13 +1,8 @@
-import Ember from 'ember';
+import { get } from '@ember/object';
+import { readOnly } from '@ember/object/computed';
+import Service, { inject as service } from '@ember/service';
 import { task } from 'ember-concurrency';
 import parseResponseHeaders from '../utils/parse-response-headers';
-
-const {
-  Service,
-  get,
-  computed: { readOnly },
-  inject: { service }
-} = Ember;
 
 export default Service.extend({
   config: service(),

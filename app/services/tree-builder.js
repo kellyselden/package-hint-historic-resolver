@@ -1,18 +1,17 @@
-import Ember from 'ember';
+import Service, { inject as service } from '@ember/service';
+import { or, not } from '@ember/object/computed';
+import EmberObject, {
+  setProperties,
+  set,
+  get
+} from '@ember/object';
+import { merge } from '@ember/polyfills';
 import { task } from 'ember-concurrency';
 import computed from 'ember-computed-decorators';
 import { array as promiseArray } from 'ember-awesome-macros/promise';
 import normalizeDependencies from '../utils/normalize-dependencies';
 import mergeModules from '../utils/merge-modules';
 import getRealVersion from '../utils/get-real-version';
-
-const {
-  Service,
-  inject: { service },
-  computed: { not, or },
-  get, set, setProperties,
-  merge
-} = Ember;
 
 const groups = [
   ['Dependencies', 'dependencies'],
@@ -44,7 +43,7 @@ export default Service.extend({
         repoBrokenDate
       });
 
-      let dependencyGroup = Ember.Object.create({
+      let dependencyGroup = EmberObject.create({
         title,
         dependencies
       });
