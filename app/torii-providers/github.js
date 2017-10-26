@@ -1,10 +1,6 @@
-import Ember from 'ember';
+import { inject as service } from '@ember/service';
+import { get } from '@ember/object';
 import GithubOauth2Provider from 'torii/providers/github-oauth2';
-
-const {
-  inject: { service },
-  get
-} = Ember;
 
 export default GithubOauth2Provider.extend({
   adapter: service(),

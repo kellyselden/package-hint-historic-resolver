@@ -1,9 +1,5 @@
-import Ember from 'ember';
+import Service from '@ember/service';
 import cache from 'npm:memory-cache';
-
-const {
-  Service
-} = Ember;
 
 export default Service.extend({
   get() {

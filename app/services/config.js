@@ -1,9 +1,5 @@
-import Ember from 'ember';
+import Service from '@ember/service';
 import config from '../config/environment';
-
-const {
-  Service
-} = Ember;
 
 const { serverApiEndpoint } = config.APP;
 

@@ -1,9 +1,5 @@
-import Ember from 'ember';
-
-const {
-  Component,
-  computed: { readOnly }
-} = Ember;
+import Component from '@ember/component';
+import { readOnly } from '@ember/object/computed';
 
 export default Component.extend({
   title:        readOnly('dependencyGroup.title'),

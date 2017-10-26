@@ -1,11 +1,7 @@
-import Ember from 'ember';
+import Component from '@ember/component';
+import { readOnly } from '@ember/object/computed';
 import computed from 'ember-macro-helpers/computed';
 import { and, not, neq, sum } from 'ember-awesome-macros';
-
-const {
-  Component,
-  computed: { readOnly }
-} = Ember;
 
 export default Component.extend({
   tagName: '',
