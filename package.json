@@ -64,7 +64,7 @@
     "ember-sinon": "^1.0.0",
     "ember-source": "~2.18.0",
     "ember-test-helpers": "kellyselden/ember-test-helpers#waitForTimersAndIntervals",
-    "ember-wait-for-test-helper": "^2.0.0",
+    "ember-wait-for-test-helper": "^3.0.0",
     "eslint": "^4.0.0",
     "jquery-datetimepicker": "2.5.14",
     "limiter": "^1.0.0",
