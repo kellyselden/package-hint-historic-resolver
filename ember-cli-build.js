@@ -8,10 +8,6 @@ module.exports = function(defaults) {
     'ember-cli-babel': {
       // Symbol.iterator needed (array destructuring and for...of)
       includePolyfill: true
-    },
-    babel: {
-      // ember-computed-decorators
-      plugins: ['transform-decorators-legacy']
     }
   });
 
