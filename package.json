@@ -54,7 +54,7 @@
     "ember-fork-me": "^1.0.0",
     "ember-load-initializers": "^1.0.0",
     "ember-lodash": "4.18.0",
-    "ember-macro-helpers": "^0.18.0",
+    "ember-macro-helpers": "^0.20.0",
     "ember-metrics": "^0.12.0",
     "ember-metrics-mixins": "^0.4.0",
     "ember-moment": "^7.4.1",
