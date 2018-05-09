@@ -7,7 +7,7 @@ import EmberObject, {
 } from '@ember/object';
 import { merge } from '@ember/polyfills';
 import { task } from 'ember-concurrency';
-import computed from 'ember-computed-decorators';
+import autoComputed from '@ember-decorators/auto-computed';
 import { array as promiseArray } from 'ember-awesome-macros/promise';
 import normalizeDependencies from '../utils/normalize-dependencies';
 import mergeModules from '../utils/merge-modules';
@@ -220,7 +220,7 @@ export default Service.extend({
 
   setupComputeds(dependency, shouldSetupVersions = true) {
     let props = {
-      @computed('firstVersion', 'secondVersion')
+      @autoComputed('firstVersion', 'secondVersion')
       areVersionsDifferent(firstVersion, secondVersion) {
         if (!firstVersion || !secondVersion) {
           return false;
@@ -229,7 +229,7 @@ export default Service.extend({
         return firstVersion !== secondVersion;
       },
 
-      @computed('isSomethingWrong', 'dependencies.@each.numberOfDifferences')
+      @autoComputed('isSomethingWrong', 'dependencies.@each.numberOfDifferences')
       numberOfDifferences(isSomethingWrong, dependencies) {
         let initialValue = isSomethingWrong ? 1 : 0;
 
@@ -244,7 +244,7 @@ export default Service.extend({
         return numberOfDifferences;
       },
 
-      @computed('dependencies.@each.isDoneCrawling')
+      @autoComputed('dependencies.@each.isDoneCrawling')
       isDoneCrawling(dependencies) {
         if (get(dependencies, 'promise') && !get(dependencies, 'isFulfilled')) {
           return false;

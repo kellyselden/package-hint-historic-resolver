@@ -2,7 +2,7 @@ import Component from '@ember/component';
 import { inject as service } from '@ember/service';
 import { get } from '@ember/object';
 import { readOnly } from '@ember/object/computed';
-import computed from 'ember-computed-decorators';
+import autoComputed from '@ember-decorators/auto-computed';
 import { and, not, hash } from 'ember-awesome-macros';
 
 export default Component.extend({
@@ -12,7 +12,7 @@ export default Component.extend({
 
   // watching dates because even though commits might not change,
   // nested versions might have
-  @computed(hash(
+  @autoComputed(hash(
     'firstJson',
     'secondJson',
     'repoWorkingDate',

@@ -1,6 +1,5 @@
 import Component from '@ember/component';
-import raw from 'ember-macro-helpers/raw';
-import { conditional } from 'ember-awesome-macros';
+import { conditional, raw } from 'ember-awesome-macros';
 
 const MyComponent = Component.extend({
   classNames: ['version-display'],

@@ -1,7 +1,6 @@
 import Component from '@ember/component';
 import { readOnly } from '@ember/object/computed';
-import computed from 'ember-macro-helpers/computed';
-import { and, not, neq, sum } from 'ember-awesome-macros';
+import { and, not, neq, sum, computed } from 'ember-awesome-macros';
 
 export default Component.extend({
   tagName: '',

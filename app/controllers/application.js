@@ -1,8 +1,7 @@
 import Controller from '@ember/controller';
 import { inject as service } from '@ember/service';
 import { setProperties, set, get } from '@ember/object';
-import computed from 'ember-macro-helpers/computed';
-import { gt } from 'ember-awesome-macros';
+import { gt, computed } from 'ember-awesome-macros';
 import { task } from 'ember-concurrency';
 import config from '../config/environment';
 import getRepo from '../utils/get-repo';
