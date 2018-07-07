@@ -1,41 +1,43 @@
-import { moduleForComponent, test } from 'ember-qunit';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
+import { render, findAll, find } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
 
-moduleForComponent('version-display', 'Integration | Component | version display', {
-  integration: true
-});
+module('Integration | Component | version display', function(hooks) {
+  setupRenderingTest(hooks);
 
-test('it has a class', function(assert) {
-  this.render(hbs`{{version-display}}`);
+  test('it has a class', async function(assert) {
+    await render(hbs`{{version-display}}`);
 
-  assert.strictEqual(this.$('.version-display').length, 1);
-});
+    assert.strictEqual(findAll('.version-display').length, 1);
+  });
 
-test('it shows version', function(assert) {
-  this.render(hbs`{{version-display "test version"}}`);
+  test('it shows version', async function(assert) {
+    await render(hbs`{{version-display "test version"}}`);
 
-  assert.strictEqual(this.$().text().trim(), 'test version');
-});
+    assert.strictEqual(find('*').textContent.trim(), 'test version');
+  });
 
-test('it shows different versions class', function(assert) {
-  this.render(hbs`
-    {{version-display
-      areVersionsDifferent=true
-      areVersionsDifferentClass="test-class"
-    }}
-  `);
+  test('it shows different versions class', async function(assert) {
+    await render(hbs`
+      {{version-display
+        areVersionsDifferent=true
+        areVersionsDifferentClass="test-class"
+      }}
+    `);
 
-  assert.ok(this.$().find('.test-class').length);
-});
+    assert.ok(this.$().find('.test-class').length);
+  });
 
-test('it shows missing text', function(assert) {
-  this.render(hbs`{{version-display isMissing=true}}`);
+  test('it shows missing text', async function(assert) {
+    await render(hbs`{{version-display isMissing=true}}`);
 
-  assert.strictEqual(this.$().text().trim(), 'missing');
-});
+    assert.strictEqual(find('*').textContent.trim(), 'missing');
+  });
 
-test('it has missing class', function(assert) {
-  this.render(hbs`{{version-display isOneMissing=true}}`);
+  test('it has missing class', async function(assert) {
+    await render(hbs`{{version-display isOneMissing=true}}`);
 
-  assert.ok(this.$().find('.is-missing').length);
+    assert.ok(this.$().find('.is-missing').length);
+  });
 });

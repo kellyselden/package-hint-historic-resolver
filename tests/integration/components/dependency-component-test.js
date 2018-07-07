@@ -1,13 +1,14 @@
-import { moduleForComponent, test } from 'ember-qunit';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
+import { settled, click, find, findAll, fillIn } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import waitWithoutTimeoutsAndIntervals from 'ember-test-helpers/wait';
 import cache from 'npm:memory-cache';
 import Pretender from 'pretender';
 import sinon from 'sinon';
 import testDateChange from '../../helpers/test-date-change';
 
 function wait() {
-  return waitWithoutTimeoutsAndIntervals({ waitForTimersAndIntervals: false });
+  return settled({ waitForTimersAndIntervals: false });
 }
 
 let server;
@@ -97,9 +98,10 @@ let diffChildSecondDependenciesCallback;
 let diffChildSecondDependenciesBody;
 let diffChildSecondDependenciesResponse;
 
-moduleForComponent('dependency-component', 'Integration | Component | dependency component', {
-  integration: true,
-  beforeEach() {
+module('Integration | Component | dependency component', function(hooks) {
+  setupRenderingTest(hooks);
+
+  hooks.beforeEach(function() {
     server = new Pretender();
     server.prepareBody = JSON.stringify;
 
@@ -211,447 +213,448 @@ moduleForComponent('dependency-component', 'Integration | Component | dependency
     diffChildFirstDependenciesResponse  = () => [200, {}, diffChildFirstDependenciesBody];
     diffChildSecondDependenciesResponse = () => [200, {}, diffChildSecondDependenciesBody];
 
-    this.inject.service('config', { as: 'config' });
+    this.config = this.owner.lookup('service:config');
     // this.set('config.cacheTime', 10);
     this.set('config.limiterTime', 0);
-  },
-  afterEach() {
+  });
+
+  hooks.afterEach(function() {
     server.shutdown();
 
     cache.clear();
+  });
+
+  function render() {
+    this.set('repoUrl', repoUrl);
+    this.set('repo', repo);
+    this.set('repoWorkingDate', repoWorkingDate);
+    this.set('repoWorkingDateError', repoWorkingDateError);
+    this.set('repoBrokenDate', repoBrokenDate);
+    this.set('repoBrokenDateError', repoBrokenDateError);
+    this.set('firstCommit', firstCommit);
+    this.set('firstCommitDate', firstCommitDate);
+    this.set('firstCommitError', firstCommitError);
+    this.set('secondCommit', secondCommit);
+    this.set('secondCommitDate', secondCommitDate);
+    this.set('secondCommitError', secondCommitError);
+    this.set('areDatesOutOfOrder', areDatesOutOfOrder);
+    this.set('firstJson', firstJson);
+    this.set('secondJson', secondJson);
+    this.set('shouldOnlyShowDifferent', shouldOnlyShowDifferent);
+
+    this.on('updateRepoUrl', updateRepoUrl);
+    this.on('updateRepoWorkingDate', updateRepoWorkingDate);
+    this.on('updateRepoBrokenDate', updateRepoBrokenDate);
+    this.on('updateShouldOnlyShowDifferent', updateShouldOnlyShowDifferent);
+
+    server.get(sameVersionsUrl, function() {
+      sameVersionsCallback(...arguments);
+      return sameVersionsResponse(...arguments);
+    });
+    server.get(sameDependenciesUrl, function() {
+      sameDependenciesCallback(...arguments);
+      return sameDependenciesResponse(...arguments);
+    });
+    server.get(diffVersionsUrl, function() {
+      diffVersionsCallback(...arguments);
+      return diffVersionsResponse(...arguments);
+    });
+    server.get(diffFirstDependenciesUrl, function() {
+      diffFirstDependenciesCallback(...arguments);
+      return diffFirstDependenciesResponse(...arguments);
+    });
+    server.get(diffSecondDependenciesUrl, function() {
+      diffSecondDependenciesCallback(...arguments);
+      return diffSecondDependenciesResponse(...arguments);
+    });
+    server.get(sameChildVersionsUrl, function() {
+      sameChildVersionsCallback(...arguments);
+      return sameChildVersionsResponse(...arguments);
+    });
+    server.get(sameChildDependenciesUrl, function() {
+      sameChildDependenciesCallback(...arguments);
+      return sameChildDependenciesResponse(...arguments);
+    });
+    server.get(diffChildVersionsUrl, function() {
+      diffChildVersionsCallback(...arguments);
+      return diffChildVersionsResponse(...arguments);
+    });
+    server.get(diffChildFirstDependenciesUrl, function() {
+      diffChildFirstDependenciesCallback(...arguments);
+      return diffChildFirstDependenciesResponse(...arguments);
+    });
+    server.get(diffChildSecondDependenciesUrl, function() {
+      diffChildSecondDependenciesCallback(...arguments);
+      return diffChildSecondDependenciesResponse(...arguments);
+    });
+
+    this.render(hbs`
+      {{dependency-component
+        repoUrl=repoUrl
+        repo=repo
+        repoWorkingDate=repoWorkingDate
+        repoWorkingDateError=repoWorkingDateError
+        repoBrokenDate=repoBrokenDate
+        repoBrokenDateError=repoBrokenDateError
+        firstCommit=firstCommit
+        firstCommitDate=firstCommitDate
+        firstCommitError=firstCommitError
+        secondCommit=secondCommit
+        secondCommitDate=secondCommitDate
+        secondCommitError=secondCommitError
+        areDatesOutOfOrder=areDatesOutOfOrder
+        firstJson=firstJson
+        secondJson=secondJson
+        shouldOnlyShowDifferent=shouldOnlyShowDifferent
+        repoUrlUpdated="updateRepoUrl"
+        repoWorkingDateUpdated="updateRepoWorkingDate"
+        repoBrokenDateUpdated="updateRepoBrokenDate"
+        shouldOnlyShowDifferentUpdated=(action "updateShouldOnlyShowDifferent")
+      }}
+    `);
   }
-});
 
-function render() {
-  this.set('repoUrl', repoUrl);
-  this.set('repo', repo);
-  this.set('repoWorkingDate', repoWorkingDate);
-  this.set('repoWorkingDateError', repoWorkingDateError);
-  this.set('repoBrokenDate', repoBrokenDate);
-  this.set('repoBrokenDateError', repoBrokenDateError);
-  this.set('firstCommit', firstCommit);
-  this.set('firstCommitDate', firstCommitDate);
-  this.set('firstCommitError', firstCommitError);
-  this.set('secondCommit', secondCommit);
-  this.set('secondCommitDate', secondCommitDate);
-  this.set('secondCommitError', secondCommitError);
-  this.set('areDatesOutOfOrder', areDatesOutOfOrder);
-  this.set('firstJson', firstJson);
-  this.set('secondJson', secondJson);
-  this.set('shouldOnlyShowDifferent', shouldOnlyShowDifferent);
-
-  this.on('updateRepoUrl', updateRepoUrl);
-  this.on('updateRepoWorkingDate', updateRepoWorkingDate);
-  this.on('updateRepoBrokenDate', updateRepoBrokenDate);
-  this.on('updateShouldOnlyShowDifferent', updateShouldOnlyShowDifferent);
-
-  server.get(sameVersionsUrl, function() {
-    sameVersionsCallback(...arguments);
-    return sameVersionsResponse(...arguments);
-  });
-  server.get(sameDependenciesUrl, function() {
-    sameDependenciesCallback(...arguments);
-    return sameDependenciesResponse(...arguments);
-  });
-  server.get(diffVersionsUrl, function() {
-    diffVersionsCallback(...arguments);
-    return diffVersionsResponse(...arguments);
-  });
-  server.get(diffFirstDependenciesUrl, function() {
-    diffFirstDependenciesCallback(...arguments);
-    return diffFirstDependenciesResponse(...arguments);
-  });
-  server.get(diffSecondDependenciesUrl, function() {
-    diffSecondDependenciesCallback(...arguments);
-    return diffSecondDependenciesResponse(...arguments);
-  });
-  server.get(sameChildVersionsUrl, function() {
-    sameChildVersionsCallback(...arguments);
-    return sameChildVersionsResponse(...arguments);
-  });
-  server.get(sameChildDependenciesUrl, function() {
-    sameChildDependenciesCallback(...arguments);
-    return sameChildDependenciesResponse(...arguments);
-  });
-  server.get(diffChildVersionsUrl, function() {
-    diffChildVersionsCallback(...arguments);
-    return diffChildVersionsResponse(...arguments);
-  });
-  server.get(diffChildFirstDependenciesUrl, function() {
-    diffChildFirstDependenciesCallback(...arguments);
-    return diffChildFirstDependenciesResponse(...arguments);
-  });
-  server.get(diffChildSecondDependenciesUrl, function() {
-    diffChildSecondDependenciesCallback(...arguments);
-    return diffChildSecondDependenciesResponse(...arguments);
-  });
-
-  this.render(hbs`
-    {{dependency-component
-      repoUrl=repoUrl
-      repo=repo
-      repoWorkingDate=repoWorkingDate
-      repoWorkingDateError=repoWorkingDateError
-      repoBrokenDate=repoBrokenDate
-      repoBrokenDateError=repoBrokenDateError
-      firstCommit=firstCommit
-      firstCommitDate=firstCommitDate
-      firstCommitError=firstCommitError
-      secondCommit=secondCommit
-      secondCommitDate=secondCommitDate
-      secondCommitError=secondCommitError
-      areDatesOutOfOrder=areDatesOutOfOrder
-      firstJson=firstJson
-      secondJson=secondJson
-      shouldOnlyShowDifferent=shouldOnlyShowDifferent
-      repoUrlUpdated="updateRepoUrl"
-      repoWorkingDateUpdated="updateRepoWorkingDate"
-      repoBrokenDateUpdated="updateRepoBrokenDate"
-      shouldOnlyShowDifferentUpdated=(action "updateShouldOnlyShowDifferent")
-    }}
-  `);
-}
-
-function testDefault(assert) {
-  assert.expect(63);
-
-  return wait().then(() => {
-    assert.strictEqual(this.$('.repo-url').val(), repoUrl);
-    assert.strictEqual(this.$('.repo').text().trim(), repo);
-    assert.strictEqual(this.$('.repo-error').length, 0);
-    assert.strictEqual(this.$('.repo-working-date .date-time-picker').val(), '2015/02/02 0:00');
-    assert.strictEqual(this.$('.repo-broken-date .date-time-picker').val(), '2015/04/02 0:00');
-    assert.strictEqual(this.$('.repo-working-date .commit').text().trim(), `Latest commit ${firstCommit} on ${firstCommitDate}`);
-    assert.strictEqual(this.$('.repo-broken-date .commit').text().trim(), `Latest commit ${secondCommit} on ${secondCommitDate}`);
-    assert.strictEqual(this.$('.crawling-section').length, 1);
-    let testRow = (
-      prefix,
-      module,
-      firstVersionHint,
-      secondVersionHint,
-      firstVersion,
-      secondVersion
-    ) => {
-      assert.strictEqual(this.$(`${prefix} > .module`).text().trim(), module);
-      assert.strictEqual(this.$(`${prefix} > .first-version-hint`).text().trim(), firstVersionHint);
-      assert.strictEqual(this.$(`${prefix} > .second-version-hint`).text().trim(), secondVersionHint);
-      assert.strictEqual(this.$(`${prefix} > .first-version`).text().trim(), firstVersion);
-      assert.strictEqual(this.$(`${prefix} > .second-version`).text().trim(), secondVersion);
-      assert.strictEqual(this.$(`${prefix} > .first-version-hint .is-missing`).length, 0);
-      assert.strictEqual(this.$(`${prefix} > .second-version-hint .is-missing`).length, 0);
-      assert.strictEqual(this.$(`${prefix} > .first-version .is-missing`).length, 0);
-      assert.strictEqual(this.$(`${prefix} > .second-version .is-missing`).length, 0);
-      assert.strictEqual(this.$(`${prefix} > .first-version-hint .hints-are-different`).length, firstVersionHint === secondVersionHint ? 0 : 1);
-      assert.strictEqual(this.$(`${prefix} > .second-version-hint .hints-are-different`).length, firstVersionHint === secondVersionHint ? 0 : 1);
-      assert.strictEqual(this.$(`${prefix} > .first-version .versions-are-different`).length, firstVersion === secondVersion ? 0 : 1);
-      assert.strictEqual(this.$(`${prefix} > .second-version .versions-are-different`).length, firstVersion === secondVersion ? 0 : 1);
-    };
-    testRow(`.dependency-row.${sameModule}.depth-0`, sameModule, sameVersionHint, sameVersionHint, sameVersion, sameVersion);
-    testRow(`.dependency-row.${diffModule}.depth-0`, diffModule, diffFirstVersionHint, diffSecondVersionHint, diffFirstVersion, diffSecondVersion);
-    testRow(`.dependency-row.${sameChildModule}.depth-1`, sameChildModule, sameChildVersionHint, sameChildVersionHint, sameChildVersion, sameChildVersion);
-    testRow(`.dependency-row.${diffChildModule}.depth-1:last`, diffChildModule, diffChildFirstVersionHint, diffChildSecondVersionHint, diffChildFirstVersion, diffChildSecondVersion);
-    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-2 > .first-version .circular-reference`).length, 1);
-    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-2 > .second-version .circular-reference`).length, 1);
-    assert.strictEqual(this.$('.done-crawling').length, 1);
-  });
-}
-
-test('shows defaults', function(assert) {
-  render.call(this);
-
-  return testDefault.call(this, assert);
-});
-
-test('shows repo error', function(assert) {
-  assert.expect(3);
-
-  repo = null;
-
-  render.call(this);
-
-  return wait().then(() => {
-    assert.strictEqual(this.$('.repo-error').text().trim(), `Could not parse Repo URL: ${repoUrl}`);
-    assert.strictEqual(this.$('.repo').length, 0);
-    assert.strictEqual(this.$('.crawling-section').length, 0);
-  });
-});
-
-test('sends repo updated event', function(assert) {
-  assert.expect(1);
-
-  render.call(this);
-
-  repoUrl += ' new';
-  this.$('.repo-url').val(repoUrl).trigger('change');
-
-  return wait().then(() => {
-    assert.deepEqual(updateRepoUrl.args, [[repoUrl]]);
-  });
-});
-
-test('sends working date update event', function(assert) {
-  return testDateChange(
-    assert,
-    render.bind(this),
-    '.repo-working-date .date-time-picker',
-    repoWorkingDate,
-    updateRepoWorkingDate
-  );
-});
-
-test('sends broken date update event', function(assert) {
-  return testDateChange(
-    assert,
-    render.bind(this),
-    '.repo-broken-date .date-time-picker',
-    repoBrokenDate,
-    updateRepoBrokenDate
-  );
-});
-
-test('sends show different event', function(assert) {
-  assert.expect(1);
-
-  render.call(this);
-
-  this.$('.checkbox-with-label').click();
-
-  return wait().then(() => {
-    assert.deepEqual(updateShouldOnlyShowDifferent.args, [[true]]);
-  });
-});
-
-function testRepoDateError(assert, render, repoDateError, cssClass) {
-  assert.expect(2);
-
-  render.call(this);
-
-  return wait().then(() => {
-    assert.strictEqual(this.$(`${cssClass} .repo-date-error`).text().trim(), `Error getting package.json: ${repoDateError}`);
-    assert.strictEqual(this.$('.crawling-section').length, 0);
-  });
-}
-
-test('shows repo working date error', function(assert) {
-  repoWorkingDateError = 'test repo working date error';
-
-  return testRepoDateError.call(
-    this,
-    assert,
-    render,
-    repoWorkingDateError,
-    '.repo-working-date'
-  );
-});
-
-test('shows repo broken date error', function(assert) {
-  repoBrokenDateError = 'test repo broken date error';
-
-  return testRepoDateError.call(
-    this,
-    assert,
-    render,
-    repoBrokenDateError,
-    '.repo-broken-date'
-  );
-});
-
-function testCommitError(assert, render, commitError, cssClass) {
-  assert.expect(3);
-
-  render.call(this);
-
-  return wait().then(() => {
-    assert.strictEqual(this.$(`${cssClass} .commit-error`).text().trim(), `Error getting commit: ${commitError}`);
-    assert.strictEqual(this.$(`${cssClass} .commit`).length, 0);
-    assert.strictEqual(this.$('.crawling-section').length, 0);
-  });
-}
-
-test('shows first commit error', function(assert) {
-  firstCommitError = 'test first commit error';
-
-  return testCommitError.call(
-    this,
-    assert,
-    render,
-    firstCommitError,
-    '.repo-working-date'
-  );
-});
-
-test('shows second commit error', function(assert) {
-  secondCommitError = 'test second commit error';
-
-  return testCommitError.call(
-    this,
-    assert,
-    render,
-    secondCommitError,
-    '.repo-broken-date'
-  );
-});
-
-test('shows dates out of order', function(assert) {
-  assert.expect(2);
-
-  areDatesOutOfOrder = true;
-
-  render.call(this);
-
-  return wait().then(() => {
-    assert.strictEqual(this.$('.dates-out-of-order').length, 1);
-    assert.strictEqual(this.$('.crawling-section').length, 0);
-  });
-});
-
-test('shows versions error', function(assert) {
-  assert.expect(1);
-
-  sameVersionsResponse = () => {
-    return [500, {}, {}];
-  };
-
-  render.call(this);
-
-  return wait().then(() => {
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .module`).text().trim().replace(/\s\s+/g, ' '), `${sameModule} Error getting versions: Internal Server Error`);
-  });
-});
-
-test('shows first dependencies error', function(assert) {
-  assert.expect(1);
-
-  diffFirstDependenciesResponse = () => {
-    return [500, {}, {}];
-  };
-
-  render.call(this);
-
-  return wait().then(() => {
-    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-0 > .first-version-hint .error`).text().trim(), 'Error getting dependencies: Internal Server Error');
-  });
-});
-
-test('shows second dependencies error', function(assert) {
-  assert.expect(1);
-
-  diffSecondDependenciesResponse = () => {
-    return [500, {}, {}];
-  };
-
-  render.call(this);
-
-  return wait().then(() => {
-    assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-0 > .second-version-hint .error`).text().trim(), 'Error getting dependencies: Internal Server Error');
-  });
-});
-
-function testVersionMissing(assert, render, isFirst, isSecond) {
-  assert.expect(8);
-
-  render.call(this);
-
-  return wait().then(() => {
-    function getEqualityFunction(isEqual) { return (isEqual ? assert.strictEqual : assert.notStrictEqual).bind(assert); }
-    let assertStrictEqual1 = getEqualityFunction(isFirst);
-    let assertStrictEqual2 = getEqualityFunction(isSecond);
-
-    assertStrictEqual1(this.$(`.dependency-row.${sameModule}.depth-0 > .first-version-hint`).text().trim(), 'missing');
-    assertStrictEqual2(this.$(`.dependency-row.${sameModule}.depth-0 > .second-version-hint`).text().trim(), 'missing');
-    assertStrictEqual1(this.$(`.dependency-row.${sameModule}.depth-0 > .first-version`).text().trim(), 'missing');
-    assertStrictEqual2(this.$(`.dependency-row.${sameModule}.depth-0 > .second-version`).text().trim(), 'missing');
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .first-version-hint .is-missing`).length, 1);
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .second-version-hint .is-missing`).length, 1);
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .first-version .is-missing`).length, 1);
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .second-version .is-missing`).length, 1);
-  });
-}
-
-test('handles first version missing', function(assert) {
-  delete firstDependencies[sameModule];
-
-  return testVersionMissing.call(
-    this,
-    assert,
-    render,
-    true,
-    false
-  );
-});
-
-test('handles second version missing', function(assert) {
-  delete secondDependencies[sameModule];
-
-  return testVersionMissing.call(
-    this,
-    assert,
-    render,
-    false,
-    true
-  );
-});
-
-test('hints and versions are same', function(assert) {
-  assert.expect(4);
-
-  render.call(this);
-
-  return wait().then(() => {
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .first-version-hint .hints-are-different`).length, 0);
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .second-version-hint .hints-are-different`).length, 0);
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .first-version .versions-are-different`).length, 0);
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .second-version .versions-are-different`).length, 0);
-  });
-});
-
-test('can resume crawling', function(assert) {
-  let button;
-
-  sameVersionsCallback = () => button.click();
-
-  render.call(this);
-
-  button = this.$('.stop-crawling');
-
-  return wait().then(() => {
-    button.click();
+  function testDefault(assert) {
+    assert.expect(63);
+
+    return wait().then(() => {
+      assert.strictEqual(find('.repo-url').value, repoUrl);
+      assert.strictEqual(find('.repo').textContent.trim(), repo);
+      assert.strictEqual(findAll('.repo-error').length, 0);
+      assert.strictEqual(find('.repo-working-date .date-time-picker').value, '2015/02/02 0:00');
+      assert.strictEqual(find('.repo-broken-date .date-time-picker').value, '2015/04/02 0:00');
+      assert.strictEqual(find('.repo-working-date .commit').textContent.trim(), `Latest commit ${firstCommit} on ${firstCommitDate}`);
+      assert.strictEqual(find('.repo-broken-date .commit').textContent.trim(), `Latest commit ${secondCommit} on ${secondCommitDate}`);
+      assert.strictEqual(findAll('.crawling-section').length, 1);
+      let testRow = (
+        prefix,
+        module,
+        firstVersionHint,
+        secondVersionHint,
+        firstVersion,
+        secondVersion
+      ) => {
+        assert.strictEqual(this.$(`${prefix} > .module`).text().trim(), module);
+        assert.strictEqual(this.$(`${prefix} > .first-version-hint`).text().trim(), firstVersionHint);
+        assert.strictEqual(this.$(`${prefix} > .second-version-hint`).text().trim(), secondVersionHint);
+        assert.strictEqual(this.$(`${prefix} > .first-version`).text().trim(), firstVersion);
+        assert.strictEqual(this.$(`${prefix} > .second-version`).text().trim(), secondVersion);
+        assert.strictEqual(this.$(`${prefix} > .first-version-hint .is-missing`).length, 0);
+        assert.strictEqual(this.$(`${prefix} > .second-version-hint .is-missing`).length, 0);
+        assert.strictEqual(this.$(`${prefix} > .first-version .is-missing`).length, 0);
+        assert.strictEqual(this.$(`${prefix} > .second-version .is-missing`).length, 0);
+        assert.strictEqual(this.$(`${prefix} > .first-version-hint .hints-are-different`).length, firstVersionHint === secondVersionHint ? 0 : 1);
+        assert.strictEqual(this.$(`${prefix} > .second-version-hint .hints-are-different`).length, firstVersionHint === secondVersionHint ? 0 : 1);
+        assert.strictEqual(this.$(`${prefix} > .first-version .versions-are-different`).length, firstVersion === secondVersion ? 0 : 1);
+        assert.strictEqual(this.$(`${prefix} > .second-version .versions-are-different`).length, firstVersion === secondVersion ? 0 : 1);
+      };
+      testRow(`.dependency-row.${sameModule}.depth-0`, sameModule, sameVersionHint, sameVersionHint, sameVersion, sameVersion);
+      testRow(`.dependency-row.${diffModule}.depth-0`, diffModule, diffFirstVersionHint, diffSecondVersionHint, diffFirstVersion, diffSecondVersion);
+      testRow(`.dependency-row.${sameChildModule}.depth-1`, sameChildModule, sameChildVersionHint, sameChildVersionHint, sameChildVersion, sameChildVersion);
+      testRow(`.dependency-row.${diffChildModule}.depth-1:last`, diffChildModule, diffChildFirstVersionHint, diffChildSecondVersionHint, diffChildFirstVersion, diffChildSecondVersion);
+      assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-2 > .first-version .circular-reference`).length, 1);
+      assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-2 > .second-version .circular-reference`).length, 1);
+      assert.strictEqual(findAll('.done-crawling').length, 1);
+    });
+  }
+
+  test('shows defaults', function(assert) {
+    render.call(this);
 
     return testDefault.call(this, assert);
   });
-});
 
-test('can toggle button state', function(assert) {
-  assert.expect(3);
+  test('shows repo error', function(assert) {
+    assert.expect(3);
 
-  let button;
+    repo = null;
 
-  sameVersionsCallback = () => button.click();
+    render.call(this);
 
-  render.call(this);
+    return wait().then(() => {
+      assert.strictEqual(find('.repo-error').textContent.trim(), `Could not parse Repo URL: ${repoUrl}`);
+      assert.strictEqual(findAll('.repo').length, 0);
+      assert.strictEqual(findAll('.crawling-section').length, 0);
+    });
+  });
 
-  button = this.$('.stop-crawling');
+  test('sends repo updated event', async function(assert) {
+    assert.expect(1);
 
-  assert.equal(button.text().trim(), 'Stop Crawling');
+    render.call(this);
 
-  return wait().then(() => {
-    assert.equal(button.text().trim(), 'Start Crawling');
+    repoUrl += ' new';
+    await fillIn('.repo-url', repoUrl);
 
-    button.click();
+    return wait().then(() => {
+      assert.deepEqual(updateRepoUrl.args, [[repoUrl]]);
+    });
+  });
+
+  test('sends working date update event', function(assert) {
+    return testDateChange(
+      assert,
+      render.bind(this),
+      '.repo-working-date .date-time-picker',
+      repoWorkingDate,
+      updateRepoWorkingDate
+    );
+  });
+
+  test('sends broken date update event', function(assert) {
+    return testDateChange(
+      assert,
+      render.bind(this),
+      '.repo-broken-date .date-time-picker',
+      repoBrokenDate,
+      updateRepoBrokenDate
+    );
+  });
+
+  test('sends show different event', async function(assert) {
+    assert.expect(1);
+
+    render.call(this);
+
+    await click('.checkbox-with-label');
+
+    return wait().then(() => {
+      assert.deepEqual(updateShouldOnlyShowDifferent.args, [[true]]);
+    });
+  });
+
+  function testRepoDateError(assert, render, repoDateError, cssClass) {
+    assert.expect(2);
+
+    render.call(this);
+
+    return wait().then(() => {
+      assert.strictEqual(this.$(`${cssClass} .repo-date-error`).text().trim(), `Error getting package.json: ${repoDateError}`);
+      assert.strictEqual(findAll('.crawling-section').length, 0);
+    });
+  }
+
+  test('shows repo working date error', function(assert) {
+    repoWorkingDateError = 'test repo working date error';
+
+    return testRepoDateError.call(
+      this,
+      assert,
+      render,
+      repoWorkingDateError,
+      '.repo-working-date'
+    );
+  });
+
+  test('shows repo broken date error', function(assert) {
+    repoBrokenDateError = 'test repo broken date error';
+
+    return testRepoDateError.call(
+      this,
+      assert,
+      render,
+      repoBrokenDateError,
+      '.repo-broken-date'
+    );
+  });
+
+  function testCommitError(assert, render, commitError, cssClass) {
+    assert.expect(3);
+
+    render.call(this);
+
+    return wait().then(() => {
+      assert.strictEqual(this.$(`${cssClass} .commit-error`).text().trim(), `Error getting commit: ${commitError}`);
+      assert.strictEqual(this.$(`${cssClass} .commit`).length, 0);
+      assert.strictEqual(findAll('.crawling-section').length, 0);
+    });
+  }
+
+  test('shows first commit error', function(assert) {
+    firstCommitError = 'test first commit error';
+
+    return testCommitError.call(
+      this,
+      assert,
+      render,
+      firstCommitError,
+      '.repo-working-date'
+    );
+  });
+
+  test('shows second commit error', function(assert) {
+    secondCommitError = 'test second commit error';
+
+    return testCommitError.call(
+      this,
+      assert,
+      render,
+      secondCommitError,
+      '.repo-broken-date'
+    );
+  });
+
+  test('shows dates out of order', function(assert) {
+    assert.expect(2);
+
+    areDatesOutOfOrder = true;
+
+    render.call(this);
+
+    return wait().then(() => {
+      assert.strictEqual(findAll('.dates-out-of-order').length, 1);
+      assert.strictEqual(findAll('.crawling-section').length, 0);
+    });
+  });
+
+  test('shows versions error', function(assert) {
+    assert.expect(1);
+
+    sameVersionsResponse = () => {
+      return [500, {}, {}];
+    };
+
+    render.call(this);
+
+    return wait().then(() => {
+      assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .module`).text().trim().replace(/\s\s+/g, ' '), `${sameModule} Error getting versions: Internal Server Error`);
+    });
+  });
+
+  test('shows first dependencies error', function(assert) {
+    assert.expect(1);
+
+    diffFirstDependenciesResponse = () => {
+      return [500, {}, {}];
+    };
+
+    render.call(this);
+
+    return wait().then(() => {
+      assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-0 > .first-version-hint .error`).text().trim(), 'Error getting dependencies: Internal Server Error');
+    });
+  });
+
+  test('shows second dependencies error', function(assert) {
+    assert.expect(1);
+
+    diffSecondDependenciesResponse = () => {
+      return [500, {}, {}];
+    };
+
+    render.call(this);
+
+    return wait().then(() => {
+      assert.strictEqual(this.$(`.dependency-row.${diffModule}.depth-0 > .second-version-hint .error`).text().trim(), 'Error getting dependencies: Internal Server Error');
+    });
+  });
+
+  function testVersionMissing(assert, render, isFirst, isSecond) {
+    assert.expect(8);
+
+    render.call(this);
+
+    return wait().then(() => {
+      function getEqualityFunction(isEqual) { return (isEqual ? assert.strictEqual : assert.notStrictEqual).bind(assert); }
+      let assertStrictEqual1 = getEqualityFunction(isFirst);
+      let assertStrictEqual2 = getEqualityFunction(isSecond);
+
+      assertStrictEqual1(this.$(`.dependency-row.${sameModule}.depth-0 > .first-version-hint`).text().trim(), 'missing');
+      assertStrictEqual2(this.$(`.dependency-row.${sameModule}.depth-0 > .second-version-hint`).text().trim(), 'missing');
+      assertStrictEqual1(this.$(`.dependency-row.${sameModule}.depth-0 > .first-version`).text().trim(), 'missing');
+      assertStrictEqual2(this.$(`.dependency-row.${sameModule}.depth-0 > .second-version`).text().trim(), 'missing');
+      assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .first-version-hint .is-missing`).length, 1);
+      assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .second-version-hint .is-missing`).length, 1);
+      assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .first-version .is-missing`).length, 1);
+      assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .second-version .is-missing`).length, 1);
+    });
+  }
+
+  test('handles first version missing', function(assert) {
+    delete firstDependencies[sameModule];
+
+    return testVersionMissing.call(
+      this,
+      assert,
+      render,
+      true,
+      false
+    );
+  });
+
+  test('handles second version missing', function(assert) {
+    delete secondDependencies[sameModule];
+
+    return testVersionMissing.call(
+      this,
+      assert,
+      render,
+      false,
+      true
+    );
+  });
+
+  test('hints and versions are same', function(assert) {
+    assert.expect(4);
+
+    render.call(this);
+
+    return wait().then(() => {
+      assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .first-version-hint .hints-are-different`).length, 0);
+      assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .second-version-hint .hints-are-different`).length, 0);
+      assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .first-version .versions-are-different`).length, 0);
+      assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0 > .second-version .versions-are-different`).length, 0);
+    });
+  });
+
+  test('can resume crawling', function(assert) {
+    let button;
+
+    sameVersionsCallback = () => button.click();
+
+    render.call(this);
+
+    button = this.$('.stop-crawling');
+
+    return wait().then(() => {
+      button.click();
+
+      return testDefault.call(this, assert);
+    });
+  });
+
+  test('can toggle button state', function(assert) {
+    assert.expect(3);
+
+    let button;
+
+    sameVersionsCallback = () => button.click();
+
+    render.call(this);
+
+    button = this.$('.stop-crawling');
 
     assert.equal(button.text().trim(), 'Stop Crawling');
+
+    return wait().then(() => {
+      assert.equal(button.text().trim(), 'Start Crawling');
+
+      button.click();
+
+      assert.equal(button.text().trim(), 'Stop Crawling');
+    });
   });
-});
 
-test('can show only different', function(assert) {
-  assert.expect(2);
+  test('can show only different', function(assert) {
+    assert.expect(2);
 
-  shouldOnlyShowDifferent = true;
+    shouldOnlyShowDifferent = true;
 
-  render.call(this);
+    render.call(this);
 
-  return wait().then(() => {
-    assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0`).length, 1, 'show same when child is different');
-    assert.strictEqual(this.$(`.dependency-row.${sameChildModule}.depth-1`).length, 0, 'hides same when no child is different');
+    return wait().then(() => {
+      assert.strictEqual(this.$(`.dependency-row.${sameModule}.depth-0`).length, 1, 'show same when child is different');
+      assert.strictEqual(this.$(`.dependency-row.${sameChildModule}.depth-1`).length, 0, 'hides same when no child is different');
+    });
   });
 });

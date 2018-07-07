@@ -1,6 +1,6 @@
 import $ from 'jquery';
-import wait from 'ember-test-helpers/wait';
 import { waitFor } from 'ember-wait-for-test-helper/wait-for';
+import { settled } from '@ember/test-helpers';
 
 let context = 'body';
 let datePickerSelector = '.xdsoft_datetimepicker:visible';
@@ -30,7 +30,7 @@ export default (assert, render, input, date, spy) => {
   return openDatePicker(input).then(() => {
     updateDate(date);
 
-    return wait();
+    return settled();
   }).then(() => {
     assert.deepEqual(spy.args, [[date]]);
   });

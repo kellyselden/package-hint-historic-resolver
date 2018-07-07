@@ -3,7 +3,8 @@ import Service from '@ember/service';
 import { Promise, all } from 'rsvp';
 import { run } from '@ember/runloop';
 import { set, get } from '@ember/object';
-import { moduleFor, test } from 'ember-qunit';
+import { module, test } from 'qunit';
+import { setupTest } from 'ember-qunit';
 import Pretender from 'pretender';
 import cache from 'npm:memory-cache';
 import AjaxService from 'ember-ajax/services/ajax';
@@ -31,16 +32,17 @@ let responseHeaders;
 let responseBody;
 let response;
 
-moduleFor('service:request-cache', 'Integration | Service | request cache', {
-  integration: true,
-  beforeEach() {
+module('Integration | Service | request cache', function(hooks) {
+  setupTest(hooks);
+
+  hooks.beforeEach(function() {
     server = new Pretender();
     server.prepareBody = JSON.stringify;
 
-    this.register('service:config', ConfigService);
-    this.inject.service('config', { as: 'config' });
+    this.owner.register('service:config', ConfigService);
+    this.config = this.owner.lookup('service:config');
 
-    service = this.subject();
+    service = this.owner.lookup('service:request-cache');
 
     responseHeaders = {
       'test-header': 'test value'
@@ -58,159 +60,160 @@ moduleFor('service:request-cache', 'Integration | Service | request cache', {
         responseBody.slice()
       ];
     });
-  },
-  afterEach() {
+  });
+
+  hooks.afterEach(function() {
     server.shutdown();
     cache.clear();
+  });
+
+  function cacheRequest(ajax) {
+    return new Promise((resolve, reject) => {
+      run(() => {
+        get(service, 'cacheRequest').perform('test-url', ajax).then(resolve).catch(reject);
+      });
+    });
   }
-});
 
-function cacheRequest(ajax) {
-  return new Promise((resolve, reject) => {
-    run(() => {
-      get(service, 'cacheRequest').perform('test-url', ajax).then(resolve).catch(reject);
+  test('gets cached data', function(assert) {
+    assert.expect(1);
+
+    cache.put('test-url', 12);
+
+    return cacheRequest().then(data => {
+      assert.strictEqual(data, 12);
     });
   });
-}
 
-test('gets cached data', function(assert) {
-  assert.expect(1);
+  test('resolves data from request', function(assert) {
+    assert.expect(1);
 
-  cache.put('test-url', 12);
-
-  return cacheRequest().then(data => {
-    assert.strictEqual(data, 12);
-  });
-});
-
-test('resolves data from request', function(assert) {
-  assert.expect(1);
-
-  return cacheRequest().then(data => {
-    assert.deepEqual(data, response);
-  });
-});
-
-test('allows a custom ajax service', function(assert) {
-  assert.expect(2);
-
-  server.get('http://my-custom-host/test-url', ({ requestHeaders }) => {
-    assert.strictEqual(requestHeaders['my-custom-header'], 'my custom value');
-
-    return [200, {}, [56]];
-  });
-
-  let ajax = CustomAjaxService.create();
-
-  return cacheRequest(ajax).then(data => {
-    assert.deepEqual(data, {
-      responseHeaders: {},
-      responseBody: [56]
+    return cacheRequest().then(data => {
+      assert.deepEqual(data, response);
     });
   });
-});
 
-test('caches data from request', function(assert) {
-  assert.expect(1);
+  test('allows a custom ajax service', function(assert) {
+    assert.expect(2);
 
-  return cacheRequest().then(() => {
-    assert.deepEqual(cache.get('test-url'), response);
+    server.get('http://my-custom-host/test-url', ({ requestHeaders }) => {
+      assert.strictEqual(requestHeaders['my-custom-header'], 'my custom value');
+
+      return [200, {}, [56]];
+    });
+
+    let ajax = CustomAjaxService.create();
+
+    return cacheRequest(ajax).then(data => {
+      assert.deepEqual(data, {
+        responseHeaders: {},
+        responseBody: [56]
+      });
+    });
   });
-});
 
-test('doesn\'t cache data when request fails', function(assert) {
-  assert.expect(1);
+  test('caches data from request', function(assert) {
+    assert.expect(1);
 
-  server.get('http://test-host/api/test-url', () => {
-    return [500, {}, {}];
+    return cacheRequest().then(() => {
+      assert.deepEqual(cache.get('test-url'), response);
+    });
   });
 
-  return cacheRequest().catch(() => {
-    assert.strictEqual(cache.get('test-url'), null);
-  });
-});
+  test('doesn\'t cache data when request fails', function(assert) {
+    assert.expect(1);
 
-test('doesn\'t cache data when task cancels', function(assert) {
-  assert.expect(1);
+    server.get('http://test-host/api/test-url', () => {
+      return [500, {}, {}];
+    });
 
-  run(() => {
-    let task = get(service, 'cacheRequest').perform('test-url');
-
-    task.cancel();
-
-    task.catch(() => {
+    return cacheRequest().catch(() => {
       assert.strictEqual(cache.get('test-url'), null);
     });
   });
-});
 
-test('second call uses cached data after queuing', function(assert) {
-  assert.expect(1);
+  test('doesn\'t cache data when task cancels', function(assert) {
+    assert.expect(1);
 
-  let promise1 = cacheRequest();
-  let promise2 = cacheRequest();
+    run(() => {
+      let task = get(service, 'cacheRequest').perform('test-url');
 
-  let didRunOnce;
+      task.cancel();
 
-  function handlePromise(promise) {
-    return promise.then(data => {
-      if (didRunOnce) {
-        return assert.deepEqual(data, response);
-      }
+      task.catch(() => {
+        assert.strictEqual(cache.get('test-url'), null);
+      });
+    });
+  });
 
-      // changing response value to verify the cached value is used
+  test('second call uses cached data after queuing', function(assert) {
+    assert.expect(1);
+
+    let promise1 = cacheRequest();
+    let promise2 = cacheRequest();
+
+    let didRunOnce;
+
+    function handlePromise(promise) {
+      return promise.then(data => {
+        if (didRunOnce) {
+          return assert.deepEqual(data, response);
+        }
+
+        // changing response value to verify the cached value is used
+        server.get('http://test-host/api/test-url', () => {
+          return [200, {}, [23]];
+        });
+
+        didRunOnce = true;
+      });
+    }
+
+    return all([
+      handlePromise(promise1),
+      handlePromise(promise2)
+    ]);
+  });
+
+  test('cache invalidates after given time', function(assert) {
+    assert.expect(1);
+
+    let cacheTime = 1;
+    set(this, 'config.cacheTime', cacheTime);
+
+    return cacheRequest().then(() => {
+      let timeCacheWasSet = Date.now();
+
+      // eslint-disable-next-line no-empty
+      while (Date.now() - timeCacheWasSet <= cacheTime) {}
+
       server.get('http://test-host/api/test-url', () => {
         return [200, {}, [23]];
       });
 
-      didRunOnce = true;
-    });
-  }
-
-  return all([
-    handlePromise(promise1),
-    handlePromise(promise2)
-  ]);
-});
-
-test('cache invalidates after given time', function(assert) {
-  assert.expect(1);
-
-  let cacheTime = 1;
-  set(this, 'config.cacheTime', cacheTime);
-
-  return cacheRequest().then(() => {
-    let timeCacheWasSet = Date.now();
-
-    // eslint-disable-next-line no-empty
-    while (Date.now() - timeCacheWasSet <= cacheTime) {}
-
-    server.get('http://test-host/api/test-url', () => {
-      return [200, {}, [23]];
-    });
-
-    return cacheRequest().then(data => {
-      assert.deepEqual(data, {
-        responseHeaders: {},
-        responseBody: [23]
+      return cacheRequest().then(data => {
+        assert.deepEqual(data, {
+          responseHeaders: {},
+          responseBody: [23]
+        });
       });
     });
   });
-});
 
-test('limits calls', function(assert) {
-  assert.expect(1);
+  test('limits calls', function(assert) {
+    assert.expect(1);
 
-  let limiterTime = 100;
-  set(this, 'config.limiterTime', limiterTime);
+    let limiterTime = 100;
+    set(this, 'config.limiterTime', limiterTime);
 
-  let timeLimiterWasStarted = Date.now();
-
-  return cacheRequest().then(() => {
-    cache.clear();
+    let timeLimiterWasStarted = Date.now();
 
     return cacheRequest().then(() => {
-      assert.ok(Date.now() - timeLimiterWasStarted > limiterTime);
+      cache.clear();
+
+      return cacheRequest().then(() => {
+        assert.ok(Date.now() - timeLimiterWasStarted > limiterTime);
+      });
     });
   });
 });

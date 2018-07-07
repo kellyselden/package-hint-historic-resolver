@@ -1,15 +1,17 @@
-import { moduleForComponent, test } from 'ember-qunit';
+import { module, test } from 'qunit';
+import { setupRenderingTest } from 'ember-qunit';
+import { settled, findAll } from '@ember/test-helpers';
 import hbs from 'htmlbars-inline-precompile';
-import wait from 'ember-test-helpers/wait';
 
 let dependency, shouldOnlyShowDifferent;
 
 let testFirstVersion, testSecondVersion, testFirstVersionHint, testSecondVersionHint;
 let testChildFirstVersion, testChildSecondVersion;
 
-moduleForComponent('dependency-row', 'Integration | Component | dependency row', {
-  integration: true,
-  beforeEach() {
+module('Integration | Component | dependency row', function(hooks) {
+  setupRenderingTest(hooks);
+
+  hooks.beforeEach(function() {
     testFirstVersion  = '1.2.1';
     testSecondVersion = '1.5.0';
 
@@ -44,27 +46,27 @@ moduleForComponent('dependency-row', 'Integration | Component | dependency row',
       ]
     };
     shouldOnlyShowDifferent = false;
+  });
+
+  function render() {
+    this.set('dependency', dependency);
+    this.set('shouldOnlyShowDifferent', shouldOnlyShowDifferent);
+
+    this.render(hbs`
+      {{dependency-row
+        dependency=dependency
+        shouldOnlyShowDifferent=shouldOnlyShowDifferent
+      }}
+    `);
   }
-});
 
-function render() {
-  this.set('dependency', dependency);
-  this.set('shouldOnlyShowDifferent', shouldOnlyShowDifferent);
+  test('respects nesting level', function(assert) {
+    assert.expect(1);
 
-  this.render(hbs`
-    {{dependency-row
-      dependency=dependency
-      shouldOnlyShowDifferent=shouldOnlyShowDifferent
-    }}
-  `);
-}
+    render.call(this);
 
-test('respects nesting level', function(assert) {
-  assert.expect(1);
-
-  render.call(this);
-
-  return wait().then(() => {
-    assert.strictEqual(this.$('.dependency-row.test-module.depth-2 > .module .nesting-item').length, 2);
+    return settled().then(() => {
+      assert.strictEqual(findAll('.dependency-row.test-module.depth-2 > .module .nesting-item').length, 2);
+    });
   });
 });
