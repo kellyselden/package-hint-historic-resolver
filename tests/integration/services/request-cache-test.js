@@ -15,8 +15,12 @@ const ConfigService = Service.extend({
 const CustomAjaxService = AjaxService.extend({
   host: 'https://my-custom-host',
 
-  headers: {
-    'my-custom-header': 'my custom value'
+  init() {
+    this._super();
+
+    set(this, 'headers', {
+      'my-custom-header': 'my custom value'
+    })
   }
 });
 

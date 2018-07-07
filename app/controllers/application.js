@@ -25,8 +25,14 @@ export default Controller.extend({
 
   shouldOnlyShowDifferent: false,
 
-  firstJson: {},
-  secondJson: {},
+  init() {
+    this._super();
+
+    setProperties(this, {
+      firstJson: {},
+      secondJson: {}
+    });
+  },
 
   repoWorkingDate: computed('repoWorkingDateSerialized', deserializeDate),
   repoBrokenDate: computed('repoBrokenDateSerialized', deserializeDate),
