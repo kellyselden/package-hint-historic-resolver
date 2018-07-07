@@ -42,6 +42,7 @@ function subject() {
     put: putStub
   }));
   this.register('service:limiter', Service.extend({
+    // eslint-disable-next-line ember/avoid-leaking-state-in-ember-objects
     removeTokens: {
       perform: removeTokensStub
     }
