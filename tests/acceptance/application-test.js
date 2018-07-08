@@ -2,6 +2,7 @@ import { test } from 'qunit';
 import moduleForAcceptance from 'package-hint-historic-resolver/tests/helpers/module-for-acceptance';
 import Pretender from 'pretender';
 import { authenticateSession } from '../helpers/ember-simple-auth';
+import { percySnapshot } from 'ember-percy';
 
 const user = 'test-user';
 const repo = 'test-repo';
