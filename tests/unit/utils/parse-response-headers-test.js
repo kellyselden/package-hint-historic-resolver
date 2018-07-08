@@ -1,10 +1,10 @@
 import parseResponseHeaders from 'package-hint-historic-resolver/utils/parse-response-headers';
 import { module, test } from 'qunit';
 
-module('Unit | Utility | parse response headers');
+module('Unit | Utility | parse response headers', function() {
+  test('handles no headers', function(assert) {
+    let result = parseResponseHeaders('');
 
-test('handles no headers', function(assert) {
-  let result = parseResponseHeaders('');
-
-  assert.deepEqual(result, {});
+    assert.deepEqual(result, {});
+  });
 });
