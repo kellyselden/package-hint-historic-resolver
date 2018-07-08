@@ -1,19 +1,14 @@
 import Component from '@ember/component';
-import { conditional, raw } from 'ember-awesome-macros';
+import { conditional } from 'ember-awesome-macros';
 
-const MyComponent = Component.extend({
+export default Component.extend({
   classNames: ['version-display'],
   classNameBindings: ['areDifferent', 'isOneMissing:is-missing'],
 
   areDifferent: conditional(
     'areVersionsDifferent',
-    'areVersionsDifferentClass',
-    raw('')
+    'areVersionsDifferentClass'
   )
-});
-
-MyComponent.reopenClass({
+}).reopenClass({
   positionalParams: ['version']
 });
-
-export default MyComponent;

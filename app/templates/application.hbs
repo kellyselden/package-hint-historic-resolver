@@ -5,11 +5,11 @@
 <div class="gtihub-client-id">GitHub client ID: {{githubClientId}}{{githubClientIdError}}</div>
 {{#if githubClientId}}
   <div class="github-auth">
-    {{#unless session.isAuthenticated}}
-      <button class="log-in" {{action "logIn"}}>Log in</button>
-    {{else}}
+    {{#if session.isAuthenticated}}
       <button {{action "logOut"}}>Log out</button>
-    {{/unless}}
+    {{else}}
+      <button class="log-in" {{action "logIn"}}>Log in</button>
+    {{/if}}
     {{#if session.data.authenticated.authorizationCode}}
       <div class="github-auth-code">GitHub authorization code: {{session.data.authenticated.authorizationCode}}</div>
     {{/if}}
