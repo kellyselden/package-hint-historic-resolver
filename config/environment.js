@@ -1,6 +1,6 @@
 'use strict';
 
-const fs = require('fs');
+const testHost = 'http://test-host';
 
 module.exports = function(environment) {
   let contentSecurityPolicy = {
@@ -22,8 +22,7 @@ module.exports = function(environment) {
   contentSecurityPolicy['style-src'] +=
     ' https://cdnjs.cloudflare.com';
 
-  let packageJson = fs.readFileSync('package.json');
-  packageJson = JSON.parse(packageJson);
+  let { repository } = require('../package.json');
 
   let ENV = {
     modulePrefix: 'package-hint-historic-resolver',
@@ -42,7 +41,7 @@ module.exports = function(environment) {
     },
     contentSecurityPolicy: contentSecurityPolicy,
     APP: {
-      repository: packageJson.repository
+      repository
     },
     metricsAdapters: [
       {
@@ -68,8 +67,6 @@ module.exports = function(environment) {
 
   let host;
   let namespace = 'api/v1';
-
-  let testHost = 'http://test-host';
 
   if (environment === 'development') {
     // ENV.APP.LOG_RESOLVER = true;

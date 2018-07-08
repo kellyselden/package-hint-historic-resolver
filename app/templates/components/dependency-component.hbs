@@ -49,7 +49,7 @@
     {{checkbox-with-label
       shouldOnlyShowDifferent
       "Only show different"
-      update=(action shouldOnlyShowDifferentUpdated)
+      update=shouldOnlyShowDifferentUpdated
     }}
     {{#each dependencyGroups as |dependencyGroup|}}
       {{dependency-table

@@ -3,22 +3,23 @@ import moduleForAcceptance from 'package-hint-historic-resolver/tests/helpers/mo
 import Pretender from 'pretender';
 import { authenticateSession } from '../helpers/ember-simple-auth';
 
+const user = 'test-user';
+const repo = 'test-repo';
+const userRepo = `${user}/${repo}`;
+const sha = 'test-sha';
+const commitDate = '2016-12-01T08:00:00.000Z';
+const module = 'test-module';
+const versionHint = '^1.0.0';
+const version = '1.0.0';
+const githubClientIdUrl = 'http://test-host/api/github/client-id';
+const githubClientId = 'test-client-id';
+const githubAuthCode = 'test-auth-code';
+const githubAccessToken = 'test-access-token';
+const githubRateLimit = '60';
+const githubRateRemaining = '56';
+const githubRateReset = (new Date().getTime() / 1000) + (60 * 60);
+
 let server;
-let user;
-let repo;
-let userRepo;
-let sha;
-let commitDate;
-let module;
-let versionHint;
-let version;
-let githubClientIdUrl;
-let githubClientId;
-let githubAuthCode;
-let githubAccessToken;
-let githubRateLimit;
-let githubRateRemaining;
-let githubRateReset;
 let githubRequestHeaders;
 let githubApiHandler;
 
@@ -27,22 +28,6 @@ moduleForAcceptance('Acceptance | application', {
     server = new Pretender();
     server.prepareBody = JSON.stringify;
 
-    user = 'test-user';
-    repo = 'test-repo';
-    userRepo = `${user}/${repo}`;
-    sha = 'test-sha';
-    commitDate = '2016-12-01T08:00:00.000Z';
-    module = 'test-module';
-    versionHint = '^1.0.0';
-    version = '1.0.0';
-    githubClientId = 'test-client-id';
-    githubAuthCode = 'test-auth-code';
-    githubAccessToken = 'test-access-token';
-    githubRateLimit = '60';
-    githubRateRemaining = '56';
-    githubRateReset = (new Date().getTime() / 1000) + (60 * 60);
-
-    githubClientIdUrl = 'http://test-host/api/github/client-id';
     server.get(githubClientIdUrl, () => {
       return [200, {}, {
         'client_id': githubClientId
