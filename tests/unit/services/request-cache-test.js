@@ -1,22 +1,24 @@
-import $ from 'jquery';
-import RSVP, { Promise, reject, resolve } from 'rsvp';
+import RSVP, { reject, resolve } from 'rsvp';
 import { run } from '@ember/runloop';
 import { get } from '@ember/object';
 import Service from '@ember/service';
-import { moduleFor, test } from 'ember-qunit';
+import { module, test } from 'qunit';
+import { setupTest } from 'ember-qunit';
 import sinon from 'sinon';
+import { setupService } from 'ember-test-setup';
 
-let getStub;
-let putStub;
-let removeTokensStub;
-let defaultRawResponseBody;
-let defaultRawResponse;
-let defaultRawStub;
-let service;
+module('Unit | Service | request cache', function(hooks) {
+  setupTest(hooks);
 
-moduleFor('service:request-cache', 'Unit | Service | request cache', {
-  needs: ['service:adapter'],
-  beforeEach() {
+  let getStub;
+  let putStub;
+  let removeTokensStub;
+  let defaultRawResponseBody;
+  let defaultRawResponse;
+  let defaultRawStub;
+  let service;
+
+  hooks.beforeEach(function() {
     getStub = sinon.stub().returns(null);
     putStub = sinon.stub().returns(45);
     removeTokensStub = sinon.stub().returns(resolve());
@@ -29,197 +31,199 @@ moduleFor('service:request-cache', 'Unit | Service | request cache', {
       },
       response: defaultRawResponseBody
     };
-    defaultRawStub = sinon.stub().returns(resolve($.extend(true, {}, defaultRawResponse)));
-  }
-});
-
-function subject() {
-  this.register('service:config', Service.extend({
-    cacheTime: 34
-  }));
-  this.register('service:cache', Service.extend({
-    get: getStub,
-    put: putStub
-  }));
-  this.register('service:limiter', Service.extend({
-    // eslint-disable-next-line ember/avoid-leaking-state-in-ember-objects
-    removeTokens: {
-      perform: removeTokensStub
-    }
-  }));
-  this.register('service:defaultAjax', Service.extend({
-    raw: defaultRawStub
-  }));
-
-  service = this.subject();
-}
-
-function cacheRequest(ajax) {
-  return new Promise((resolve, reject) => {
-    run(() => {
-      get(service, 'cacheRequest').perform('test-url', ajax).then(resolve).catch(reject);
-    });
+    defaultRawStub = sinon.stub().returns(resolve(Object.assign({}, defaultRawResponse)));
   });
-}
 
-test('tries to get cached data before entering limiter', function(assert) {
-  assert.expect(1);
+  setupService(hooks, {
+    beforeService() {
+      this.owner.register('service:config', Service.extend({
+        cacheTime: 34
+      }));
+      this.owner.register('service:cache', Service.extend({
+        get: getStub,
+        put: putStub
+      }));
+      this.owner.register('service:limiter', Service.extend({
+        // eslint-disable-next-line ember/avoid-leaking-state-in-ember-objects
+        removeTokens: {
+          perform: removeTokensStub
+        }
+      }));
+      this.owner.register('service:defaultAjax', Service.extend({
+        raw: defaultRawStub
+      }));
+    },
+    service: 'request-cache',
+    afterService(_service) {
+      service = _service;
+    }
+  });
 
-  subject.call(this);
+  function cacheRequest(ajax) {
+    return run(() => {
+      return get(service, 'cacheRequest').perform('test-url', ajax);
+    });
+  }
 
-  return cacheRequest().then(() => {
+  test('tries to get cached data before entering limiter', async function(assert) {
+    assert.expect(1);
+
+    this.service();
+
+    await cacheRequest();
+
     assert.ok(getStub.getCall(0).calledBefore(removeTokensStub.getCall(0)));
   });
-});
 
-test('tries to get cached data using key before entering limiter', function(assert) {
-  assert.expect(1);
+  test('tries to get cached data using key before entering limiter', async function(assert) {
+    assert.expect(1);
 
-  getStub.returns(12);
+    getStub.returns(12);
 
-  subject.call(this);
+    this.service();
 
-  return cacheRequest().then(() => {
+    await cacheRequest();
+
     assert.deepEqual(getStub.args, [['test-url']]);
   });
-});
 
-test('returns cached data before entering limiter', function(assert) {
-  assert.expect(1);
+  test('returns cached data before entering limiter', async function(assert) {
+    assert.expect(1);
 
-  getStub.returns(12);
+    getStub.returns(12);
 
-  subject.call(this);
+    this.service();
 
-  return cacheRequest().then(data => {
+    let data = await cacheRequest();
+
     assert.strictEqual(data, 12);
   });
-});
 
-test('doesn\'t enter limiter if cache has data', function(assert) {
-  assert.expect(1);
+  test('doesn\'t enter limiter if cache has data', async function(assert) {
+    assert.expect(1);
 
-  getStub.returns(12);
+    getStub.returns(12);
 
-  subject.call(this);
+    this.service();
 
-  return cacheRequest().then(() => {
+    await cacheRequest();
+
     assert.notOk(removeTokensStub.called);
   });
-});
 
-test('tries to get cached data after entering limiter', function(assert) {
-  assert.expect(1);
+  test('tries to get cached data after entering limiter', async function(assert) {
+    assert.expect(1);
 
-  getStub.onCall(1).returns(12);
+    getStub.onCall(1).returns(12);
 
-  subject.call(this);
+    this.service();
 
-  return cacheRequest().then(() => {
+    await cacheRequest();
+
     assert.ok(getStub.getCall(1).calledAfter(removeTokensStub.getCall(0)));
   });
-});
 
-test('tries to get cached data using key after entering limiter', function(assert) {
-  assert.expect(1);
+  test('tries to get cached data using key after entering limiter', async function(assert) {
+    assert.expect(1);
 
-  getStub.onCall(1).returns(12);
+    getStub.onCall(1).returns(12);
 
-  subject.call(this);
+    this.service();
 
-  return cacheRequest().then(() => {
+    await cacheRequest();
+
     assert.deepEqual(getStub.args[1], ['test-url']);
   });
-});
 
-test('returns cached data after entering limiter', function(assert) {
-  assert.expect(1);
+  test('returns cached data after entering limiter', async function(assert) {
+    assert.expect(1);
 
-  getStub.onCall(1).returns(12);
+    getStub.onCall(1).returns(12);
 
-  subject.call(this);
+    this.service();
 
-  return cacheRequest().then(data => {
+    let data = await cacheRequest();
+
     assert.strictEqual(data, 12);
   });
-});
 
-test('removes one at a time from limiter', function(assert) {
-  assert.expect(1);
+  test('removes one at a time from limiter', async function(assert) {
+    assert.expect(1);
 
-  subject.call(this);
+    this.service();
 
-  return cacheRequest().then(() => {
+    await cacheRequest();
+
     assert.deepEqual(removeTokensStub.args, [[1]]);
   });
-});
 
-test('tries to get cached data using key after exiting queue', function(assert) {
-  assert.expect(1);
+  test('tries to get cached data using key after exiting queue', async function(assert) {
+    assert.expect(1);
 
-  getStub.onCall(2).returns(12);
+    getStub.onCall(2).returns(12);
 
-  subject.call(this);
+    this.service();
 
-  return cacheRequest().then(() => {
+    await cacheRequest();
+
     assert.deepEqual(getStub.args[2], ['test-url']);
   });
-});
 
-test('returns cached data after exiting queue', function(assert) {
-  assert.expect(1);
+  test('returns cached data after exiting queue', async function(assert) {
+    assert.expect(1);
 
-  getStub.onCall(2).returns(12);
+    getStub.onCall(2).returns(12);
 
-  subject.call(this);
+    this.service();
 
-  return cacheRequest().then(data => {
+    let data = await cacheRequest();
+
     assert.strictEqual(data, 12);
   });
-});
 
-test('sends request after third cache try', function(assert) {
-  assert.expect(1);
+  test('sends request after third cache try', async function(assert) {
+    assert.expect(1);
 
-  subject.call(this);
+    this.service();
 
-  return cacheRequest().then(() => {
+    await cacheRequest();
+
     assert.ok(defaultRawStub.getCall(0).calledAfter(getStub.getCall(2)));
   });
-});
 
-test('sends request with url', function(assert) {
-  assert.expect(1);
+  test('sends request with url', async function(assert) {
+    assert.expect(1);
 
-  subject.call(this);
+    this.service();
 
-  return cacheRequest().then(() => {
+    await cacheRequest();
+
     assert.deepEqual(defaultRawStub.args, [['test-url']]);
   });
-});
 
-test('allows a custom ajax service', function(assert) {
-  assert.expect(1);
+  test('allows a custom ajax service', async function(assert) {
+    assert.expect(1);
 
-  subject.call(this);
+    this.service();
 
-  let rawStub = sinon.stub().returns(resolve(defaultRawResponse));
+    let rawStub = sinon.stub().returns(resolve(defaultRawResponse));
 
-  let ajax = {
-    raw: rawStub
-  };
+    let ajax = {
+      raw: rawStub
+    };
 
-  return cacheRequest(ajax).then(() => {
+    await cacheRequest(ajax);
+
     assert.deepEqual(rawStub.args, [['test-url']]);
   });
-});
 
-test('caches the data for a length of time', function(assert) {
-  assert.expect(1);
+  test('caches the data for a length of time', async function(assert) {
+    assert.expect(1);
 
-  subject.call(this);
+    this.service();
 
-  return cacheRequest().then(() => {
+    await cacheRequest();
+
     assert.deepEqual(putStub.args, [
       [
         'test-url',
@@ -233,38 +237,38 @@ test('caches the data for a length of time', function(assert) {
       ]
     ]);
   });
-});
 
-test('resolves with expected data', function(assert) {
-  assert.expect(1);
+  test('resolves with expected data', async function(assert) {
+    assert.expect(1);
 
-  subject.call(this);
+    this.service();
 
-  return cacheRequest().then(data => {
+    let data = await cacheRequest();
+
     assert.strictEqual(data, 45);
   });
-});
 
-test('doesn\'t cache data if request rejects', function(assert) {
-  assert.expect(1);
+  test('doesn\'t cache data if request rejects', async function(assert) {
+    assert.expect(1);
 
-  defaultRawStub.returns(reject());
+    defaultRawStub.returns(reject());
 
-  subject.call(this);
+    this.service();
 
-  return cacheRequest().catch(() => {
-    assert.notOk(putStub.called);
+    try {
+      await cacheRequest();
+    } catch (err) {
+      assert.notOk(putStub.called);
+    }
   });
-});
 
-test('doesn\'t cache data if task cancels', function(assert) {
-  assert.expect(1);
+  test('doesn\'t cache data if task cancels', function(assert) {
+    assert.expect(1);
 
-  defaultRawStub.returns(RSVP.defer().promise);
+    defaultRawStub.returns(RSVP.defer().promise);
 
-  subject.call(this);
+    this.service();
 
-  run(() => {
     let task = get(service, 'cacheRequest').perform('test-url');
 
     task.cancel();
@@ -273,28 +277,28 @@ test('doesn\'t cache data if task cancels', function(assert) {
       assert.notOk(putStub.called);
     });
   });
-});
 
-test('queues requests', function(assert) {
-  assert.expect(3);
+  test('queues requests', async function(assert) {
+    assert.expect(3);
 
-  let deferred = RSVP.defer();
+    let deferred = RSVP.defer();
 
-  defaultRawStub.returns(deferred.promise);
+    defaultRawStub.returns(deferred.promise);
 
-  subject.call(this);
+    this.service();
 
-  cacheRequest();
-  let secondPromise = cacheRequest();
+    cacheRequest();
+    let secondPromise = cacheRequest();
 
-  assert.equal(removeTokensStub.callCount, 2, 'both have passed the limiter');
-  assert.equal(defaultRawStub.callCount, 1, 'one should be stuck in the queue');
+    assert.equal(removeTokensStub.callCount, 2, 'both have passed the limiter');
+    assert.equal(defaultRawStub.callCount, 1, 'one should be stuck in the queue');
 
-  deferred.resolve(defaultRawResponse);
+    deferred.resolve(defaultRawResponse);
 
-  getStub.returns(12);
+    getStub.returns(12);
 
-  return secondPromise.then(() => {
+    await secondPromise;
+
     assert.equal(defaultRawStub.callCount, 1, 'must have used the cache');
   });
 });
