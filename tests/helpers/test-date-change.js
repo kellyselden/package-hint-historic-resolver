@@ -2,9 +2,9 @@ import $ from 'jquery';
 import wait from 'ember-test-helpers/wait';
 import { waitFor } from 'ember-wait-for-test-helper/wait-for';
 
-let context = 'body';
-let datePickerSelector = '.xdsoft_datetimepicker:visible';
-let differentDaySelector = `${datePickerSelector} .xdsoft_date:not(.xdsoft_other_month):not(.xdsoft_current):first`;
+const context = 'body';
+const datePickerSelector = '.xdsoft_datetimepicker:visible';
+const differentDaySelector = `${datePickerSelector} .xdsoft_date:not(.xdsoft_other_month):not(.xdsoft_current):first`;
 
 function openDatePicker(input) {
   $(input).trigger('focus');
@@ -22,10 +22,10 @@ function updateDate(date) {
 
 // for some reason I can't get the date picker to hide
 // so I can't test both at once
-export default (assert, render, input, date, spy) => {
+async function testDateChange(assert, render, input, date, spy) {
   assert.expect(1);
 
-  render();
+  await render();
 
   return openDatePicker(input).then(() => {
     updateDate(date);
@@ -34,4 +34,6 @@ export default (assert, render, input, date, spy) => {
   }).then(() => {
     assert.deepEqual(spy.args, [[date]]);
   });
-};
+}
+
+export default testDateChange;
