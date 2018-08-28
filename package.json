@@ -23,7 +23,7 @@
   "devDependencies": {
     "@ember-decorators/auto-computed": "^2.0.0",
     "@ember-decorators/babel-transforms": "^2.0.1",
-    "babel-eslint": "^8.0.0",
+    "babel-eslint": "^9.0.0",
     "broccoli-asset-rev": "^3.0.0",
     "coveralls": "^3.0.0",
     "cross-env": "^5.0.0",
