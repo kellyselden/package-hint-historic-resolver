@@ -48,7 +48,7 @@
     "ember-cli-sri": "^2.1.0",
     "ember-cli-uglify": "^2.0.0",
     "ember-concurrency": "^0.8.11",
-    "ember-data": "~3.0.0",
+    "ember-data": "~3.4.0",
     "ember-data-application-adapter-service": "^2.0.0",
     "ember-datetimepicker": "^3.0.0",
     "ember-exam": "^1.0.0",
