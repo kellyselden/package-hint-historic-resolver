@@ -58,7 +58,7 @@
     "ember-maybe-import-regenerator": "^0.1.6",
     "ember-metrics": "^0.12.0",
     "ember-metrics-mixins": "^0.4.0",
-    "ember-moment": "^7.4.1",
+    "ember-moment": "^7.8.0",
     "ember-percy": "^1.2.18",
     "ember-resolver": "^4.0.0",
     "ember-simple-auth": "^1.0.0",
