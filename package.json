@@ -27,7 +27,7 @@
     "broccoli-asset-rev": "^3.0.0",
     "coveralls": "^3.0.0",
     "cross-env": "^5.0.0",
-    "ember-ajax": "^3.0.0",
+    "ember-ajax": "^4.0.0",
     "ember-awesome-macros": "^2.0.0",
     "ember-browserify": "^1.0.0",
     "ember-checkbox-with-label": "^1.0.0",
