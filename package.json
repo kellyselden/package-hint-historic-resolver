@@ -54,7 +54,7 @@
     "ember-exam": "^1.0.0",
     "ember-fork-me": "^2.0.0",
     "ember-load-initializers": "^2.0.0",
-    "ember-lodash": "4.19.3",
+    "ember-lodash": "4.19.4",
     "ember-maybe-import-regenerator": "^0.1.6",
     "ember-metrics": "^0.12.0",
     "ember-metrics-mixins": "^0.4.0",
