@@ -57,7 +57,7 @@
     "ember-lodash": "4.19.4",
     "ember-maybe-import-regenerator": "^0.1.6",
     "ember-metrics": "^0.13.0",
-    "ember-metrics-mixins": "^0.4.0",
+    "ember-metrics-mixins": "^1.0.0",
     "ember-moment": "^7.4.1",
     "ember-percy": "^1.2.18",
     "ember-resolver": "^5.0.1",
