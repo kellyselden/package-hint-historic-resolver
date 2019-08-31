@@ -39,7 +39,7 @@
     "ember-cli-dependency-checker": "^3.0.0",
     "ember-cli-eslint": "^5.0.0",
     "ember-cli-htmlbars": "^3.0.0",
-    "ember-cli-htmlbars-inline-precompile": "^2.0.0",
+    "ember-cli-htmlbars-inline-precompile": "^3.0.0",
     "ember-cli-inject-live-reload": "^2.0.0",
     "ember-cli-moment-shim": "^3.0.0",
     "ember-cli-pretender": "^3.0.0",
